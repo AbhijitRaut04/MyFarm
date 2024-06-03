@@ -14,6 +14,11 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    category: {
+        type: String,
+        enum: ['Seeds', 'Seedlings', 'Medicines', 'Equipment'],
+        required: true
+    },
     shopkeeper: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Shopkeeper',

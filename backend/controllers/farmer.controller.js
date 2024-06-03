@@ -6,7 +6,7 @@ const createFarmer = async (req, res) => {
         const farmerData = req.body;
         const farmer = await Farmer.create(farmerData);
         res.status(201).send(farmer);
-        console.log("Data inserted successfully")
+        console.log("Farmer registered successfully")
     } catch (error) {
         res.status(500).send({ error: 'Data not inserted', message: error.message });
     }
