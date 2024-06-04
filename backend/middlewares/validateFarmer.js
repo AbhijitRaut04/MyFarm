@@ -1,6 +1,7 @@
 const validateFarmer = (req, res, next) => {
-    const { name, email, password, age, location } = req.body;
-    if (!name || !email || !password || !age || !location) {
+    const { username, email, password, age, location } = req.body;
+    if (!username || !email || !password || !age || !location) {
+        console.log("All fields required!")
         return res.status(400).send('All fields are required');
     }
     next();

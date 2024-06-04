@@ -8,7 +8,28 @@ import logoImg from '../assets/react.svg';
 
 const Signin = ({changePerson}) => {
   const { register, handleSubmit } = useForm();
-  const onSubmit = data => console.log(data);
+
+  const onSubmit = async (data) => {
+    console.log(data);
+    try {
+      console.log("trying to send data");
+      const response = await fetch("api/farmers/login", {
+        method: "POST",
+        headers: {
+          "Content-type" : "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+      console.log("Success:", result);
+    }
+    catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  
+  
   return (
     <Container>
       <ImageSection />

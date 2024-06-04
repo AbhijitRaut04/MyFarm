@@ -7,16 +7,34 @@ import logoImg from '../assets/react.svg';
 
 
 const Signin = ({changePerson}) => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
-    const onSubmit = data => console.log(data);
+  const { register, handleSubmit } = useForm();
+  
+  const onSubmit = async (data) => {
+    console.log(data);
+    try {
+      console.log("trying to send data");
+      const response = await fetch("api/farmers/", {
+        method: "POST",
+        headers: {
+          "Content-type" : "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+      console.log("Success:", result);
+    }
+    catch (error) {
+      console.error("Error:", error);
+    }
+  };
   return (
     <Container>
       <ImageSection />
       <FormSection>
         <FormWrapper>
           <div className='logo-div'>
-              <Logo src={logoImg} alt="Logo" />
-              <h1>sneat</h1>
+              <h1>SignUp</h1>
           </div>
           <Title>Adventure starts here 🚀</Title>
           <Subtitle>Make your app management easy and fun!</Subtitle>
@@ -26,6 +44,10 @@ const Signin = ({changePerson}) => {
             <Input {...register("email", { required: true })} type="email" placeholder="Email" required />
             
             <Input {...register("password", { required: true })} type="password" placeholder="Password" required />
+
+            <Input {...register("age", { required: true })} type="number" placeholder="Age" required />
+
+            <Input {...register("location", { required: true })} type="text" placeholder="Location" required />
 
             <CheckboxWrapper>
               <label>
@@ -61,7 +83,7 @@ export default Signin;
 
 const Container = styled.div`
   display: flex;
-  height: 100vh;
+  // height: 100vh;
 `;
 
 const ImageSection = styled.div`
