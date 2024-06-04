@@ -35,6 +35,7 @@ const Signin = ({changePerson}) => {
         <FormWrapper>
           <div className='logo-div'>
               <h1>SignUp</h1>
+              <h1>SignUp</h1>
           </div>
           <Title>Adventure starts here 🚀</Title>
           <Subtitle>Make your app management easy and fun!</Subtitle>
@@ -44,6 +45,10 @@ const Signin = ({changePerson}) => {
             <Input {...register("email", { required: true })} type="email" placeholder="Email" required />
             
             <Input {...register("password", { required: true })} type="password" placeholder="Password" required />
+
+            <Input {...register("age", { required: true })} type="number" placeholder="Age" required />
+
+            <Input {...register("location", { required: true })} type="text" placeholder="Location" required />
 
             <Input {...register("age", { required: true })} type="number" placeholder="Age" required />
 
@@ -83,6 +88,7 @@ export default Signin;
 
 const Container = styled.div`
   display: flex;
+  // height: 100vh;
   // height: 100vh;
 `;
 

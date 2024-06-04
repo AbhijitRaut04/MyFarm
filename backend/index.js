@@ -5,6 +5,9 @@ import shopkeeperRoutes from './routes/shopkeeper.routes.js'
 import expertRoutes from './routes/expert.routes.js'
 import bodyParser from 'body-parser'
 import cors from 'cors'
+import expertRoutes from './routes/expert.routes.js'
+import bodyParser from 'body-parser'
+import cors from 'cors'
 import dotenv from 'dotenv'
 dotenv.config({
     path: './.env'
@@ -20,6 +23,7 @@ app.use(cors({
 }));
 app.use('/api/farmers', farmerRoutes);
 app.use('/api/shopkeepers', shopkeeperRoutes);
+app.use('/api/experts', expertRoutes);
 app.use('/api/experts', expertRoutes);
 
 app.get('/', (req, res) => {
