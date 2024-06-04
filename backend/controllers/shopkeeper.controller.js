@@ -27,7 +27,7 @@ const getShopkeeper = async (req, res) => {
     try {
         const shopkeeper = await Shopkeeper.findById(req.params.id);
         if (!shopkeeper) {
-            return res.status(404).send('ShopgetShopkeeper not found');
+            return res.status(404).send('Shopkeeper not found');
         }
         res.status(200).send(shopkeeper);
     } catch (error) {

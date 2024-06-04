@@ -1,9 +1,10 @@
 import mongoose from 'mongoose';
 
 const farmerSchema = new mongoose.Schema({
-    name: {
+    username: {
         type: String,
-        required: true
+        required: true,
+        unique:true
     },
     email: {
         type: String,
@@ -18,6 +19,14 @@ const farmerSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    followers:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Farmer'
+    }],
+    following:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Farmer'
+    }],
     location: {
         type: String,
         required: true
