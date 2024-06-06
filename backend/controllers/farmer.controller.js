@@ -12,6 +12,25 @@ const createFarmer = async (req, res) => {
     }
 }
 
+// login farmer
+const loginFarmer = async (req, res) => {
+    try{
+        const data = req.body;
+        const farmer = await Farmer.findOne({email:data.email, password:data.password});
+        if(!farmer){
+            console.log("Farmer does not exists")
+            res.status(401).send({message:"Farmer not registered yet!"})
+        }
+        else{
+            console.log("Farmer Logged in")
+            res.status(201).send({message:"Farmer Exists"});
+        }
+    }
+    catch(error){
+        res.status(500).send({error:'Can\'t Login', message:error.message});
+    }
+}
+
 // Get all farmers
 const getFarmers = async (req, res) => {
     try {
@@ -63,6 +82,7 @@ const deleteFarmer = async (req, res) => {
 
 export {
     createFarmer,
+    loginFarmer,
     getFarmers,
     getFarmer,
     updateFarmer,

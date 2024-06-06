@@ -8,7 +8,6 @@ import logoImg from '../assets/react.svg';
 
 const Signin = ({changePerson}) => {
   const { register, handleSubmit } = useForm();
-  
   const onSubmit = async (data) => {
     console.log(data);
     try {
@@ -22,7 +21,12 @@ const Signin = ({changePerson}) => {
       });
 
       const result = await response.json();
-      console.log("Success:", result);
+      if(result.message){
+        console.log("Something went wrong")
+      }
+      else{
+        console.log("Success:", result);
+      }
     }
     catch (error) {
       console.error("Error:", error);
