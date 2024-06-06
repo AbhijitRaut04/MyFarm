@@ -8,24 +8,28 @@ import logoImg from '../assets/react.svg';
 
 const Signin = ({changePerson}) => {
   const { register, handleSubmit } = useForm();
+
   const onSubmit = async (data) => {
-    const response = await fetch("http://localhost:5000/api/farmers/login", {
+    console.log(data);
+    try {
+      console.log("trying to send data");
+      const response = await fetch("api/farmers/login", {
         method: "POST",
         headers: {
           "Content-type" : "application/json"
         },
         body: JSON.stringify(data)
       });
+
       const result = await response.json();
-      if(result.message === "Farmer Exists"){
-        console.log("Login Successfully")
-        // redirect to home page
-      }
-      else{
-        alert("Farmer doesnot exists")
-        // redirect to registration page
-      }
-  }
+      console.log("Success:", result);
+    }
+    catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  
+  
   return (
     <Container>
       <ImageSection />
