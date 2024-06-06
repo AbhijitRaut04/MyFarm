@@ -8,7 +8,7 @@ export default defineConfig({
       '/api': {
 
         //backend server url here
-        target: 'http://localhost:3000',
+        target: 'http://localhost:5000',
 
         // target: 'https://agro-star-backend.vercel.app',
         changeOrigin: true,
