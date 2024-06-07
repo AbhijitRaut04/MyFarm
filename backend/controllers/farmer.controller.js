@@ -1,4 +1,4 @@
-import generateJWTToken from '../db/generateToken.js';
+import {generateJWTToken} from '../db/generateToken.js';
 import {encryptData, comparePasswords} from '../db/hashPassword.js';
 import Farmer from '../models/farmer.models.js';
 // Create a new farmer
@@ -8,10 +8,6 @@ const createFarmer = async (req, res) => {
         const hash_pass = await encryptData(info.password);
         info.password = hash_pass;
         const farmer = await Farmer.create(info);
-        
-        const token = generateJWTToken(farmer);
-
-        res.cookie("token" , token)
 
         res.status(201).send({
             farmer:"Farmer registered successfully",
@@ -37,7 +33,7 @@ const loginFarmer = async (req, res) => {
             console.log("Farmer Logged in")
             const token =  generateJWTToken(farmer);
 
-            res.cookie("token1" , token)
+            res.cookie("token" , token)
             res.status(201).send({message:"Farmer Exists"});
         }
     }
