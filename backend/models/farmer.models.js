@@ -1,4 +1,8 @@
 import mongoose from 'mongoose';
+import dotenv from 'dotenv'
+dotenv.config({
+    path: './.env'
+  })
 
 const farmerSchema = new mongoose.Schema({
     username: {
@@ -36,6 +40,9 @@ const farmerSchema = new mongoose.Schema({
         ref: 'Post'
     }]
 });
+
+
+
 
 const Farmer = mongoose.model('Farmer', farmerSchema);
 

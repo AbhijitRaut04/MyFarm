@@ -9,9 +9,7 @@ import logoImg from '../assets/react.svg';
 const Signin = ({changePerson}) => {
   const { register, handleSubmit } = useForm();
   const onSubmit = async (data) => {
-    console.log(data);
     try {
-      console.log("trying to send data");
       const response = await fetch("api/farmers/", {
         method: "POST",
         headers: {
@@ -22,7 +20,7 @@ const Signin = ({changePerson}) => {
 
       const result = await response.json();
       if(result.message){
-        console.log("Something went wrong")
+        console.log(result.message)
       }
       else{
         console.log("Success:", result);
@@ -54,10 +52,7 @@ const Signin = ({changePerson}) => {
 
             <Input {...register("location", { required: true })} type="text" placeholder="Location" required />
 
-            <Input {...register("age", { required: true })} type="number" placeholder="Age" required />
-
-            <Input {...register("location", { required: true })} type="text" placeholder="Location" required />
-
+            
             <CheckboxWrapper>
               <label>
                 <Checkbox type="checkbox" required />

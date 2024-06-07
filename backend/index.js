@@ -4,6 +4,7 @@ import farmerRoutes from './routes/farmers.routes.js'
 import shopkeeperRoutes from './routes/shopkeeper.routes.js'
 import expertRoutes from './routes/expert.routes.js'
 import bodyParser from 'body-parser'
+import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import dotenv from 'dotenv'
 dotenv.config({
@@ -14,6 +15,7 @@ connectDB()
 
 app.use(express.json());
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(cors({
     origin : ['http://localhost:5173', 'https://agro-star.vercel.app'],
     credentials: true

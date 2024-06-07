@@ -1,11 +1,22 @@
+import generateJWTToken from '../db/generateToken.js';
+import {encryptData, comparePasswords} from '../db/hashPassword.js';
 import Farmer from '../models/farmer.models.js';
-
 // Create a new farmer
 const createFarmer = async (req, res) => {
     try {
-        const farmerData = req.body;
-        const farmer = await Farmer.create(farmerData);
-        res.status(201).send(farmer);
+        const info = req.body;
+        const hash_pass = await encryptData(info.password);
+        info.password = hash_pass;
+        const farmer = await Farmer.create(info);
+        
+        const token = generateJWTToken(farmer);
+
+        res.cookie("token" , token)
+
+        res.status(201).send({
+            farmer:"Farmer registered successfully",
+            userId:farmer._id.toString()
+        });
         console.log("Farmer registered successfully")
     } catch (error) {
         res.status(500).send({ error: 'Data not inserted', message: error.message });
@@ -16,13 +27,17 @@ const createFarmer = async (req, res) => {
 const loginFarmer = async (req, res) => {
     try{
         const data = req.body;
-        const farmer = await Farmer.findOne({email:data.email, password:data.password});
+        const farmer = await Farmer.findOne({email:data.email});
         if(!farmer){
             console.log("Farmer does not exists")
             res.status(401).send({message:"Farmer not registered yet!"})
         }
         else{
+            if(!comparePasswords(data.password, farmer.password)) res.status(500).send({message:"Invalid credentials"})
             console.log("Farmer Logged in")
+            const token =  generateJWTToken(farmer);
+
+            res.cookie("token1" , token)
             res.status(201).send({message:"Farmer Exists"});
         }
     }
