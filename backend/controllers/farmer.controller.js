@@ -38,9 +38,21 @@ const loginFarmer = async (req, res) => {
         }
     }
     catch(error){
-        res.status(500).send({error:'Can\'t Login', message:error.message});
+        res.status(500).send({message:"Invalid credentials"});
     }
 }
+
+// logout farmer
+const logoutFarmer = (req, res) => {
+    try{
+        res.cookie("token" , "")
+        res.status(201).send({message:"Logout Successfully"});
+    }
+    catch(error){
+        res.status(500).send({message:"Invalid credentials"});
+    }
+}
+
 
 // Get all farmers
 const getFarmers = async (req, res) => {
@@ -97,5 +109,6 @@ export {
     getFarmers,
     getFarmer,
     updateFarmer,
-    deleteFarmer
+    deleteFarmer,
+    logoutFarmer
 }

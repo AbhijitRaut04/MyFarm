@@ -27,7 +27,7 @@ const verifyToken = (req, res) => {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
       req.user = decoded; 
-      res.status(201).send({message: "Logged in", isLoggedIn : true})
+      res.status(201).send({message: "Logged in", isLoggedIn : true});
     } catch (error) {
       res.status(401).send({ error: 'Invalid token' });
     }
