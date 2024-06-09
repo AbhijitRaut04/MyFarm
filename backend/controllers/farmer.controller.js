@@ -46,6 +46,7 @@ const loginFarmer = async (req, res) => {
 const logoutFarmer = (req, res) => {
     try{
         res.cookie("token" , "")
+        console.log("Farmer logout")
         res.status(201).send({message:"Logout Successfully"});
     }
     catch(error){
