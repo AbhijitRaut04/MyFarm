@@ -2,8 +2,8 @@ import Farmer from "../models/farmer.models.js";
 const validateFarmer = async (req, res, next) => {
     const { username, email, password, age, location } = req.body;
     const farmer = await Farmer.findOne({username,email})
-    if(farmer){
-        return res.status(500).send({msg:"Farmer Exists"})
+    if(!farmer){
+        return res.status(500).send({msg:"Farmer does not Exists"})
     }
     if (!username || !email || !password || !age || !location) {
         console.log("All fields required!")

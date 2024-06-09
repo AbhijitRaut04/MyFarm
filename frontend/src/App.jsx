@@ -12,7 +12,7 @@ const App = () => {
     setNewPerson((prev) => !prev)
   }
   useEffect(() => {
-    fetch('/api/verify', {
+    fetch('/api/verifyToken', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

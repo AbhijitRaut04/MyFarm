@@ -9,8 +9,7 @@ const postSchema = new mongoose.Schema({
     video: String,
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Farmer',
-        required: true
+        ref: 'Farmer'
     },
     likes: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -30,6 +29,10 @@ const postSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    isPublic:{
+        type:Boolean,
+        default:true
     }
 });
 
