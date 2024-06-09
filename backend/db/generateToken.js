@@ -26,11 +26,11 @@ const verifyToken = (req, res) => {
   
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-      if(decoded){ 
-        console.log("JWT token is verified")
+      if (decoded) {
+        console.log("JWT Token Verified")
         res.status(201).send({message: "Logged in",farmer:decoded, isLoggedIn : true});
       }
-      else{
+      else {
         res.status(401).send({ error: 'Invalid token', isLoggedIn : false });
       }
     } catch (error) {
