@@ -3,8 +3,6 @@ import { useForm } from 'react-hook-form';
 import styled from 'styled-components';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import backgroundImage from '../assets/signupimg.png';
-import logoImg from '../assets/react.svg';
-
 
 const Signin = ({changePerson}) => {
   const { register, handleSubmit } = useForm();
