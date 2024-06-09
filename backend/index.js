@@ -7,6 +7,7 @@ import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import { verifyToken } from './db/generateToken.js'
 dotenv.config({
     path: './.env'
 })
@@ -23,6 +24,7 @@ app.use(cors({
 app.use('/api/farmers', farmerRoutes);
 app.use('/api/shopkeepers', shopkeeperRoutes);
 app.use('/api/experts', expertRoutes);
+app.use('/api/verify', verifyToken);
 
 app.get('/', (req, res) => {
     res.send("Hi there")
