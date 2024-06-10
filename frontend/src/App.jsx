@@ -60,6 +60,7 @@ const App = () => {
       <Routes>
         <Route path="/home" element={<Home />} />
         <Route path="/signin" element={<Signin changePerson={changePerson} />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/" element={isLoading ? <div>Loading</div> : (newPerson ? <Signin changePerson={changePerson} /> : <ProfilePage />)} />
       </Routes>
