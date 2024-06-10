@@ -19,14 +19,18 @@ connectDB()
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(cors({
-    origin : ['http://localhost:5173', 'https://agro-star.vercel.app'],
+    origin: ['http://localhost:5173', 'https://agro-star.vercel.app'],
     credentials: true
 }));
 app.use('/api/farmers', farmerRoutes);
 app.use('/api/shopkeepers', shopkeeperRoutes);
 app.use('/api/experts', expertRoutes);
-app.use('/api/post', postRoutes);
+app.use('/api/posts', postRoutes);
 app.use('/api/verify', verifyToken);
+
+// app.use('/api/posts', );
+
+const postsData = 
 
 app.get('/', (req, res) => {
     res.send("Hi there")
