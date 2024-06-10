@@ -3,6 +3,7 @@ import connectDB from './db/connect.js'
 import farmerRoutes from './routes/farmers.routes.js'
 import shopkeeperRoutes from './routes/shopkeeper.routes.js'
 import expertRoutes from './routes/expert.routes.js'
+import postRoutes from './routes/post.routes.js'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
@@ -14,7 +15,7 @@ dotenv.config({
 const app = express()
 connectDB()
 
-app.use(express.json());
+// app.use(express.json());
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(cors({
@@ -24,6 +25,7 @@ app.use(cors({
 app.use('/api/farmers', farmerRoutes);
 app.use('/api/shopkeepers', shopkeeperRoutes);
 app.use('/api/experts', expertRoutes);
+app.use('/api/post', postRoutes);
 app.use('/api/verify', verifyToken);
 
 app.get('/', (req, res) => {
