@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+
 import Signin from './components/Signin'
 import Signup from './components/Signup'
 import ProfilePage from './components/ProfilePage';
+import Home from './components/Home';
 import './App.css'
 
 const App = () => {
@@ -35,18 +38,33 @@ const App = () => {
       setIsLoading(false);
     });
   
-    return () => {
-      // second
-      //what can be done here
-    }
+    // return () => {
+    //   // second
+    //   //what can be done here
+    // }
   }, []);
+
+  // return (
+  //   <Home />
+  // )
     
   return (
       <>
-        {
+        {/* {
           isLoading ? <div>Loading</div> : 
           (newPerson) ? <Signin changePerson={changePerson} /> : <ProfilePage />
-        }
+
+        } */}
+
+<Router>
+      <Routes>
+        <Route path="/home" element={<Home />} />
+        <Route path="/signin" element={<Signin changePerson={changePerson} />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/" element={isLoading ? <div>Loading</div> : (newPerson ? <Signin changePerson={changePerson} /> : <ProfilePage />)} />
+      </Routes>
+    </Router>
         
       </>
     )

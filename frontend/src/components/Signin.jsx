@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form';
 import styled from 'styled-components';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import backgroundImage from '../assets/signinimg.png';
-import logoImg from '../assets/react.svg';
 
 
 const Signin = ({changePerson}) => {
@@ -36,7 +35,7 @@ const Signin = ({changePerson}) => {
       <FormSection>
         <FormWrapper>
           <div className='logo-div'>
-              <Logo src={logoImg} alt="Logo" />
+              <Logo src="./src\assets\shop.jpg" alt="Logo" />
               <h1>sneat</h1>
           </div>
           <Title>Welcome to Sneat! 👋</Title>
