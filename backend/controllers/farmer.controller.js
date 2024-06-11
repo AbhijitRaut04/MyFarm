@@ -29,12 +29,14 @@ const loginFarmer = async (req, res) => {
             res.status(401).send({message:"Farmer not registered yet!"})
         }
         else{
-            if(!comparePasswords(data.password, farmer.password)) res.status(500).send({message:"Invalid credentials"})
-            console.log("Farmer Logged in")
-            const token =  generateJWTToken(farmer);
+            if(!comparePasswords(data.password, farmer.password)) return res.status(500).send({message:"Invalid credentials"});
+            else{
+                console.log("Farmer Logged in")
+                const token =  generateJWTToken(farmer);
 
-            res.cookie("token" , token)
-            res.status(201).send({message:"Farmer Exists"});
+                res.cookie("token" , token)
+                res.status(201).send({token:token});
+            }
         }
     }
     catch(error){

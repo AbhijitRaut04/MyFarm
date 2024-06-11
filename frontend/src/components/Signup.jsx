@@ -3,9 +3,32 @@ import { useForm } from 'react-hook-form';
 import styled from 'styled-components';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import backgroundImage from '../assets/signupimg.png';
+import { useNavigate, Link } from 'react-router-dom';
 
-const Signin = ({changePerson}) => {
+const Signup = () => {
+  const navigate = useNavigate();
   const { register, handleSubmit } = useForm();
+
+  fetch('/api/verify', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+  .then(response => response.json())
+  .then(
+    (data) => {
+      console.log(data);
+      if(data.isLoggedIn) {
+        navigate('/home');
+      }
+    }
+  )
+  .catch((error) => {
+    console.error('Error:', error);
+  })
+
+
   const onSubmit = async (data) => {
     try {
       const response = await fetch("api/farmers/", {
@@ -22,6 +45,7 @@ const Signin = ({changePerson}) => {
       }
       else{
         console.log("Success:", result);
+        navigate('/signin')
       }
     }
     catch (error) {
@@ -61,7 +85,7 @@ const Signin = ({changePerson}) => {
             <Button type="submit">SIGN UP</Button>
             
             <TextLink>
-                Already have an account? <a onClick={changePerson}>Sign in instead</a>
+                Already have an account? <Link to={'/signin'}>Sign in instead</Link>
             </TextLink>
           </Form>
           <Divider>or</Divider>
@@ -77,7 +101,7 @@ const Signin = ({changePerson}) => {
   );
 };
 
-export default Signin;
+export default Signup;
 
 
 

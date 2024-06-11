@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcrypt'
 import dotenv from 'dotenv'
 dotenv.config({
     path: './.env'
@@ -20,7 +20,15 @@ const encryptData = async (password) => {
 
 
 const comparePasswords = async(password, hash) => {
-    return await bcrypt.compare(password, hash);
+    // problem in compare password
+    try{
+        const result = await bcrypt.compare(password, hash);
+        return result;
+    }
+    catch(error){
+        console.log(error)
+        return false;
+    }
 }
 
 

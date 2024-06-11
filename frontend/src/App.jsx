@@ -8,66 +8,21 @@ import Home from './components/Home';
 import './App.css'
 
 const App = () => {
-  const [newPerson, setNewPerson] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
-  const [personData, setPersonData] = useState({});
-  const changePerson = () => {
-    setNewPerson((prev) => !prev)
-  }
-  useEffect(() => {
-    fetch('/api/verifyToken', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(response => response.json())
-    .then(
-      (data) => {
-        console.log(data);
-        if(data.isLoggedIn) {
-          setNewPerson(false);
-          setPersonData(data);
-        }
-      }
-    )
-    .catch((error) => {
-      console.error('Error:', error);
-    })
-    .finally(() => {
-      setIsLoading(false);
-    });
-  
-    // return () => {
-    //   // second
-    //   //what can be done here
-    // }
-  }, []);
-
-  // return (
-  //   <Home />
-  // )
-    
   return (
-      <>
-        {/* {
-          isLoading ? <div>Loading</div> : 
-          (newPerson) ? <Signin changePerson={changePerson} /> : <ProfilePage />
+    <>
 
-        } */}
+      <Router>
+        <Routes>
+          <Route path="/home" element={<Home />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/signin" element={<Signin />} />
+          <Route path="/signup" element={<Signup />} />
 
-<Router>
-      <Routes>
-        <Route path="/home" element={<Home />} />
-        <Route path="/signin" element={<Signin changePerson={changePerson} />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/" element={isLoading ? <div>Loading</div> : (newPerson ? <Signin changePerson={changePerson} /> : <ProfilePage />)} />
-      </Routes>
-    </Router>
-        
-      </>
-    )
+        </Routes>
+      </Router>
+
+    </>
+  )
 }
 
 export default App

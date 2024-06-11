@@ -3,10 +3,31 @@ import { useForm } from 'react-hook-form';
 import styled from 'styled-components';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import backgroundImage from '../assets/signinimg.png';
+import { Link, useNavigate } from 'react-router-dom';
 
 
-const Signin = ({changePerson}) => {
+const Signin = () => {
+  const navigate = useNavigate();
   const { register, handleSubmit } = useForm();
+
+    fetch('/api/verify', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => response.json())
+    .then(
+      (data) => {
+        console.log(data);
+        if(data.isLoggedIn) {
+          navigate('/home');
+        }
+      }
+    )
+    .catch((error) => {
+      console.error('Error:', error);
+    })
 
   const onSubmit = async (data) => {
     console.log(data);
@@ -22,6 +43,9 @@ const Signin = ({changePerson}) => {
 
       const result = await response.json();
       console.log("Success:", result);
+      if(!result.message)
+        navigate('/profile')
+      else alert(result.message)
     }
     catch (error) {
       console.error("Error:", error);
@@ -52,7 +76,7 @@ const Signin = ({changePerson}) => {
             </CheckboxWrapper>
             <Button type="submit">SIGN IN</Button>
             <TextLink>
-              New on our platform? <a onClick={changePerson}>Create an account</a>
+              New on our platform? <Link to={'/signup'}>Create an account</Link>
             </TextLink>
           </Form>
           <Divider>or</Divider>

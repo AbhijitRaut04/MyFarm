@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const ProfileContainer = styled.div`
@@ -132,6 +133,30 @@ const PostOverlay = styled.div`
 `;
 
 const ProfilePage = () => {
+
+    const navigate = useNavigate();
+
+    fetch('/api/verify', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => response.json())
+    .then(
+      (data) => {
+        console.log(data);
+        if(!data.isLoggedIn) {
+          navigate('/signin');
+        }
+      }
+    )
+    .catch((error) => {
+      console.error('Error:', error);
+    })
+
+
+
   return (
     <ProfileContainer>
       <Header>
