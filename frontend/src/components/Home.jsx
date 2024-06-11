@@ -1,45 +1,23 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import styled from "styled-components";
+import axios from "axios";
+import Post from "./Post";
+import CreatePost from "./CreatePost";
+import UserContext from "../context/UserContext";
 
 const Home = () => {
-  // const categories = ["All Crops", "Knowledge", "Discussions", "AgriStore"];
   const categories = [
     { path: "./src/assets/allCrops.jpg", heading: "All Crops" },
     { path: "./src/assets/knowledge.png", heading: "Knowledge" },
     { path: "./src/assets/discussion.jpg", heading: "Discussion" },
     { path: "./src/assets/shop.jpg", heading: "AgriStore" },
-    // add more objects as needed
   ];
 
   // ...
 
-  const handleLikeClick = () => {
-    console.log('Like button clicked');
-    // Add your functionality here
-  };
-
-  const handleCommentClick = () => {
-    console.log('Comment button clicked');
-    // Add your functionality here
-  };
-
-  const handleEditClick = () => {
-    console.log('Edit button clicked');
-    // Add your functionality here
-  };
-
-  const handleBookmarkClick = () => {
-    console.log('Bookmark button clicked');
-    // Add your functionality here
-  };
-
-  const handleDeleteClick = () => {
-    console.log('Delete button clicked');
-    // Add your functionality here
-  };
+  const { posts, setPosts } = useContext(UserContext);
 
   // ...
-
 
   return (
     <>
@@ -88,38 +66,11 @@ const Home = () => {
           </SearchBar>
 
           {/* Temporary code */}
+          {posts.map((post) => (
+            <Post key={post.id} post={post} />
+          ))}
 
-          <Post>
-            <UserInfo>
-              <UserData>
-                <UserProfile src="./src\assets\discussion.jpg" />
-                <UserName>Cillian Murphy</UserName>
-              </UserData>
-              <PostMenu src="./src\assets\burger-menu.svg" />
-            </UserInfo>
-            <PostMedia src="./src\assets\post1.jpg" />
-            <PostInfo>
-              <button onClick={handleLikeClick}>
-                <i className="fa-regular fa-heart like"></i>
-              </button>
-              <button onClick={handleCommentClick}>
-                <i className="fa-regular fa-comment"></i>
-              </button>
-              <button onClick={handleEditClick}>
-                <i className="fa-regular fa-pen-to-square"></i>
-              </button>
-              <button onClick={handleBookmarkClick}>
-                <i className="fa-regular fa-bookmark"></i>
-              </button>
-              <button onClick={handleDeleteClick}>
-                <i className="fa-regular fa-trash-can"></i>
-              </button>
-            </PostInfo>
-            {/* <PostDetails> */}
-            {/* views */}
-            {/* description */}
-            {/* </PostDetails> */}
-          </Post>
+          <CreatePost />
 
           <BlankSpace></BlankSpace>
           {/* Temporary code */}
@@ -149,6 +100,7 @@ const HeaderAndCategory = styled.div`
   position: sticky;
   top: 0;
   border-bottom: 2px solid #dddddd;
+  z-index: 100;
 `;
 
 const Header = styled.div`
@@ -249,61 +201,6 @@ const InputBox = styled.div`
 `;
 
 // Temporary Code
-
-const Post = styled.div`
-  width: 80%;
-  height: 500px;
-  margin: 0 auto;
-  margin-top: 20px;
-  background-color: #fff;
-  border-radius: 20px;
-`;
-
-const UserInfo = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 30px;
-  /* background-color: #afdaaf; */
-`;
-
-const UserData = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-`;
-const UserProfile = styled.img`
-  width: 45px;
-  border-radius: 50%;
-`;
-
-const UserName = styled.div``;
-
-const PostMenu = styled.img`
-  width: 25px;
-`;
-
-const PostMedia = styled.img`
-  object-fit: cover;
-  width: 100%;
-  height: 375px;
-
-  /* height: 300px; */
-  /* background-color: #ad5858; */
-`;
-
-const PostInfo = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 30px;
-  /* background-color: #afdaaf; */
-  button {
-    font-size: 1.5rem;
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-  }
-`;
 
 // Temporary code
 
