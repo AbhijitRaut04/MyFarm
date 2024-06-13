@@ -4,22 +4,18 @@ import Post from '../models/post.models.js';
 // Create a new post
 const createPost = async (req, res) => {
     try {
-        const { content, farmer, isPublic } = req.body
-
-        // const imageLocalPath = req.files;
-        console.log(req.body);
-        // const post = await Post.create({
-        //     content,
-        //     image : imageUrl,// use cloudinary
-        //     createdBy : farmerId,
-        //     isPublic
-        // });
-
-        res.status(201).send({
-            post: "Post created successfully",
-            // postid:post._id.toString()
+        const { description,  isPublic, imageUrl } = req.body
+        const farmer = req.farmer;
+        const post = await Post.create({
+            content : description,
+            file: imageUrl,
+            createdBy: farmer._id,
+            isPublic
         });
+        
         console.log("Post created successfully")
+        console.log(post);
+        res.status(201).send({ post: "Post created successfully", postid:post._id.toString() });
     } catch (error) {
         res.status(500).send({ error: 'Data not inserted', message: error.message });
     }
@@ -48,7 +44,6 @@ const getFeeds = async (req, res) => {
             Promise.all(publicPostsPromises)
                 .then((postObjArrays) => {
                     publicPosts = [...publicPosts, ...postObjArrays];
-                    console.log(publicPosts)
                     return res.status(201).send(publicPosts);
                 })
         }

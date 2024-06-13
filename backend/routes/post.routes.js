@@ -7,8 +7,8 @@ import { upload } from '../middlewares/multer.js';
 const router = express.Router();
 
 
-router.post('/upload-image',isFarmerSignin, upload.single("image"), imageUpload)
-router.post('/createPost', isFarmerSignin, createPost)
+// router.post('/upload-image',isFarmerSignin, upload.single("image"), imageUpload)
+router.post('/createPost',isFarmerSignin, upload.single("media"), imageUpload, createPost)
 router.get('/', getLoginFarmer, getFeeds)
 router.get('/myPosts', isFarmerSignin, getCurrentFarmerPosts)
 router.get('/:id', getLoginFarmer, getPost)
