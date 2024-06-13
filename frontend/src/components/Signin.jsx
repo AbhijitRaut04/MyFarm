@@ -30,9 +30,7 @@ const Signin = () => {
     })
 
   const onSubmit = async (data) => {
-    console.log(data);
     try {
-      console.log("trying to send data");
       const response = await fetch("api/farmers/login", {
         method: "POST",
         headers: {

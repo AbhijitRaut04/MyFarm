@@ -28,9 +28,6 @@ app.use('/api/experts', expertRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/verify', verifyToken);
 
-// app.use('/api/posts', );
-
-const postsData = 
 
 app.get('/', (req, res) => {
     res.send("Hi there")

@@ -83,7 +83,7 @@ const getFarmer = async (req, res) => {
 // Update a farmer by ID
 const updateFarmer = async (req, res) => {
     try {
-        const farmer = await Farmer.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+        const farmer = await Farmer.findByIdAndUpdate(req.farmer._id, req.body, { new: true, runValidators: true });
         if (!farmer) {
             return res.status(404).send('Farmer not found');
         }

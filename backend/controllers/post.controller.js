@@ -1,22 +1,23 @@
 import Farmer from '../models/farmer.models.js';
 import Post from '../models/post.models.js';
-import { getFarmer } from './farmer.controller.js';
 
 // Create a new post
 const createPost = async (req, res) => {
     try {
-        const { content, image, farmerId, isPublic} = req.body
-        if(!farmerId) res.status(401).send("All fields require")
-        const post = await Post.create({
-            content,
-            image,// use cloudinary
-            createdBy:farmerId,
-            isPublic
-        });
+        const { content, farmer, isPublic } = req.body
+
+        // const imageLocalPath = req.files;
+        console.log(req.body);
+        // const post = await Post.create({
+        //     content,
+        //     image : imageUrl,// use cloudinary
+        //     createdBy : farmerId,
+        //     isPublic
+        // });
 
         res.status(201).send({
-            post:"Post created successfully",
-            postid:post._id.toString()
+            post: "Post created successfully",
+            // postid:post._id.toString()
         });
         console.log("Post created successfully")
     } catch (error) {
@@ -24,30 +25,110 @@ const createPost = async (req, res) => {
     }
 }
 
-
-// Get all posts
-const getPosts = async (req, res) => {
+// Get all feeds
+const getFeeds = async (req, res) => {
     try {
-        const { viewerId, farmerId} = req.body;
-        const farmer = await Farmer.findById(farmerId);
-        const followers = farmer.followers;
-        let posts = farmer.posts;
-        if(followers.indexOf(viewerId) !== -1){
-            console.log("Posts follower")
-            res.status(200).send(posts);
+
+        let allPosts = [];
+
+        // public posts
+        const pubPosts = await Post.find({ isPublic: true });
+
+
+        // Fetch current farmer's posts
+        const publicPostsPromises = pubPosts.map(async (postId) => {
+            let post = await Post.findById(postId);
+            return post;
+        });
+
+        const farmer = req.farmer;
+
+        if (!farmer) {
+            let publicPosts = [];
+            Promise.all(publicPostsPromises)
+                .then((postObjArrays) => {
+                    publicPosts = [...publicPosts, ...postObjArrays];
+                    console.log(publicPosts)
+                    return res.status(201).send(publicPosts);
+                })
         }
-        else{
-            // posts cannot filtering as per public or not
-            console.log("Posts")
-            let publicPosts = posts.filter(async (postId) =>{
-                const post = await Post.findById(postId)
-                const val = post.isPublic;
-                return val;
+        else {
+
+            const following = farmer.following;
+            const currentFarmerPosts = farmer.posts;
+
+            // Fetch current farmer's posts
+            const currentPostsPromises = currentFarmerPosts.map(async (postId) => {
+                let post = await Post.findById(postId);
+                return post;
             });
-            res.status(200).send(publicPosts)
+
+            // Fetch posts from following farmers
+            const followingPostsPromises = following.map(async (farmerId) => {
+                let farmer = await Farmer.findById(farmerId).select("posts");
+                const posts = farmer.posts;
+                const postPromises = posts.map(async (postId) => {
+                    let post = await Post.findById(postId);
+                    return post;
+                });
+                return Promise.all(postPromises);
+            });
+
+            // Combine all promises
+            Promise.all([Promise.all(currentPostsPromises), Promise.all(publicPostsPromises), ...followingPostsPromises])
+                .then((results) => {
+                    // Flatten the array of arrays
+                    results.forEach((postArray) => {
+                        allPosts = [...allPosts, ...postArray];
+                    });
+
+
+
+                    // Remove duplicates
+                    const uniquePosts = Array.from(new Set(allPosts.map(post => post._id.toString())))
+                        .map(id => {
+                            return allPosts.find(post => post._id.toString() === id);
+                        });
+
+                    return res.status(201).send(uniquePosts);
+
+
+                })
         }
+
+
     } catch (error) {
-        res.status(500).send(error);
+        res.status(502).send(error.message);
+    }
+}
+
+// Get current farmer posts
+const getCurrentFarmerPosts = async (req, res) => {
+    try {
+        const farmer = req.farmer;
+        const currentFarmerPosts = farmer.posts;
+
+        let currentPosts = [];
+
+        // Fetch current farmer's posts
+        const currentPostsPromises = currentFarmerPosts.map(async (postId) => {
+            let post = await Post.findById(postId);
+            return post;
+        });
+
+        Promise.all(currentPostsPromises)
+            .then((postObjArrays) => {
+                currentPosts = [...currentPosts, ...postObjArrays];
+                return res.status(201).send(currentPosts);
+            })
+            .catch((error) => {
+                console.error('Error fetching posts:', error);
+                return res.status(500).send('Internal Server Error');
+            });
+
+    }
+    catch (error) {
+        res.status(500).send({ error: error.message });
     }
 }
 
@@ -58,17 +139,21 @@ const getPost = async (req, res) => {
         if (!post) {
             return res.status(404).send('Post not found');
         }
-        if(post.isPublic){
-            res.status(200).send(post);
+        if (post.isPublic) {
+            return res.status(200).send(post);
         }
-        else{
-            const {viewerId, farmerId} = req.body;
-            const farmer = await Farmer.findById(farmerId);
-            const followers = farmer.followers;
-            if(followers.indexOf(viewerId) !== -1){
-                return res.status(200).send(post);
+        else {
+            const farmer = req.farmer;
+            if (farmer) {
+                const createdBy = post.createdBy;
+                const following = farmer.following;
+                if (following.indexOf(createdBy) !== -1) {
+                    return res.status(200).send(post);
+                }
             }
-            res.status(401).send({message : 'This post is Private'})
+            else {
+                return res.status(401).send({ message: 'This post is Private' })
+            }
         }
     } catch (error) {
         res.status(500).send(error);
@@ -78,11 +163,18 @@ const getPost = async (req, res) => {
 // Update a post by ID
 const updatePost = async (req, res) => {
     try {
-        const post = await Post.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-        if (!post) {
-            return res.status(404).send('Post not found');
+        const farmer = req.farmer;
+        const posts = farmer.posts;
+        if (posts.indexOf(req.params.id) === -1) {
+            return res.status(402).send({ message: "Only Posts Owner can Edit this post" });
         }
-        res.status(200).send(post);
+        else {
+            const post = await Post.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+            if (!post) {
+                return res.status(404).send('Post not found');
+            }
+            res.status(200).send(post);
+        }
     } catch (error) {
         res.status(500).send(error);
     }
@@ -91,11 +183,18 @@ const updatePost = async (req, res) => {
 // Delete a farmer by ID
 const deletePost = async (req, res) => {
     try {
-        const post = await Post.findByIdAndDelete(req.params.id);
-        if (!post) {
-            return res.status(404).send('Post not found');
+        const farmer = req.farmer;
+        const posts = farmer.posts;
+        if (posts.indexOf(req.params.id) === -1) {
+            return res.status(402).send({ message: "Only Posts Owner can Delete this post" });
         }
-        res.status(200).send('Post deleted');
+        else {
+            const post = await Post.findByIdAndDelete(req.params.id);
+            if (!post) {
+                return res.status(404).send('Post not found');
+            }
+            res.status(200).send('Post deleted');
+        }
     } catch (error) {
         res.status(500).send(error);
     }
@@ -103,7 +202,8 @@ const deletePost = async (req, res) => {
 
 export {
     createPost,
-    getPosts,
+    getFeeds,
+    getCurrentFarmerPosts,
     getPost,
     updatePost,
     deletePost

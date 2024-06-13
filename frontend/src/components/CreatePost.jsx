@@ -20,7 +20,7 @@ const CreatePost = () => {
     render.onload = () => {
       setPost({ ...post, media: render.result });
     };
-
+    console.log(post)
     if (file) {
       render.readAsDataURL(file);
     }
