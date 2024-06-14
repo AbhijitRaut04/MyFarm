@@ -5,7 +5,7 @@ import UserContext from "../context/UserContext";
 
 const Post = ({post}) => {
   const { setPosts } = useContext(UserContext);
-  console.log(post);
+  
 
 
 
@@ -77,11 +77,11 @@ const Post = ({post}) => {
           <UserProfile src="./src\assets\discussion.jpg" />
           <UserName>Cillian Murphy</UserName>
         </UserData>
-        <i class="fa-solid fa-bars"></i>
+        <i className="fa-solid fa-bars"></i>
       </UserInfo>
 
       <PostMedia>
-        <img src={post.media} alt="" />
+        <img src={post.file} alt="" />
       </PostMedia>
 
       <PostInfo>
@@ -103,8 +103,8 @@ const Post = ({post}) => {
       </PostInfo>
 
       <PostDetails>
-        <h2>{post.heading}</h2>
-        <p>{post.description}</p>
+        {/* <h2>{post.heading}</h2> */}
+        <p>{post.content}</p>
       </PostDetails>
     </PostWrapper>
   );

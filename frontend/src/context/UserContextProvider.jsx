@@ -10,7 +10,7 @@ const UserContextProvider = ({ children }) => {
       media: "./src/assets/post1.jpg",
       heading: "My first Post",
       description: "Hello everyone, like this post",
-    },
+    }
   ]);
 
 
@@ -18,7 +18,7 @@ const UserContextProvider = ({ children }) => {
   axios
     .get("/api/posts")
     .then((response) => {
-      setPosts(response);
+      setPosts(response.data);
     })
     .catch((error) => {
       console.error(`Error fetching data: ${error}`);

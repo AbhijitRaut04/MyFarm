@@ -13,14 +13,20 @@ cloudinary.config({
 
 const imageUpload = async (req, res, next) => {
   try {
-    const filePath = req.file.path;
-    if (!filePath) return res.status(400).send({ error: "No file uploaded" });
-
-    const response = await cloudinary.uploader.upload(filePath, { resource_type: "auto" })
-    fs.unlinkSync(filePath)
-    req.body.imageUrl = response.secure_url;
-    console.log("Image uploaded Successfully")
-    next()
+    if (!req.file) { next(); }
+    else {
+      const filePath = req.file.path;
+      if (!filePath) {
+        req.body.imageUrl = ""
+      }
+      else {
+        const response = await cloudinary.uploader.upload(filePath, { resource_type: "auto" })
+        fs.unlinkSync(filePath)
+        req.body.imageUrl = response.secure_url;
+        console.log("Image uploaded Successfully")
+      }
+      next()
+    }
   } catch (error) {
     if (req.file) fs.unlinkSync(req.file.path) // remove the locally saved temporary file as the upload operation got failed
     return res.status(500).send({ Error: error.message })

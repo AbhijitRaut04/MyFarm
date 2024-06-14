@@ -10,6 +10,9 @@ const farmerSchema = new mongoose.Schema({
         required: true,
         unique:true
     },
+    profilePhoto:{
+        type: String,
+    },
     email: {
         type: String,
         required: true,
@@ -38,7 +41,13 @@ const farmerSchema = new mongoose.Schema({
     posts: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Post'
-    }]
+    }],
+    saved:[
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Post'
+        }
+    ],
 });
 
 

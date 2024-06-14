@@ -17,6 +17,7 @@ const Home = () => {
 
   const { posts, setPosts } = useContext(UserContext);
 
+  
   // ...
 
   return (
@@ -66,9 +67,11 @@ const Home = () => {
           </SearchBar>
 
           {/* Temporary code */}
-          {posts.map((post) => (
-            <Post key={post.id} post={post} />
-          ))}
+          {
+
+            posts.map((post) => (
+              <Post key={post._id} post={post} />
+            ))}
 
           <CreatePost />
 
