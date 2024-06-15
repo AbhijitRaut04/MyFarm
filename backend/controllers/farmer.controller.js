@@ -119,8 +119,8 @@ const getFarmer = async (req, res) => {
                     profilePhoto: profilePhoto,
                     username: account.username,
                     publicPosts: [],
-                    countFollwers: account.followers.length,
-                    countFollowing: account.following.length
+                    followers: account.followers,
+                    following: account.following
                 }
                 // public posts
                 const pubPosts = account.posts;
@@ -201,6 +201,176 @@ const deleteFarmer = async (req, res) => {
     }
 }
 
+
+// get saved posts
+const getSavedPosts = async (req, res) => {
+    try {
+        const farmer = req.farmer;
+        const saved = farmer.saved;
+
+        let savedPosts = [];
+
+        // Fetch saved posts
+        const savedPostsPromises = saved.map(async (postId) => {
+            let post = await Post.findById(postId);
+            return post;
+        });
+
+        Promise.all(savedPostsPromises)
+            .then((postObjArrays) => {
+                savedPosts = [...savedPosts, ...postObjArrays];
+                return res.status(201).send(savedPosts);
+            })
+            .catch((error) => {
+                console.error('Error fetching posts:', error);
+                return res.status(500).send('Internal Server Error');
+            });
+    }
+    catch (error) {
+        console.error('Error fetching posts:', error);
+        res.status(500).send({ error: error.message });
+    }
+}
+
+// follow a farmer
+const followFarmer = async (req, res) => {
+    try {
+        const farmer = req.farmer;
+        let following = farmer.following;
+        following.push(req.params.id);
+        const updatedFarmer1 = await Farmer.updateOne(
+            { _id: farmer._id },
+            { $set: { following: following } }
+        )
+        if (!updatedFarmer1) {
+            return res.status(400).send("Farmer not found")
+        }
+
+        const followingTo = await Farmer.findById(req.params.id);
+
+        if (!followingTo) {
+            return res.status(400).send("Farmer not found")
+        }
+        let followers = followingTo.followers;
+        followers.push(farmer._id);
+        const updatedFarmer2 = await Farmer.updateOne(
+            { _id: req.params.id },
+            { $set: { followers: followers } }
+        )
+        return res.status(201).send(`You are now following to ${followingTo.username}`)
+
+    }
+    catch (error) {
+        res.status(501).send({ error: error.message })
+    }
+}
+
+// unfollow a farmer
+const unfollowFarmer = async (req, res) => {
+    try {
+        const farmer = req.farmer;
+        let following = farmer.following;
+        following = following.filter((item) => item !== farmer._id)
+        const updatedFarmer1 = await Farmer.updateOne(
+            { _id: farmer._id },
+            { $set: { following: following } }
+        )
+        if (!updatedFarmer1) {
+            return res.status(400).send("Farmer not found")
+        }
+
+        const followingTo = await Farmer.findById(req.params.id);
+
+        if (!followingTo) {
+            return res.status(400).send("Farmer not found")
+        }
+        let followers = followingTo.followers;
+        followers = followers.filter((item) => item !== req.params.id)
+
+        const updatedFarmer2 = await Farmer.updateOne(
+            { _id: req.params.id },
+            { $set: { followers: followers } }
+        )
+        return res.status(201).send(`${followingTo.username} is removed from your following accounts`)
+
+    }
+    catch (error) {
+        res.status(501).send({ error: error.message })
+    }
+}
+
+// get followers
+const getFollowers = async (req, res) => {
+    try {
+        const farmer = req.farmer;
+        const account = await Farmer.findById(req.params.id);
+        if (!account) return res.status(400).send("Farmer not found");
+
+
+        if (account.followers.indexOf(farmer._id) === -1) {
+            return res.status(401).send("You cannot view followers");
+        }
+
+        const followers = farmer.followers;
+
+        let followersList = [];
+
+        // Fetch followers
+        const followersListPromises = followers.map(async (postId) => {
+            let post = await Post.findById(postId);
+            return post;
+        });
+
+        Promise.all(followersListPromises)
+            .then((postObjArrays) => {
+                followersList = [...followersList, ...postObjArrays];
+                return res.status(201).send(followersList);
+            })
+            .catch((error) => {
+                console.error('Error fetching followers:', error);
+                return res.status(500).send('Internal Server Error');
+            });
+    } catch (error) {
+        return res.status(500).send({ error: error.message })
+    }
+}
+
+// get following
+const getFollowing = async (req, res) => {
+    try {
+        const farmer = req.farmer;
+        const account = await Farmer.findById(req.params.id);
+        if (!account) return res.status(400).send("Farmer not found");
+
+
+        if (account.followers.indexOf(farmer._id) === -1) {
+            return res.status(401).send("You cannot view followers");
+        }
+
+        const following = farmer.following;
+
+        let followingList = [];
+
+        // Fetch following
+        const followingListPromises = following.map(async (postId) => {
+            let post = await Post.findById(postId);
+            return post;
+        });
+
+        Promise.all(followingListPromises)
+            .then((postObjArrays) => {
+                followingList = [...followingList, ...postObjArrays];
+                return res.status(201).send(followingList);
+            })
+            .catch((error) => {
+                console.error('Error fetching following:', error);
+                return res.status(500).send('Internal Server Error');
+            });
+    } catch (error) {
+        return res.status(500).send({ error: error.message })
+    }
+}
+
 export {
     createFarmer,
     loginFarmer,
@@ -208,5 +378,10 @@ export {
     getFarmer,
     updateFarmer,
     deleteFarmer,
-    logoutFarmer
+    logoutFarmer,
+    getSavedPosts,
+    followFarmer,
+    unfollowFarmer,
+    getFollowers,
+    getFollowing
 }

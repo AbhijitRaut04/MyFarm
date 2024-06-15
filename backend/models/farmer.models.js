@@ -2,15 +2,15 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv'
 dotenv.config({
     path: './.env'
-  })
+})
 
 const farmerSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
-        unique:true
+        unique: true
     },
-    profilePhoto:{
+    profilePhoto: {
         type: String,
     },
     email: {
@@ -26,11 +26,11 @@ const farmerSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    followers:[{
+    followers: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Farmer'
     }],
-    following:[{
+    following: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Farmer'
     }],
@@ -42,12 +42,18 @@ const farmerSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Post'
     }],
-    saved:[
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Post'
-        }
-    ],
+    saved: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post'
+    }],
+    orders: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Order'
+    }],
+    cart: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'CartItem'
+    }]
 });
 
 
