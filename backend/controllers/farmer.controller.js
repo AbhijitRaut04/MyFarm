@@ -188,7 +188,7 @@ const updateFarmer = async (req, res) => {
     }
 }
 
-// Delete a farmer by ID
+// Delete a farmer
 const deleteFarmer = async (req, res) => {
     try {
         const farmer = await Farmer.findByIdAndDelete(req.farmer._id);
@@ -222,7 +222,7 @@ const getSavedPosts = async (req, res) => {
                 return res.status(201).send(savedPosts);
             })
             .catch((error) => {
-                console.error('Error fetching posts:', error);
+                console.log('Error fetching posts:', error);
                 return res.status(500).send('Internal Server Error');
             });
     }

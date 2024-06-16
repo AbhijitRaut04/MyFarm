@@ -13,7 +13,10 @@ cloudinary.config({
 
 const imageUpload = async (req, res, next) => {
   try {
-    if (!req.file) { next(); }
+    if (!req.file) { 
+      req.body.imageUrl = ""
+      next(); 
+    }
     else {
       const filePath = req.file.path;
       if (!filePath) {

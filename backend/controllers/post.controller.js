@@ -158,24 +158,42 @@ const getPost = async (req, res) => {
 // Update a post by ID
 const updatePost = async (req, res) => {
     try {
+        let {imageUrl} = req.body;
         const farmer = req.farmer;
         const posts = farmer.posts;
         if (posts.indexOf(req.params.id) === -1) {
             return res.status(402).send({ message: "Only Posts Owner can Edit this post" });
         }
         else {
-            const post = await Post.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-            if (!post) {
-                return res.status(404).send('Post not found');
+            if (!imageUrl) {
+                const post = await Post.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+                if (!post) {
+                    return res.status(404).send('Post not found');
+                }
+                return res.status(200).send(post);
             }
-            res.status(200).send(post);
+            else {
+                const post = await Post.findById(req.params.id);
+                if (!post) {
+                    return res.status(404).send('Post not found');
+                }
+                let info = {
+                    ...req.body,
+                    profilePhoto: imageUrl
+                }
+                const updatedPost = await Post.findByIdAndUpdate(req.params.id, info, { new: true, runValidators: true });
+                if (!updatedPost) {
+                    return res.status(404).send('Post not found');
+                }
+                return res.status(200).send(post);
+            }
         }
     } catch (error) {
         res.status(500).send(error);
     }
 }
 
-// Delete a farmer by ID
+// Delete a post by ID
 const deletePost = async (req, res) => {
     try {
         const farmer = req.farmer;

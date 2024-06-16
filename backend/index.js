@@ -4,6 +4,7 @@ import farmerRoutes from './routes/farmers.routes.js'
 import shopkeeperRoutes from './routes/shopkeeper.routes.js'
 import expertRoutes from './routes/expert.routes.js'
 import postRoutes from './routes/post.routes.js'
+import productRoutes from './routes/product.routes.js'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
@@ -27,6 +28,7 @@ app.use('/api/farmers', farmerRoutes);
 app.use('/api/shopkeepers', shopkeeperRoutes);
 app.use('/api/experts', expertRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/products', productRoutes);
 app.use('/api/verify', verifyToken);
 
 
