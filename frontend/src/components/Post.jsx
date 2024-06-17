@@ -5,9 +5,6 @@ import UserContext from "../context/UserContext";
 
 const Post = ({post}) => {
   const { setPosts } = useContext(UserContext);
-  console.log(post);
-
-
 
   const handleLikeClick = () => {
     console.log("Like button clicked");
@@ -77,7 +74,7 @@ const Post = ({post}) => {
           <UserProfile src="./src\assets\discussion.jpg" />
           <UserName>Cillian Murphy</UserName>
         </UserData>
-        <i class="fa-solid fa-bars"></i>
+        <i className="fa-solid fa-bars"></i>
       </UserInfo>
 
       <PostMedia>
