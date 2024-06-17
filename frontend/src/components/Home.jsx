@@ -1,83 +1,83 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import axios from "axios";
 import Post from "./Post";
 import CreatePost from "./CreatePost";
 import UserContext from "../context/UserContext";
 
 const Home = () => {
-  const categories = [
-    { path: "./src/assets/allCrops.jpg", heading: "All Crops" },
-    { path: "./src/assets/knowledge.png", heading: "Knowledge" },
-    { path: "./src/assets/discussion.jpg", heading: "Discussion" },
-    { path: "./src/assets/shop.jpg", heading: "AgriStore" },
-  ];
 
-  // ...
+  const { posts, setIsScrolledPast } = useContext(UserContext);
 
-  const { posts, setPosts } = useContext(UserContext);
+  //showing cross icon in the search bar only when something is written
+  const [inputValue, setInputValue] = useState("");
 
-  // ...
+  const handleInputChange = (event) => {
+    setInputValue(event.target.value);
+  };
+  // Clears the input field
+  const clearInput = () => {
+    setInputValue("");
+  };
+  // //
+
+  useEffect(() => {
+
+    //checking if the search is behind the category tab
+
+    const handleScroll = () => {
+      const categoryBottom = document
+        .querySelector("#category")
+        .getBoundingClientRect().bottom;
+      const searchBarTop = document
+        .querySelector("#searchBar")
+        .getBoundingClientRect().bottom;
+      if (searchBarTop < categoryBottom) {
+        setIsScrolledPast(true);
+        console.log("dsfdsfs");
+      } else {
+        setIsScrolledPast(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <>
-      <HomeWrapper>
-        <MainContent>
-          <HeaderAndCategory>
-            <Header>
-              <Logo src="./src/assets/download1.png" />
-              <Other>
-                <div className="image">
-                  <img src="./src/assets/cart.png" />
-                </div>
-                <div className="image">
-                  <img src="./src/assets/translate.png" />
-                </div>
-                <div className="image">
-                  <img src="./src/assets/location.png" />
-                  <p>MAHARASHTRA</p>
-                </div>
-              </Other>
-            </Header>
-            <Category>
-              {categories.map((element, index) => {
-                return (
-                  <CategoryOptions key={index}>
-                    <img src={element.path} alt={element.heading} />
-                    <p>{element.heading}</p>
-                  </CategoryOptions>
-                );
-              })}
-            </Category>
-          </HeaderAndCategory>
-
-          <SearchBar>
-            <InputBox>
-              <input type="text" />
-              <div className="searchIcons">
-                <div id="cross">
-                  <i className="fa-solid fa-x icons"></i>
-                </div>
-                <div>
-                  <i className="fas fa-search icons"></i>
-                </div>
+      <SearchBar id="searchBar">
+        <InputBox>
+          <input
+            type="text"
+            placeholder="Search Products"
+            value={inputValue}
+            onChange={handleInputChange}
+          />
+          <div className="searchIcons">
+            {inputValue && (
+              <div id="cross" onClick={clearInput}>
+                <i className="fa-solid fa-x icons"></i>
               </div>
-            </InputBox>
-          </SearchBar>
+            )}
+            <div>
+              <i className="fas fa-search icons"></i>
+            </div>
+          </div>
+        </InputBox>
+      </SearchBar>
 
-          {/* Temporary code */}
-          {posts.map((post) => (
-            <Post key={post.id} post={post} />
-          ))}
+      {/* Temporary code */}
+      {posts.map((post) => (
+        <Post key={post.id} post={post} />
+      ))}
 
-          <CreatePost />
+      <CreatePost />
 
-          <BlankSpace></BlankSpace>
-          {/* Temporary code */}
+      <BlankSpace></BlankSpace>
+      {/* Temporary code */}
 
-          <h1>Home</h1>
-        </MainContent>
-      </HomeWrapper>
+      <h1>Home</h1>
       <div>Home</div>
     </>
   );
@@ -85,96 +85,31 @@ const Home = () => {
 
 export default Home;
 
-const HomeWrapper = styled.div`
-  background-color: #e5e5e5;
-  /* height: 100vh; */
-`;
-const MainContent = styled.div`
-  background-color: #dddddd;
-  margin: 0 auto;
-  width: 600px;
-  height: 100%;
-`;
-
-const HeaderAndCategory = styled.div`
-  position: sticky;
-  top: 0;
-  border-bottom: 2px solid #dddddd;
-  z-index: 100;
-`;
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 48px;
-  background-color: #9b1f24;
-  color: white;
-  padding: 0 20px;
-`;
-
-const Logo = styled.img`
-  /* width: 40px; */
-  height: 80%;
-`;
-
-const Other = styled.div`
-  /* width: 50px;
-  height: 50px;
-  background-color: red; */
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-
-  .image {
-    display: flex;
-    img {
-      width: 25px;
-    }
-    p {
-      padding-left: 5px;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    }
-  }
-`;
-
-const Category = styled.div`
-  width: 100%;
-  height: 67.27px;
-  background-color: #fff;
-  display: flex;
-  justify-content: space-around;
-`;
-
-const CategoryOptions = styled.div`
-  display: flex;
-  gap: 5px;
-  /* flex-direction: column; */
-  align-items: center;
-  img {
-    width: 40px;
-  }
-`;
-
 const SearchBar = styled.div`
   height: 67px;
-  width: 100%;
-  background-color: #fff;
+  background-color: #ffffff;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 0 20px;
 `;
 
 const InputBox = styled.div`
   border: 1px solid #d2d2d2;
+  background-color: #fff;
   height: 56%;
-  width: 568px;
+  /* width: 568px; */
+  /* width: 94.6%; */
+  width: 100%;
   border-radius: 4px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  &:focus-within {
+    border: 2px solid #9b1f24;
+  }
 
   input {
     height: 23px;
@@ -187,22 +122,25 @@ const InputBox = styled.div`
   }
   input:focus {
     outline: none;
+    /* border: 2px solid red; */
   }
   .searchIcons {
     flex: 1;
     font-size: 1rem;
     display: flex;
-    justify-content: space-evenly;
-    /* gap: auto; */
-    #cross {
-      color: #949494;
-    }
+    justify-content: end;
+    /* gap: 1rem; */
+  }
+  * {
+    margin: 0 0.3rem;
+  }
+  .fa-x {
+    color: #949494;
+  }
+  .fa-search {
+    color: #9b1f24;
   }
 `;
-
-// Temporary Code
-
-// Temporary code
 
 const BlankSpace = styled.div`
   height: 100vh;

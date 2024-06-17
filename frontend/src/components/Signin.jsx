@@ -1,90 +1,110 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import styled from 'styled-components';
-import '@fortawesome/fontawesome-free/css/all.min.css';
-import backgroundImage from '../assets/signinimg.png';
-import { Link, useNavigate } from 'react-router-dom';
-
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import styled from "styled-components";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+import backgroundImage from "../assets/signinimg.png";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import Loading from "./Loading";
 
 const Signin = () => {
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm();
+  const [loading, setLoading] = useState(true);
+  const [loginError, setLoginError] = useState(""); // State to store login error message
 
-    fetch('/api/verify', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(response => response.json())
-    .then(
-      (data) => {
-        console.log(data);
-        if(data.isLoggedIn) {
-          navigate('/home');
-        }
+  //navigate to home page if user is already logged in
+  console.log("Checking if user is already logged in");
+  axios
+    .get("/api/verify")
+    .then((response) => {
+      // console.log(response);
+      setLoading(false);
+      if (response.data.isLoggedIn) {
+        navigate("/home");
       }
-    )
-    .catch((error) => {
-      console.error('Error:', error);
     })
-
-  const onSubmit = async (data) => {
-    console.log(data);
-    try {
-      console.log("trying to send data");
-      const response = await fetch("api/farmers/login", {
-        method: "POST",
-        headers: {
-          "Content-type" : "application/json"
-        },
-        body: JSON.stringify(data)
-      });
-
-      const result = await response.json();
-      console.log("Success:", result);
-      if(!result.message)
-        navigate('/profile')
-      else alert(result.message)
-    }
-    catch (error) {
+    .catch((error) => {
       console.error("Error:", error);
+    });
+
+  //submitting the form
+  const onSubmit = async (data) => {
+    // console.log(data);
+    try {
+      // console.log("trying to send data");
+      const response = await axios.post("api/farmers/login", data);
+
+      console.log("Login Success:", response);
+      if (!response.data.message) {
+        console.log(response.message);
+        navigate("/home");
+      } else {
+        console.log(response);
+        setLoginError(response.data.message); // Set login error message
+      }
+    } catch (error) {
+      console.log("Login Error:", error);
+      setLoginError(error.response.data.message); // Set login error message for any error
     }
   };
-  
-  
-  return (
+
+  return loading ? (
+    <Loading />
+  ) : (
     <Container>
       <ImageSection />
       <FormSection>
         <FormWrapper>
-          <div className='logo-div'>
-              <Logo src="./src\assets\shop.jpg" alt="Logo" />
-              <h1>sneat</h1>
+          <div className="logo-div">
+            <Logo src="./src\assets\shop.jpg" alt="Logo" />
+            <h1>sneat</h1>
           </div>
           <Title>Welcome to Sneat! 👋</Title>
-          <Subtitle>Please sign-in to your account and start the adventure</Subtitle>
+          <Subtitle>
+            Please sign-in to your account and start the adventure
+          </Subtitle>
+          {loginError && <ErrorMessage>{loginError}</ErrorMessage>}{" "}
+          {/* Display login error message */}
           <Form onSubmit={handleSubmit(onSubmit)}>
-            <Input {...register("email", { required: true })} type="email" placeholder="Email" required />
-            <Input {...register("password", { required: true })} type="password" placeholder="Password" required />
+            <Input
+              {...register("email", { required: true })}
+              type="email"
+              placeholder="Email"
+              required
+            />
+            <Input
+              {...register("password", { required: true })}
+              type="password"
+              placeholder="Password"
+              required
+            />
             <CheckboxWrapper>
               <label>
                 <Checkbox type="checkbox" />
-                  Remember Me
+                Remember Me
               </label>
               <a>Forgot Password?</a>
             </CheckboxWrapper>
             <Button type="submit">SIGN IN</Button>
             <TextLink>
-              New on our platform? <Link to={'/signup'}>Create an account</Link>
+              New on our platform? <Link to={"/signup"}>Create an account</Link>
             </TextLink>
           </Form>
           <Divider>or</Divider>
           <SocialIcons>
-            <a href="#"><i className="fab fa-facebook-f"></i></a>
-            <a href="#"><i className="fab fa-twitter"></i></a>
-            <a href="#"><i className="fab fa-github"></i></a>
-            <a href="#"><i className="fab fa-google"></i></a>
+            <a href="#">
+              <i className="fab fa-facebook-f"></i>
+            </a>
+            <a href="#">
+              <i className="fab fa-twitter"></i>
+            </a>
+            <a href="#">
+              <i className="fab fa-github"></i>
+            </a>
+            <a href="#">
+              <i className="fab fa-google"></i>
+            </a>
           </SocialIcons>
         </FormWrapper>
       </FormSection>
@@ -93,10 +113,6 @@ const Signin = () => {
 };
 
 export default Signin;
-
-
-
-
 
 const Container = styled.div`
   display: flex;
@@ -116,9 +132,9 @@ const FormSection = styled.div`
   justify-content: center;
   padding: 2rem;
   background-color: #f8f9fa;
-  a{
+  a {
     cursor: pointer;
-    color: #6366F1;
+    color: #6366f1;
     text-decoration: none;
   }
 `;
@@ -131,20 +147,19 @@ const FormWrapper = styled.div`
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   text-align: center;
-  .logo-div{
+  .logo-div {
     display: flex;
     justify-content: center;
     align-items: center;
     margin-bottom: 1rem;
-    img{
+    img {
       height: 40px;
       margin-right: 0.5rem;
     }
-    h1{
+    h1 {
       font-size: rem;
       color: #333;
     }
-  
   }
 `;
 
@@ -161,6 +176,11 @@ const Title = styled.h2`
 const Subtitle = styled.p`
   margin-bottom: 1.5rem;
   color: #777;
+`;
+
+const ErrorMessage = styled.p`
+  color: red;
+  margin-bottom: 1rem;
 `;
 
 const Form = styled.form`
@@ -201,14 +221,14 @@ const Button = styled.button`
   padding: 0.75rem;
   border: none;
   border-radius: 4px;
-  background-color: #6366F1;
+  background-color: #6366f1;
   color: white;
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: #4F46E5;
+    background-color: #4f46e5;
   }
 `;
 
@@ -216,7 +236,7 @@ const TextLink = styled.p`
   color: #777;
   margin-top: 1rem;
   display: inline-block;
-  
+
   /* a{
     cursor: pointer;
     color: #6366F1;
@@ -231,8 +251,9 @@ const Divider = styled.div`
   align-items: center;
   text-align: center;
 
-  &::before, &::after {
-    content: '';
+  &::before,
+  &::after {
+    content: "";
     flex: 1;
     border-bottom: 1px solid #ccc;
   }
@@ -252,7 +273,7 @@ const SocialIcons = styled.div`
   gap: 1rem;
 
   a {
-    color: #6366F1;
+    color: #6366f1;
     font-size: 1.5rem;
   }
 `;

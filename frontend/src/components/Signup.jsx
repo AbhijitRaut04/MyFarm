@@ -1,54 +1,44 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import styled from 'styled-components';
-import '@fortawesome/fontawesome-free/css/all.min.css';
-import backgroundImage from '../assets/signupimg.png';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import styled from "styled-components";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+import backgroundImage from "../assets/signupimg.png";
+import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
 
 const Signup = () => {
   const navigate = useNavigate();
-  const { register, handleSubmit } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+  const [loading, setLoading] = useState(true);
 
-  fetch('/api/verify', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-  .then(response => response.json())
-  .then(
-    (data) => {
-      console.log(data);
-      if(data.isLoggedIn) {
-        navigate('/home');
+  axios
+    .get("/api/verify")
+    .then((response) => {
+      // console.log(response);
+      setLoading(false);
+      if (response.data.isLoggedIn) {
+        navigate("/home");
       }
-    }
-  )
-  .catch((error) => {
-    console.error('Error:', error);
-  })
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
 
-
+  //submitting the form
   const onSubmit = async (data) => {
     try {
-      const response = await fetch("api/farmers/", {
-        method: "POST",
-        headers: {
-          "Content-type" : "application/json"
-        },
-        body: JSON.stringify(data)
-      });
-
-      const result = await response.json();
-      if(result.message){
-        console.log(result.message)
+      const response = await axios.post("api/farmers/", data);
+      if (response.message) {
+        console.log(response.message);
+      } else {
+        console.log("Success:", response);
+        navigate("/signin");
       }
-      else{
-        console.log("Success:", result);
-        navigate('/signin')
-      }
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Error:", error);
     }
   };
@@ -57,43 +47,79 @@ const Signup = () => {
       <ImageSection />
       <FormSection>
         <FormWrapper>
-          <div className='logo-div'>
-              <h1>SignUp</h1>
-              <h1>SignUp</h1>
+          <div className="logo-div">
+            <h1>SignUp</h1>
           </div>
           <Title>Adventure starts here 🚀</Title>
           <Subtitle>Make your app management easy and fun!</Subtitle>
           <Form onSubmit={handleSubmit(onSubmit)}>
-            <Input {...register("username", { required: true })} type="text" placeholder="Username" required />
-            
-            <Input {...register("email", { required: true })} type="email" placeholder="Email" required />
-            
-            <Input {...register("password", { required: true })} type="password" placeholder="Password" required />
+            <Input
+              {...register("username", { required: true })}
+              type="text"
+              placeholder="Username"
+              className={errors.username ? " warning " : " "}
+            />
+            {/* {errors.username && (
+              <Warning>
+                <p>Username is required.</p>
+              </Warning>
+            )} */}
 
-            <Input {...register("age", { required: true })} type="number" placeholder="Age" required />
+            <Input
+              {...register("email", { required: true })}
+              type="email"
+              placeholder="Email"
+            />
+            {errors.email && <p>email is required.</p>}
 
-            <Input {...register("location", { required: true })} type="text" placeholder="Location" required />
+            <Input
+              {...register("password", { required: true })}
+              type="password"
+              placeholder="Password"
+            />
 
-            
+            <Input
+              {...register("age", { required: true })}
+              type="number"
+              placeholder="Age"
+            />
+
+            <Input
+              {...register("location", { required: true })}
+              type="text"
+              placeholder="Location"
+            />
+
             <CheckboxWrapper>
               <label>
-                <Checkbox type="checkbox" required />
+                <Checkbox
+                  {...register("location", { required: true })}
+                  type="checkbox"
+                />
                 <a href=""> I agree to privacy policy & terms</a>
               </label>
-
             </CheckboxWrapper>
             <Button type="submit">SIGN UP</Button>
-            
+
             <TextLink>
-                Already have an account? <Link to={'/signin'}>Sign in instead</Link>
+              Already have an account?{" "}
+              <Link to={"/signin"}>Sign in instead</Link>
             </TextLink>
           </Form>
           <Divider>or</Divider>
           <SocialIcons>
-            <a href="#"><i className="fab fa-facebook-f"></i></a>
-            <a href="#"><i className="fab fa-twitter"></i></a>
-            <a href="#"><i className="fab fa-github"></i></a>
-            <a href="#"><i className="fab fa-google"></i></a>
+            <a href="#">
+              <i className="fab fa-facebook-f"></i>
+            </a>
+            <a href="#">
+              <i className="fab fa-twitter"></i>
+            </a>
+            <a href="#">
+              <i className="fab fa-github"></i>
+            </a>
+            <a href="#">
+              <i className="fab fa-google"></i>
+            </a>
           </SocialIcons>
         </FormWrapper>
       </FormSection>
@@ -102,10 +128,6 @@ const Signup = () => {
 };
 
 export default Signup;
-
-
-
-
 
 const Container = styled.div`
   display: flex;
@@ -126,9 +148,9 @@ const FormSection = styled.div`
   justify-content: center;
   padding: 2rem;
   background-color: #f8f9fa;
-  a{
+  a {
     cursor: pointer;
-    color: #6366F1;
+    color: #6366f1;
     text-decoration: none;
   }
 `;
@@ -141,20 +163,19 @@ const FormWrapper = styled.div`
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   text-align: center;
-  .logo-div{
+  .logo-div {
     display: flex;
     justify-content: center;
     align-items: center;
     margin-bottom: 1rem;
-    img{
+    img {
       height: 40px;
       margin-right: 0.5rem;
     }
-    h1{
+    h1 {
       font-size: rem;
       color: #333;
     }
-  
   }
 `;
 
@@ -186,6 +207,17 @@ const Input = styled.input`
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 1rem;
+  .warning {
+    border-color: #f00;
+  }
+  &:focus {
+    outline: none;
+    border-color: #6366f1;
+  }
+`;
+
+const Warning = styled.div`
+  color: red;
 `;
 
 const CheckboxWrapper = styled.div`
@@ -206,14 +238,14 @@ const Button = styled.button`
   padding: 0.75rem;
   border: none;
   border-radius: 4px;
-  background-color: #6366F1;
+  background-color: #6366f1;
   color: white;
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: #4F46E5;
+    background-color: #4f46e5;
   }
 `;
 
@@ -221,7 +253,7 @@ const TextLink = styled.p`
   color: #777;
   margin-top: 1rem;
   display: inline-block;
-  
+
   /* a{
       cursor: pointer;
       color: #6366F1;
@@ -236,8 +268,9 @@ const Divider = styled.div`
   align-items: center;
   text-align: center;
 
-  &::before, &::after {
-    content: '';
+  &::before,
+  &::after {
+    content: "";
     flex: 1;
     border-bottom: 1px solid #ccc;
   }
@@ -257,7 +290,7 @@ const SocialIcons = styled.div`
   gap: 1rem;
 
   a {
-    color: #6366F1;
+    color: #6366f1;
     font-size: 1.5rem;
   }
 `;
