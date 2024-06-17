@@ -21,7 +21,7 @@ const verifyToken = (req, res) => {
     const token = req.cookies.token;
   
     if (!token) {
-      return res.status(401).send({ error: "Please Login", isLoggedIn : false});
+      return res.status(401).send({ message: "Please Login", isLoggedIn : false});
     }
   
     try {
