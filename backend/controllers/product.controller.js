@@ -1,3 +1,5 @@
+import Farmer from "../models/farmer.models.js";
+import Order from "../models/order.models.js";
 import Product from "../models/product.models.js";
 import Shopkeeper from "../models/shopkeeper.models.js";
 
@@ -218,7 +220,7 @@ const updateReview = async (req, res) => {
         if(!product) return res.status(401).send("Post not found");
         let reviews = product.reviews;
         const reviewId = req.params.reviewId;
-        let review = reviews.filter((item) => item._id === reviewId)
+        let review = reviews.filter((item) => item._id === reviewId)[0]
         if(!review) return res.status(402).send("Review not found");
         // some problem is there
         if(review.createdBy !== farmer._id) return res.status(401).send("You cannot edit this review");
@@ -247,7 +249,7 @@ const deleteReview = async (req, res) => {
         if(!product) return res.status(401).send("Post not found");
         let reviews = product.reviews;
         const reviewId = req.params.reviewId;
-        let review = reviews.filter((item) => item._id === reviewId)
+        let review = reviews.filter((item) => item._id === reviewId)[0]
         if(!review) return res.status(402).send("Review not found");
         // some problem is there
         if(review.createdBy !== farmer._id) return res.status(401).send("You cannot delete this review");
@@ -277,27 +279,12 @@ const getReviews = async (req, res) => {
 
 // rating to product
 const ratingProduct = async (req, res) => {
-    try {
-        // here one user is rating more than one time 
+    try { 
         const product = await Product.findById(req.params.id);
         if(!product) return res.status(401).send("Product not found");
         let rating = product.rating;
-        const rate = req.body.rating;
-        if(rate == 1){
-            rating.star1 += 1;
-        }
-        else if(rate == 2){
-            rating.star2 += 1;
-        }
-        else if(rate == 3){
-            rating.star3 += 1;
-        }
-        else if(rate == 4){
-            rating.star4 += 1;
-        }
-        else{
-            rating.star5 += 1;
-        }
+        rating = rating.filter((item) => item.ratedBy !== req.farmer._id);
+        rating.push({ratedBy: farmer._id, rate : req.body.rating});
 
         const updatedProduct = await Product.updateOne(
             { _id: req.params.id },
@@ -307,6 +294,173 @@ const ratingProduct = async (req, res) => {
 
     } catch (error) {
         return res.status(500).send({error:error.message})
+    }
+}
+
+// add product to the cart
+const addProductToCart = async (req, res) => {
+    try {
+        const farmer = req.farmer;
+        let cart = farmer.cart;
+        cart = cart.filter((item) => item.product !== req.params.id)
+        cart.push({product: req.params.id, quantity: req.body.quantity});
+        const updatedCart = await Farmer.updateOne(
+            { _id: farmer._id },
+            { $set: { cart: cart } }
+        )
+        
+        return res.status(200).send(updatedCart.cart);
+    } catch (error) {
+        return res.status(500).send({error: error.message})
+    }
+}
+
+// remove product from the cart
+const removeProductFromCart = async (req, res) => {
+    try {
+        const farmer = req.farmer;
+        let cart = farmer.cart;
+        cart = cart.filter((item) => item.product !== req.params.id)
+        const updatedCart = await Farmer.updateOne(
+            { _id: farmer._id },
+            { $set: { cart: cart } }
+        )
+        
+        return res.status(200).send(updatedCart.cart);
+    } catch (error) {
+        return res.status(500).send({error: error.message})
+    }
+}
+
+// get cart items
+const getCartItems = async (req, res) => {
+    try {
+        const farmer = req.farmer;
+        let cart = farmer.cart;
+
+        let cartItemsAsObject = [];
+
+        const cartPromises = cart.map(async (cartItem) => {
+            let product = await Product.findById(cartItem.product);
+            return {product: product, quantity: cartItem.quantity};
+        });
+
+        Promise.all(cartPromises)
+            .then((productObjArrays) => {
+                cartItemsAsObject = [...cartItemsAsObject, ...productObjArrays];
+                return res.status(201).send(cartItemsAsObject);
+            })
+            .catch((error) => {
+                console.error('Error fetching cart items:', error);
+                return res.status(500).send('Internal Server Error');
+            });
+    } catch (error) {
+        return res.status(500).send({error: error.message})
+    }
+}
+
+
+// place order
+const placeOrder = async (req, res) => {
+    try {
+        const farmer = req.farmer;
+        let orders = farmer.orders;
+        // orders not updated on shopkeepers side
+        let orderInfo = {
+            items: req.body.items,
+            orderedBy: farmer._id,
+            amount: req.body.amount,
+            GST: 10,
+            platformFee: 2
+        }
+
+        const order = await Order.create(orderInfo);
+        orders.push(order._id);
+        const updated = await Farmer.updateOne(
+            { _id: farmer._id },
+            { $set: { orders: orders } }
+        )
+        
+        return res.status(200).send({message: "Order placed successfully", order: order})
+        
+        
+    } catch (error) {
+        return res.status(500).send({error: error.message})
+    }
+}
+
+// cancle order
+const cancleOrder = async (req, res) => {
+    try {
+        const farmer = req.farmer;
+        let orders = farmer.orders;
+        const orderId = req.params.id;
+        // orders not updated on shopkeepers side
+        
+        let order = orders.filter((item) => item === orderId)[0];
+        order.status = 'Cancled';
+        orders = orders.filter((item) => item !== orderId)
+        orders.push(order)
+        const updated = await Farmer.updateOne(
+            { _id: farmer._id },
+            { $set: { orders: orders } }
+        )
+        
+        return res.status(200).send({message: "Order cancled"})
+        
+        
+    } catch (error) {
+        return res.status(500).send({error: error.message})
+    }
+}
+
+// dispatch order
+const dispatchOrder = async (req, res) => {
+    try {
+        const farmer = req.farmer;
+        let orders = farmer.orders;
+        const orderId = req.params.id;
+        // orders not updated on shopkeepers side
+        
+        let order = orders.filter((item) => item === orderId)[0];
+        order.status = 'Dispatched';
+        orders = orders.filter((item) => item !== orderId)
+        orders.push(order)
+        const updated = await Farmer.updateOne(
+            { _id: farmer._id },
+            { $set: { orders: orders } }
+        )
+
+        return res.status(200).send({message: "Order dispatched"})
+
+
+    } catch (error) {
+        return res.status(500).send({error: error.message})
+    }
+}
+
+// deliver order
+const deliverOrder = async (req, res) => {
+    try {
+        const farmer = req.farmer;
+        let orders = farmer.orders;
+        const orderId = req.params.id;
+        // orders not updated on shopkeepers side
+        
+        let order = orders.filter((item) => item === orderId)[0];
+        order.status = 'Delivered';
+        orders = orders.filter((item) => item !== orderId)
+        orders.push(order)
+        const updated = await Farmer.updateOne(
+            { _id: farmer._id },
+            { $set: { orders: orders } }
+        )
+
+        return res.status(200).send({message: "Order Delivered"})
+
+
+    } catch (error) {
+        return res.status(500).send({error: error.message})
     }
 }
 
@@ -322,5 +476,12 @@ export {
     updateReview,
     deleteReview,
     getReviews,
-    ratingProduct
+    ratingProduct,
+    addProductToCart,
+    removeProductFromCart,
+    getCartItems,
+    placeOrder,
+    cancleOrder,
+    dispatchOrder,
+    deliverOrder
 }

@@ -27,28 +27,17 @@ const productSchema = new mongoose.Schema({
         ref: 'Shopkeeper',
         required: true
     },
-    rating: {
-        star1: {
-            type: Number,
-            default: 0
+    rating: [{
+        ratedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Farmer'
         },
-        star2: {
-            type: Number,
-            default: 0
-        },
-        star3: {
-            type: Number,
-            default: 0
-        },
-        star4: {
-            type: Number,
-            default: 0
-        },
-        star5: {
-            type: Number,
-            default: 0
+        rate: {
+            type: String,
+            enum:["1","2","3","4","5"],
+            default:"0"
         }
-    },
+    }],
     reviews: [{
         createdBy: {
             type: mongoose.Schema.Types.ObjectId,

@@ -223,6 +223,7 @@ const likePost = async (req, res) => {
         }
         else {
             let likes = post.likes;
+            if(likes.indexOf(farmer._id) !== -1) return res.status(502).send("You already liked the post");
             likes.push(farmer._id);
             const updatedPost = await Post.updateOne(
                 { _id: post._id },
@@ -295,7 +296,7 @@ const deleteComment = async (req, res) => {
         else {
             let comments = post.comments;
 
-            const comment = comments.filter(item => item._id === req.params.commentId)
+            const comment = comments.filter(item => item._id === req.params.commentId)[0]
 
             if (comment.createdBy === farmer._id) {
                 comments = comments.filter(item => item !== req.params.commentId);
@@ -347,6 +348,8 @@ const savePost = async (req, res) => {
         const farmer = req.farmer;
 
         let saved = farmer.saved;
+        if(saved.indexOf(req.params.id) !== -1) return res.status(502).send("Post is already saved");
+            
         saved.push(req.params.id);
 
         const updated = await Farmer.updateOne(

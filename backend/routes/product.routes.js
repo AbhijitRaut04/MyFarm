@@ -2,7 +2,7 @@ import express from 'express';
 import { isFarmerSignin, isShopkeeperSignin } from '../middlewares/isAuthenticated.js';
 import { upload } from '../middlewares/multer.js';
 import imageUpload from '../middlewares/uploadImage.js';
-import { createProduct, deleteProduct, deleteReview, getCurrentShopkeeperProducts, getProduct, getProducts, getReviews, giveReview, ratingProduct, updateProduct, updateReview } from '../controllers/product.controller.js';
+import { addProductToCart, cancleOrder, createProduct, deleteProduct, deleteReview, deliverOrder, dispatchOrder, getCartItems, getCurrentShopkeeperProducts, getProduct, getProducts, getReviews, giveReview, placeOrder, ratingProduct, removeProductFromCart, updateProduct, updateReview } from '../controllers/product.controller.js';
 
 const router = express.Router();
 
@@ -19,6 +19,14 @@ router.patch('/:id/review', isFarmerSignin, upload.single("reviewImage"), imageU
 router.patch('/:id/review/:reviewId', isFarmerSignin, upload.single("reviewImage"), imageUpload, updateReview)
 router.patch('/:id/review/delete/:reviewId', isFarmerSignin, deleteReview)
 router.get('/:id/reviews', getReviews)
+
+router.patch('/:id/addToCart', isFarmerSignin, addProductToCart)
+router.patch('/:id/removeFromCart', isFarmerSignin, removeProductFromCart)
+router.patch('/cart', isFarmerSignin, getCartItems)
+router.patch('/order', isFarmerSignin, placeOrder)
+router.patch('/:id/cancle', isFarmerSignin, cancleOrder)
+router.patch('/:id/dispatch', isShopkeeperSignin, dispatchOrder)
+router.patch('/:id/deliver', isShopkeeperSignin, deliverOrder)
 
 
 
