@@ -78,7 +78,7 @@ const Post = ({post}) => {
       </UserInfo>
 
       <PostMedia>
-        <img src={post.media} alt="" />
+        <img src={post.file} alt="" />
       </PostMedia>
 
       <PostInfo>
@@ -100,8 +100,8 @@ const Post = ({post}) => {
       </PostInfo>
 
       <PostDetails>
-        <h2>{post.heading}</h2>
-        <p>{post.description}</p>
+        {/* <h2>{post.heading}</h2> */}
+        <p>{post.content}</p>
       </PostDetails>
     </PostWrapper>
   );

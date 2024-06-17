@@ -15,8 +15,9 @@ dotenv.config({
 const app = express()
 connectDB()
 
-// app.use(express.json());
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(bodyParser.json({ limit: '50mb' })); // Adjust limit as per your needs
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 app.use(cors({
     origin: ['http://localhost:5173', 'https://agro-star.vercel.app'],
@@ -28,9 +29,6 @@ app.use('/api/experts', expertRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/verify', verifyToken);
 
-// app.use('/api/posts', );
-
-const postsData = 
 
 app.get('/', (req, res) => {
     res.send("Hi there")

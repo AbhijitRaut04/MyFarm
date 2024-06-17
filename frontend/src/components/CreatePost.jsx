@@ -6,24 +6,16 @@ import UserContext from "../context/UserContext";
 const CreatePost = () => {
   const { setPosts } = useContext(UserContext);
 
-  
+
   const [post, setPost] = useState({
     media: "./src/assets/addImage.png",
     heading: "My first Post",
     description: "Hello everyone, like this post",
   });
-  
+
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
-    const render = new FileReader();
-
-    render.onload = () => {
-      setPost({ ...post, media: render.result });
-    };
-
-    if (file) {
-      render.readAsDataURL(file);
-    }
+    setPost({ ...post, media: file });
   };
 
   const handleTextChange = (event) => {
@@ -34,21 +26,24 @@ const CreatePost = () => {
   const onSubmit = (event) => {
     event.preventDefault();
     console.log("Send button clicked");
-    const id = Math.floor(Math.random() * 1000000000);
+
+    const formData = new FormData();
+    formData.append("media", post.media); 
+    console.log(post)
+    formData.append("heading", event.target[2].value);
+    formData.append("description", event.target[3].value);
 
     //Adding the post to the frontend
     setPost({
       ...post,
-      id: id,
       heading: event.target[2].value,
       description: event.target[3].value,
     });
-    setPosts((prevPosts) => [...prevPosts, post]);
-    console.log(post);
+    // setPosts((prevPosts) => [...prevPosts, post]);
 
     // Adding the post to the backend
     axios
-      .post("/api/posts/createPost", post)
+      .post("/api/posts/createPost", formData)
       .then((response) => {
         console.log(response);
       })

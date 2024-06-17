@@ -5,8 +5,7 @@ const postSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    image: String,
-    video: String,
+    file: String,
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Farmer'

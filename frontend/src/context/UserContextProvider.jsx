@@ -11,7 +11,7 @@ const UserContextProvider = ({ children }) => {
       media: "./src/assets/post1.jpg",
       heading: "My first Post",
       description: "Hello everyone, like this post",
-    },
+    }
   ]);
 
   const [isScrolledPast, setIsScrolledPast] = useState(false);
