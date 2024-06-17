@@ -9,11 +9,16 @@ const createFarmer = async (req, res) => {
         info.password = hash_pass;
         const farmer = await Farmer.create(info);
 
+        console.log("Farmer registered successfully, logging in");
+        const token =  generateJWTToken(farmer);
+
+        res.cookie("token" , token)
         res.status(201).send({
             farmer:"Farmer registered successfully",
-            userId:farmer._id.toString()
+            userId:farmer._id.toString(),
+            token:token
         });
-        console.log("Farmer registered successfully")
+        console.log("Log in successful");
     } catch (error) {
         res.status(500).send({ error: 'Data not inserted', message: error.message });
     }
@@ -29,7 +34,7 @@ const loginFarmer = async (req, res) => {
             res.status(401).send({message:"Farmer not registered yet!"})
         }
         else{
-            if(!comparePasswords(data.password, farmer.password)) return res.status(500).send({message:"Invalid credentials"});
+            if(! (await comparePasswords(data.password, farmer.password))) return res.status(401).send({message:"Invalid credentials"});
             else{
                 console.log("Farmer Logged in")
                 const token =  generateJWTToken(farmer);
