@@ -2,14 +2,8 @@ import mongoose from 'mongoose';
 
 const orderSchema = new mongoose.Schema({
     items: [{
-        product: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Product'
-        },
-        quantity: {
-            type: Number,
-            default: 1
-        }
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'CartItem'
     }],
     orderedBy: {
         type: mongoose.Schema.Types.ObjectId,
@@ -27,12 +21,6 @@ const orderSchema = new mongoose.Schema({
     },
     platformFee: {
         type: Number
-    },
-    status: {
-        type: String,
-        enum: ['Delivered', 'Cancled', 'Dispatched', 'Ordered'],
-        default: 'Ordered',
-        required: true
     },
     TrackingId: {
         type: String

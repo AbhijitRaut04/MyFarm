@@ -51,14 +51,8 @@ const farmerSchema = new mongoose.Schema({
         ref: 'Order'
     }],
     cart: [{
-        product: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Product'
-        },
-        quantity: {
-            type: Number,
-            default: 1
-        }
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'CartItem'
     }]
 });
 
