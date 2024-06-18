@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { createContext, useState } from "react";
 import UserContext from "./UserContext";
-import axios from "axios";
+
+// const UserContext = createContext();
 
 const UserContextProvider = ({ children }) => {
 
@@ -13,22 +14,10 @@ const UserContextProvider = ({ children }) => {
     }
   ]);
 
-
-
-  axios
-    .get("/api/posts")
-    .then((response) => {
-      setPosts(response.data);
-    })
-    .catch((error) => {
-      console.error(`Error fetching data: ${error}`);
-    });
-
-
-
+  const [isScrolledPast, setIsScrolledPast] = useState(false);
 
   return (
-    <UserContext.Provider value={{ posts, setPosts }}>
+    <UserContext.Provider value={{ posts, setPosts, isScrolledPast, setIsScrolledPast }}>
       {children}
     </UserContext.Provider>
   );

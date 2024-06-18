@@ -1,6 +1,87 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import axios from "axios";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import Loading from "./Loading";
+
+const ProfilePage = () => {
+  const navigate = useNavigate();
+  const [loading, setLoding] = useState(true);
+  //navigate to signin page if user is not logged in
+  axios
+    .get("/api/verify")
+    .then((response) => {
+      console.log(response);
+      setLoding(false);
+      if (!response.data.isLoggedIn) {
+        navigate("/signin");
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+
+  return loading ? (
+    <Loading />
+  ) : (
+    <ProfileContainer>
+      <Header>
+        <img src="./src/assets/burger-menu.svg" alt="" />
+        <h1>Profile</h1>
+        {/* <BackButton></BackButton> */}
+      </Header>
+      <ProfilePicDiv>
+        <ProfilePic src="https://via.placeholder.com/80" alt="Profile" />
+      </ProfilePicDiv>
+      <Username>James Bond</Username>
+      <Handle>@jamesbond007</Handle>
+      <FollowInfo>
+        <FollowItem>
+          <div>178</div>
+          <div>Following</div>
+        </FollowItem>
+        <FollowItem>
+          <div>2.1M</div>
+          <div>Followers</div>
+        </FollowItem>
+      </FollowInfo>
+      <Bio>
+        CEO @ColambiaPictures / past creative director of @aba / Stundmen
+      </Bio>
+      <Tabs>
+        <Tab>Posts 128</Tab>
+        <Tab>Videos 56</Tab>
+      </Tabs>
+      <DraftsContainer>
+        <DraftsInfo>
+          <div>6 Posts</div>
+          <div>In Your Draft</div>
+        </DraftsInfo>
+        <DraftsButton>Take a look</DraftsButton>
+      </DraftsContainer>
+      <PostCardContainer>
+        <PostCard>
+          <PostThumbnail src="https://via.placeholder.com/150" alt="Post 1" />
+          <PostOverlay>
+            <div>542K</div>
+            <div>Dreams come true</div>
+            <div>#freedom #ocean #weekend</div>
+          </PostOverlay>
+        </PostCard>
+        <PostCard>
+          <PostThumbnail src="https://via.placeholder.com/150" alt="Post 2" />
+          <PostOverlay>
+            <div>120K</div>
+            <div>Relax&work</div>
+            <div>#work #BA #CEO</div>
+          </PostOverlay>
+        </PostCard>
+      </PostCardContainer>
+    </ProfileContainer>
+  );
+};
+
+export default ProfilePage;
 
 const ProfileContainer = styled.div`
   background-color: #1a1a1a;
@@ -23,9 +104,9 @@ const Header = styled.div`
 
   h1 {
     position: absolute;
-    left:50%;
+    left: 50%;
     transform: translateX(-50%);
-}
+  }
 `;
 
 // const BackButton = styled.div`
@@ -33,16 +114,15 @@ const Header = styled.div`
 //   cursor: pointer;
 // `;
 const ProfilePicDiv = styled.div`
-    margin: 0 auto;
-    width: 80px;
-    `;
+  margin: 0 auto;
+  width: 80px;
+`;
 
 const ProfilePic = styled.img`
-    margin: 30px 0;
+  margin: 30px 0;
   width: 80px;
   height: 80px;
   border-radius: 50%;
-
 `;
 
 const Username = styled.h2`
@@ -80,7 +160,7 @@ const Tab = styled.div`
   padding: 8px 16px;
   border-radius: 8px;
   cursor: pointer;
-  background-color: ${props => props.active ? '#ffc107' : '#333'};
+  background-color: #333;
 `;
 
 const DraftsContainer = styled.div`
@@ -131,86 +211,3 @@ const PostOverlay = styled.div`
   background: rgba(0, 0, 0, 0.6);
   color: #fff;
 `;
-
-const ProfilePage = () => {
-
-    const navigate = useNavigate();
-
-    fetch('/api/verify', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(response => response.json())
-    .then(
-      (data) => {
-        console.log(data);
-        if(!data.isLoggedIn) {
-          navigate('/signin');
-        }
-      }
-    )
-    .catch((error) => {
-      console.error('Error:', error);
-    })
-
-
-
-  return (
-    <ProfileContainer>
-      <Header>
-        <img src="./src/assets/burger-menu.svg" alt="" />
-        <h1>Profile</h1>
-        {/* <BackButton></BackButton> */}
-      </Header>
-      <ProfilePicDiv>
-        <ProfilePic src="https://via.placeholder.com/80" alt="Profile" />
-      </ProfilePicDiv>
-      <Username>James Bond</Username>
-      <Handle>@jamesbond007</Handle>
-      <FollowInfo>
-        <FollowItem>
-          <div>178</div>
-          <div>Following</div>
-        </FollowItem>
-        <FollowItem>
-          <div>2.1M</div>
-          <div>Followers</div>
-        </FollowItem>
-      </FollowInfo>
-      <Bio>CEO @ColambiaPictures / past creative director of @aba / Stundmen</Bio>
-      <Tabs>
-        <Tab active>Posts 128</Tab>
-        <Tab>Videos 56</Tab>
-      </Tabs>
-      <DraftsContainer>
-        <DraftsInfo>
-          <div>6 Posts</div>
-          <div>In Your Draft</div>
-        </DraftsInfo>
-        <DraftsButton>Take a look</DraftsButton>
-      </DraftsContainer>
-      <PostCardContainer>
-        <PostCard>
-          <PostThumbnail src="https://via.placeholder.com/150" alt="Post 1" />
-          <PostOverlay>
-            <div>542K</div>
-            <div>Dreams come true</div>
-            <div>#freedom #ocean #weekend</div>
-          </PostOverlay>
-        </PostCard>
-        <PostCard>
-          <PostThumbnail src="https://via.placeholder.com/150" alt="Post 2" />
-          <PostOverlay>
-            <div>120K</div>
-            <div>Relax&work</div>
-            <div>#work #BA #CEO</div>
-          </PostOverlay>
-        </PostCard>
-      </PostCardContainer>
-    </ProfileContainer>
-  );
-};
-
-export default ProfilePage;

@@ -5,9 +5,6 @@ import UserContext from "../context/UserContext";
 
 const Post = ({post}) => {
   const { setPosts } = useContext(UserContext);
-  
-
-
 
   const handleLikeClick = () => {
     console.log("Like button clicked");
