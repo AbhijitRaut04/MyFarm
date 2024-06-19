@@ -4,9 +4,10 @@ import Post from '../models/post.models.js';
 // Create a new post
 const createPost = async (req, res) => {
     try {
-        const { description, isPublic, imageUrl } = req.body
+        const { heading, description, isPublic, imageUrl } = req.body
         const farmer = req.farmer;
         const post = await Post.create({
+            title: heading,
             content: description,
             file: imageUrl,
             createdBy: farmer._id,

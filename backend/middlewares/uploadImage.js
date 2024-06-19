@@ -15,6 +15,7 @@ const imageUpload = async (req, res, next) => {
   try {
     if (!req.file) { next(); }
     else {
+      console.log("Image Uploading...")
       const filePath = req.file.path;
       if (!filePath) {
         req.body.imageUrl = ""
