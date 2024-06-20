@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -14,19 +14,22 @@ const Signin = () => {
   const [loginError, setLoginError] = useState(""); // State to store login error message
 
   //navigate to home page if user is already logged in
-  console.log("Checking if user is already logged in");
-  axios
-    .get("/api/verify")
-    .then((response) => {
-      // console.log(response);
-      setLoading(false);
-      if (response.data.isLoggedIn) {
-        navigate("/home");
-      }
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
+  useEffect(() => {
+    console.log("Checking if user is already logged in");
+    setLoading(true);
+    axios
+      .get("/api/verify")
+      .then((response) => {
+        setLoading(false);
+        if (response.data.isLoggedIn) {
+          navigate("/home");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        setLoading(false);
+      });
+  }, [navigate]);
 
   //submitting the form
   const onSubmit = async (data) => {
@@ -37,7 +40,7 @@ const Signin = () => {
 
       console.log("Login Success:", response);
       if (!response.data.message) {
-        console.log(response.message);
+        // console.log(response.message);
         navigate("/home");
       } else {
         console.log(response);

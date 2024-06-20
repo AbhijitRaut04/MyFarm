@@ -1,21 +1,27 @@
 import axios from "axios";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import UserContext from "../context/UserContext";
+import Loading from "./Loading";
 
-const CreatePost = () => {
+const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
   const { setPosts } = useContext(UserContext);
 
-
+  //post templete
   const [post, setPost] = useState({
-    media: "./src/assets/addImage.png",
-    heading: "My first Post",
-    description: "Hello everyone, like this post",
+    isPublic: true,
   });
+
+  const [imageURL, setImageURL] = useState(null);
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     setPost({ ...post, media: file });
+    //setting the image in the post templete
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setImageURL(url);
+    }
   };
 
   const handleTextChange = (event) => {
@@ -23,80 +29,125 @@ const CreatePost = () => {
     event.target.style.height = `${event.target.scrollHeight}px`;
   };
 
+  const [loading, setLoading] = useState(false);
+
   const onSubmit = (event) => {
     event.preventDefault();
     console.log("Send button clicked");
+    //setting loading animation
+    setLoading(true);
 
     const formData = new FormData();
-    formData.append("media", post.media); 
-    console.log(post)
-    formData.append("heading", event.target[2].value);
-    formData.append("description", event.target[3].value);
+    formData.append("media", post.media);
+    formData.append("heading", event.target.elements["heading"].value);
+    formData.append("description", event.target.elements["description"].value);
+    formData.append("isPublic", post.isPublic);
 
-    //Adding the post to the frontend
-    setPost({
+    setPost((post) => ({
       ...post,
-      heading: event.target[2].value,
-      description: event.target[3].value,
-    });
-    // setPosts((prevPosts) => [...prevPosts, post]);
+      heading: event.target.elements["heading"].value,
+      description: event.target.elements["description"].value,
+    }));
 
-    // Adding the post to the backend
     axios
       .post("/api/posts/createPost", formData)
       .then((response) => {
-        console.log(response);
+        //revolking the object URL to free up memory
+        if (imageURL) {
+          URL.revokeObjectURL(imageURL);
+          setImageURL(null);
+        }
+
+        //adding the new post to the posts (local state)
+        setPosts((prevPosts) => [...prevPosts, post]);
+        setLoading(false);
+        setShowPostedMessage(true);
+        setDisplayCreatePost(false);
+        setTimeout(() => {
+          setShowPostedMessage(false);
+        }, 2000);
       })
       .catch((error) => {
-        console.error(`Error adding post: ${error}`);
+        console.error(`Error creating post: ${error}`);
+        setLoading(false);
+        setShowPostedMessage(false);
       });
+  };
 
-    // Clearing the input fields
-    event.target[2].value = "";
-    event.target[3].value = "";
-    setPost({
-      media: "./src/assets/addImage.png",
-    });
+  useEffect(() => {
+    //revolking the object URL to free up memory
+    return () => {
+      if (imageURL) {
+        URL.revokeObjectURL(imageURL);
+      }
+    };
+  }, [imageURL]);
+
+  const toggleIsPublic = () => {
+    setPost((post) => ({
+      ...post,
+      isPublic: !post.isPublic,
+    }));
   };
 
   return (
-    <PostWrapper>
-      <form onSubmit={onSubmit}>
-        <UserInfo>
-          <UserData>
-            <UserProfile src="./src\assets\discussion.jpg" />
-            <UserName>Cillian Murphy</UserName>
-          </UserData>
-          <button type="submit">
-            <i className="fa-solid fa-paper-plane"></i>
-          </button>
-        </UserInfo>
+    <>
+      {(loading && <Loading />) || ""}
 
-        <PostMedia>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleImageUpload(e)}
-          />
-          <img src={post.media} alt="image link broken" />
-        </PostMedia>
+      <PostWrapper>
+        <form onSubmit={onSubmit}>
+          <UserInfo>
+            <UserData>
+              <UserProfile src="./src\assets\discussion.jpg" />
+              <UserName>Cillian Murphy</UserName>
+            </UserData>
+            <div className="icons">
+              <button onClick={() => setDisplayCreatePost(false)}>
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+              <button onClick={toggleIsPublic}>
+                {(post.isPublic && (
+                  <i className="fa-solid fa-earth-asia"></i>
+                )) || <i className="fa-solid fa-lock"></i>}
+              </button>
+              <button type="submit">
+                <i className="fa-solid fa-paper-plane"></i>
+              </button>
+            </div>
+          </UserInfo>
 
-        <PostDetails>
-          <textarea
-            className="heading"
-            type="text"
-            placeholder="Edit Heading..."
-            onChange={handleTextChange}
-          />
-          <textarea
-            className="para"
-            type="text"
-            placeholder="Edit Description..."
-            onChange={handleTextChange}
-          />
-        </PostDetails>
-      </form>
-    </PostWrapper>
+          <PostMedia>
+            <input
+              type="file"
+              name="image"
+              accept="image/*"
+              onChange={(e) => handleImageUpload(e)}
+            />
+            <img
+              src={imageURL ? imageURL : "./src/assets/addImage.png"}
+              alt="image link broken"
+            />
+          </PostMedia>
+
+          <PostDetails>
+            <textarea
+              className="heading"
+              name="heading"
+              type="text"
+              placeholder="Edit Heading..."
+              onChange={handleTextChange}
+            />
+            <textarea
+              className="para"
+              name="description"
+              type="text"
+              placeholder="Edit Description..."
+              onChange={handleTextChange}
+            />
+          </PostDetails>
+        </form>
+      </PostWrapper>
+    </>
   );
 };
 
@@ -127,6 +178,11 @@ const UserInfo = styled.div`
     font-size: 1.5rem;
     color: #333;
     cursor: pointer;
+  }
+
+  .icons {
+    display: flex;
+    gap: 20px;
   }
 `;
 
@@ -166,19 +222,6 @@ const PostMedia = styled.div`
     width: 100%;
   }
 `;
-
-// const PostInfo = styled.div`
-//   display: flex;
-//   justify-content: space-between;
-//   padding: 10px 30px;
-//   /* background-color: #afdaaf; */
-//   button {
-//     font-size: 1.5rem;
-//     background-color: transparent;
-//     border: none;
-//     cursor: pointer;
-//   }
-// `;
 
 const PostDetails = styled.div`
   margin: 5px 15px;

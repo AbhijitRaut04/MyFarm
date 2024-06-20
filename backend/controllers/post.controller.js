@@ -4,9 +4,10 @@ import Post from '../models/post.models.js';
 // Create a new post
 const createPost = async (req, res) => {
     try {
-        const { description, isPublic, imageUrl } = req.body
+        const { heading, description, isPublic, imageUrl } = req.body
         const farmer = req.farmer;
         const post = await Post.create({
+            title: heading,
             content: description,
             file: imageUrl,
             createdBy: farmer._id,
@@ -32,20 +33,28 @@ const getFeeds = async (req, res) => {
 
 
         // Fetch current farmer's posts
-        const publicPostsPromises = pubPosts.map(async (postId) => {
-            let post = await Post.findById(postId);
-            return post;
-        });
+        // const publicPostsPromises = pubPosts.map(async (postId) => {
+        //     let post = await Post.findById(postId);
+        //     return post;
+        // });
 
         const farmer = req.farmer;
 
         if (!farmer) {
-            let publicPosts = [];
-            Promise.all(publicPostsPromises)
-                .then((postObjArrays) => {
-                    publicPosts = [...publicPosts, ...postObjArrays];
-                    return res.status(201).send(publicPosts);
+            // let publicPosts = [];
+            // Promise.all(publicPostsPromises)
+            //     .then((postObjArrays) => {
+            //         publicPosts = [...publicPosts, ...postObjArrays];
+            //         return res.status(200).send(publicPosts);
+            //     })
+            Promise.all(pubPosts)
+                .then((posts) => {
+                    return res.status(200).send(posts);
                 })
+                .catch((error) => {
+                    console.error('Error fetching posts:', error);
+                    return res.status(500).send('Internal Server Error');
+                });
         }
         else {
 
@@ -85,7 +94,7 @@ const getFeeds = async (req, res) => {
                             return allPosts.find(post => post._id.toString() === id);
                         });
 
-                    return res.status(201).send(uniquePosts);
+                    return res.status(200).send(uniquePosts);
 
 
                 })
@@ -158,7 +167,7 @@ const getPost = async (req, res) => {
 // Update a post by ID
 const updatePost = async (req, res) => {
     try {
-        let {imageUrl} = req.body;
+        let { imageUrl } = req.body;
         const farmer = req.farmer;
         const posts = farmer.posts;
         if (posts.indexOf(req.params.id) === -1) {
@@ -223,16 +232,24 @@ const likePost = async (req, res) => {
         }
         else {
             let likes = post.likes;
-            if(likes.indexOf(farmer._id) !== -1) return res.status(502).send("You already liked the post");
+            if (likes.indexOf(farmer._id) !== -1) return res.status(409).send("You already liked the post");
             likes.push(farmer._id);
             const updatedPost = await Post.updateOne(
                 { _id: post._id },
                 { $set: { likes: likes } }
             )
+            console.log("checking the post");
+            try {
+                const post = await Post.findById(req.params.id);
+                console.log(post);
+            } catch (error) {
+                console.error("Error fetching post:", error);
+                // Respond with a server error message or handle it accordingly
+            }
         }
         res.status(200).send('Post is liked');
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).send("Error liking post(at likepost function):", error);
     }
 }
 
@@ -348,8 +365,8 @@ const savePost = async (req, res) => {
         const farmer = req.farmer;
 
         let saved = farmer.saved;
-        if(saved.indexOf(req.params.id) !== -1) return res.status(502).send("Post is already saved");
-            
+        if (saved.indexOf(req.params.id) !== -1) return res.status(502).send("Post is already saved");
+
         saved.push(req.params.id);
 
         const updated = await Farmer.updateOne(

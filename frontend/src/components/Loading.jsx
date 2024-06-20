@@ -4,9 +4,7 @@ import styled from "styled-components";
 const Loading = () => {
   return (
     <Container>
-      <Load>
         <img src="./src/assets/LoadingSpinner.gif" alt="" />
-      </Load>
     </Container>
   );
 };
@@ -14,12 +12,11 @@ const Loading = () => {
 export default Loading;
 
 const Container = styled.div`
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   /* background-color: #f00; */
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 
-const Load = styled.div``;
