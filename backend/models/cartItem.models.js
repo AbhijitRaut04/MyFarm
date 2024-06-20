@@ -1,24 +1,19 @@
 import mongoose from 'mongoose';
 
 const cartItemSchema = new mongoose.Schema({
-    title: [{
-        product: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Product'
-        },
-        quantity: {
-            type: Number,
-            default: 1
-        }
-    }],
-    amount: {
-        type: Number
+    product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product'
     },
-    GST: {
-        type: Number
+    quantity: {
+        type: Number,
+        default: 1
     },
-    platformFee: {
-        type: Number
+    status: {
+        type: String,
+        enum: ['Delivered', 'Cancelled', 'Dispatched', 'Ordered', 'InCart'],
+        default: 'InCart',
+        required: true
     }
 });
 

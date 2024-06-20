@@ -2,6 +2,7 @@ import { generateJWTToken } from '../db/generateToken.js';
 import { encryptData, comparePasswords } from '../db/hashPassword.js';
 import Farmer from '../models/farmer.models.js';
 import Post from '../models/post.models.js';
+
 // Create a new farmer
 const createFarmer = async (req, res) => {
     try {
@@ -192,7 +193,7 @@ const updateFarmer = async (req, res) => {
     }
 }
 
-// Delete a farmer by ID
+// Delete a farmer
 const deleteFarmer = async (req, res) => {
     try {
         const farmer = await Farmer.findByIdAndDelete(req.farmer._id);
@@ -226,7 +227,7 @@ const getSavedPosts = async (req, res) => {
                 return res.status(201).send(savedPosts);
             })
             .catch((error) => {
-                console.error('Error fetching posts:', error);
+                console.log('Error fetching posts:', error);
                 return res.status(500).send('Internal Server Error');
             });
     }
@@ -317,23 +318,13 @@ const getFollowers = async (req, res) => {
 
         const followers = farmer.followers;
 
-        let followersList = [];
-
         // Fetch followers
-        const followersListPromises = followers.map(async (postId) => {
-            let post = await Post.findById(postId);
-            return post;
-        });
-
-        Promise.all(followersListPromises)
-            .then((postObjArrays) => {
-                followersList = [...followersList, ...postObjArrays];
-                return res.status(201).send(followersList);
-            })
-            .catch((error) => {
-                console.error('Error fetching followers:', error);
-                return res.status(500).send('Internal Server Error');
-            });
+        const followersList = await Promise.all(followers.map(async (farmerId) => {
+            let farmer = await Farmer.findById(farmerId);
+            return farmer;
+        }));
+        return res.status(200).send(followersList);
+        
     } catch (error) {
         return res.status(500).send({ error: error.message })
     }
@@ -345,31 +336,22 @@ const getFollowing = async (req, res) => {
         const farmer = req.farmer;
         const account = await Farmer.findById(req.params.id);
         if (!account) return res.status(400).send("Farmer not found");
-
-
+        
+        
         if (account.followers.indexOf(farmer._id) === -1) {
             return res.status(401).send("You cannot view followers");
         }
-
+        
         const following = farmer.following;
-
-        let followingList = [];
-
+        
         // Fetch following
-        const followingListPromises = following.map(async (postId) => {
-            let post = await Post.findById(postId);
-            return post;
-        });
-
-        Promise.all(followingListPromises)
-            .then((postObjArrays) => {
-                followingList = [...followingList, ...postObjArrays];
-                return res.status(201).send(followingList);
-            })
-            .catch((error) => {
-                console.error('Error fetching following:', error);
-                return res.status(500).send('Internal Server Error');
-            });
+        const followingList = await Promise.all(following.map(async (farmerId) => {
+            let farmer = await Farmer.findById(farmerId);
+            return farmer;
+        }));
+        
+        return res.status(200).send(followingList);
+        
     } catch (error) {
         return res.status(500).send({ error: error.message })
     }

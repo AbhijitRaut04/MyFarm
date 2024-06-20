@@ -11,7 +11,7 @@ router.post('/createPost',isFarmerSignin, upload.single("media"), imageUpload, c
 router.get('/', getLoginFarmer, getFeeds)
 router.get('/myPosts', isFarmerSignin, getCurrentFarmerPosts)
 router.get('/:id', getLoginFarmer, getPost)
-router.put('/:id', isFarmerSignin, updatePost)
+router.put('/:id', isFarmerSignin, upload.single("media"), imageUpload, updatePost)
 router.delete('/:id', isFarmerSignin, deletePost);
 
 

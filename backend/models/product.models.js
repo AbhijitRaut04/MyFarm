@@ -10,9 +10,8 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    image : {
-        type : String,
-        required : true
+    image: {
+        type: String
     },
     stock: {
         type: Number,
@@ -27,7 +26,32 @@ const productSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Shopkeeper',
         required: true
-    }
+    },
+    rating: [{
+        ratedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Farmer'
+        },
+        rate: {
+            type: String,
+            enum:["1","2","3","4","5"],
+            default:"0"
+        }
+    }],
+    reviews: [{
+        createdBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Farmer',
+            required: true
+        },
+        image: String,
+        description: String,
+        rating: {
+            type: Number,
+            enum: [1, 2, 3, 4, 5],
+            default: 5
+        }
+    }]
 });
 
 const Product = mongoose.model('Product', productSchema);
