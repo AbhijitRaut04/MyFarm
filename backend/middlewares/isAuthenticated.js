@@ -21,7 +21,7 @@ const isFarmerSignin = async (req, res, next) => {
       next();
     }
     else {
-      res.status(401).send({ error: 'error' });
+      res.status(401).send({ error: 'Farmer is not authorized' });
     }
   } catch (error) {
     console.log(error)

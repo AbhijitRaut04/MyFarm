@@ -113,9 +113,6 @@ const Home = () => {
       <Create onClick={handleCreate} $isvisible={isVisible}>
         <i className="fa-regular fa-plus"></i>
       </Create>
-
-      <h1>Home</h1>
-      <div>Home</div>
     </>
   );
 };

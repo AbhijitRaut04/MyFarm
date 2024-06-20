@@ -167,7 +167,7 @@ const getPost = async (req, res) => {
 // Update a post by ID
 const updatePost = async (req, res) => {
     try {
-        let {imageUrl} = req.body;
+        let { imageUrl } = req.body;
         const farmer = req.farmer;
         const posts = farmer.posts;
         if (posts.indexOf(req.params.id) === -1) {
@@ -232,16 +232,24 @@ const likePost = async (req, res) => {
         }
         else {
             let likes = post.likes;
-            if(likes.indexOf(farmer._id) !== -1) return res.status(502).send("You already liked the post");
+            if (likes.indexOf(farmer._id) !== -1) return res.status(409).send("You already liked the post");
             likes.push(farmer._id);
             const updatedPost = await Post.updateOne(
                 { _id: post._id },
                 { $set: { likes: likes } }
             )
+            console.log("checking the post");
+            try {
+                const post = await Post.findById(req.params.id);
+                console.log(post);
+            } catch (error) {
+                console.error("Error fetching post:", error);
+                // Respond with a server error message or handle it accordingly
+            }
         }
         res.status(200).send('Post is liked');
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).send("Error liking post(at likepost function):", error);
     }
 }
 
@@ -357,8 +365,8 @@ const savePost = async (req, res) => {
         const farmer = req.farmer;
 
         let saved = farmer.saved;
-        if(saved.indexOf(req.params.id) !== -1) return res.status(502).send("Post is already saved");
-            
+        if (saved.indexOf(req.params.id) !== -1) return res.status(502).send("Post is already saved");
+
         saved.push(req.params.id);
 
         const updated = await Farmer.updateOne(

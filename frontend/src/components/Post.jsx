@@ -8,7 +8,15 @@ const Post = ({ post }) => {
 
   const handleLikeClick = () => {
     console.log("Like button clicked");
-    // Add your functionality here
+    console.log(post._id);
+    axios
+      .patch(`/api/posts/${post._id}/like`)
+      .then((response) => {
+        console.log("Post liked successfully: ", response);
+      })
+      .catch((error) => {
+        console.error("Error liking post(unknown): ", error.response);
+      });
   };
 
   const handleCommentClick = () => {
