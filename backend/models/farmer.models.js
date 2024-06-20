@@ -53,6 +53,10 @@ const farmerSchema = new mongoose.Schema({
     cart: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'CartItem'
+    }],
+    chats:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Chat'
     }]
 });
 
