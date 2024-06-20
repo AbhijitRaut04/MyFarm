@@ -53,6 +53,7 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
       .post("/api/posts/createPost", formData)
       .then((response) => {
         //revolking the object URL to free up memory
+        console.log("Post created successfully: ", response);
         if (imageURL) {
           URL.revokeObjectURL(imageURL);
           setImageURL(null);
