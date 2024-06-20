@@ -33,20 +33,28 @@ const getFeeds = async (req, res) => {
 
 
         // Fetch current farmer's posts
-        const publicPostsPromises = pubPosts.map(async (postId) => {
-            let post = await Post.findById(postId);
-            return post;
-        });
+        // const publicPostsPromises = pubPosts.map(async (postId) => {
+        //     let post = await Post.findById(postId);
+        //     return post;
+        // });
 
         const farmer = req.farmer;
 
         if (!farmer) {
-            let publicPosts = [];
-            Promise.all(publicPostsPromises)
-                .then((postObjArrays) => {
-                    publicPosts = [...publicPosts, ...postObjArrays];
-                    return res.status(201).send(publicPosts);
+            // let publicPosts = [];
+            // Promise.all(publicPostsPromises)
+            //     .then((postObjArrays) => {
+            //         publicPosts = [...publicPosts, ...postObjArrays];
+            //         return res.status(200).send(publicPosts);
+            //     })
+            Promise.all(pubPosts)
+                .then((posts) => {
+                    return res.status(200).send(posts);
                 })
+                .catch((error) => {
+                    console.error('Error fetching posts:', error);
+                    return res.status(500).send('Internal Server Error');
+                });
         }
         else {
 
@@ -86,7 +94,7 @@ const getFeeds = async (req, res) => {
                             return allPosts.find(post => post._id.toString() === id);
                         });
 
-                    return res.status(201).send(uniquePosts);
+                    return res.status(200).send(uniquePosts);
 
 
                 })
