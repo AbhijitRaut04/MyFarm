@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import { UserContext } from "./Contexts";
 import axios from "axios";
 
-// const UserContext = createContext();
-
 const UserContextProvider = ({ children }) => {
   const [posts, setPosts] = useState([
     {

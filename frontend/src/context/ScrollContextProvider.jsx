@@ -8,13 +8,13 @@ const ScrollContextProvider = ({ children }) => {
   const [isScrolledPast, setIsScrolledPast] = useState(false);
   useEffect(() => {
     const handleScroll = throttle(() => {
-      const categoryBottom = document
-        .querySelector("#category")
+      const headerSectionBottom = document
+        .querySelector("#headerSection")
         ?.getBoundingClientRect().bottom;
       const searchBarTop = document
         .querySelector("#searchBar")
         ?.getBoundingClientRect().bottom;
-      setIsScrolledPast(searchBarTop < categoryBottom);
+      setIsScrolledPast(searchBarTop < headerSectionBottom);
 
       const currentScrollY = window.scrollY;
 

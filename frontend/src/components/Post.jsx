@@ -1,21 +1,22 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { memo, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import styled from "styled-components";
-import { UserContext } from "../context/Contexts";
+import { SessionContext } from "../context/Contexts";
 
-const Post = ({ post }) => {
+const Post = memo(({ post }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [noOfLikes, setNoOfLikes] = useState(post.likes?.length || 0);
   const [noOfComments, setNoOfComments] = useState(post.comments?.length || 0);
+  const {farmer} = useContext(SessionContext);
   console.log(post.likes?.length);
 
   useEffect(() => {
     if (post) {
-      setIsLiked(post.isLikedByCurrentUser);
+      setIsLiked(post.likes?.includes(farmer?._id) || false);
       setNoOfLikes(post.likes?.length || 0);
       setNoOfComments(post.comments?.length || 0);
     }
-  }, [post]);
+  }, [post,farmer]);
 
   const handleLikeClick = () => {
     console.log("Like button clicked");
@@ -84,7 +85,7 @@ const Post = ({ post }) => {
           <UserProfile src={post.createdBy.profilePhoto} />
           <UserName>{post.createdBy.username}</UserName>
         </UserData>
-        <i className="fa-solid fa-bars"></i>
+        <i className="fa-solid fa-ellipsis"></i>
       </UserInfo>
 
       <PostMedia>
@@ -125,7 +126,7 @@ const Post = ({ post }) => {
       </PostDetails>
     </PostWrapper>
   );
-};
+});
 
 export default Post;
 
@@ -133,10 +134,18 @@ const PostWrapper = styled.div`
   width: 80%;
   height: auto;
   margin: 0 auto;
-  margin-top: 20px;
-  padding-bottom: 10px;
+  /* margin-top: 10px; */
+  padding-bottom: 30px;
   background-color: #fff;
-  border-radius: 20px;
+  /* border-radius: 10px; */
+  border-top: 1px solid #ddd;
+  /* border-bottom: 1px solid #ddd; */
+  @media (max-width: 600px) {
+    border-radius: 0;
+    width: 100%;
+    margin: 2rem 0;
+    padding-bottom: 10px;
+  }
 `;
 
 const UserInfo = styled.div`
@@ -150,6 +159,9 @@ const UserInfo = styled.div`
     font-size: 1.5rem;
     color: #333;
     cursor: pointer;
+  }
+  @media (max-width: 600px) {
+    padding: 10px 20px;
   }
 `;
 
@@ -169,7 +181,8 @@ const UserName = styled.div``;
 
 const PostMedia = styled.div`
   flex: 1;
-  height: 350px;
+  min-height: 350px;
+  max-height: 400px;
   display: flex;
   justify-content: center;
   align-items: center;

@@ -15,12 +15,12 @@ const createPost = async (req, res) => {
             isPublic
         });
 
-        farmer.posts.push(post._id);
+        // farmer.posts.push(post._id);
 
-        await Farmer.updateOne(
-            {_id: farmer._id},
-            {posts: farmer.posts}
-        )
+        // await Farmer.updateOne(
+        //     {_id: farmer._id},
+        //     {posts: farmer.posts}
+        // )
 
         console.log("Post created successfully")
         console.log(post);
