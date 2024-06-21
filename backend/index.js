@@ -10,18 +10,11 @@ import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import dotenv from 'dotenv'
-import http from 'http';
-import { Server as SocketIoServer } from 'socket.io';
 import { verifyToken } from './db/generateToken.js'
-import { socketSetUp } from './db/socket.js'
 dotenv.config({
     path: './.env'
 })
 const app = express()
-// const server = http.createServer(app);
-// const io = new SocketIoServer(server, {
-//     path: '/chat/socket.io'
-// });
 connectDB()
 
 app.use(express.json());
@@ -46,9 +39,6 @@ app.get('/', (req, res) => {
 })
 
 
-const listener = app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT, () => {
     console.log(`Listening on port ${process.env.PORT}`)
 })
-
-export { listener }
-// socketSetUp(io);
