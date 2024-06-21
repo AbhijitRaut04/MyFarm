@@ -18,6 +18,8 @@ const UserContextProvider = ({ children }) => {
     },
   ]);
 
+  console.log(posts);
+
   useEffect(() => {
     axios
       .get("/api/posts")

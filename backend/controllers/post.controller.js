@@ -4,6 +4,7 @@ import Post from '../models/post.models.js';
 // Create a new post
 const createPost = async (req, res) => {
     try {
+        console.log("Creating post from createPost function");
         const { heading, description, isPublic, imageUrl } = req.body
         const farmer = req.farmer;
         const post = await Post.create({
@@ -16,9 +17,13 @@ const createPost = async (req, res) => {
 
         console.log("Post created successfully")
         console.log(post);
+
+        //adding the created post id to farmers posts array
+        await Farmer.findByIdAndUpdate(farmer._id, { $addToSet: { posts: post._id } });
+
         res.status(201).send({ post: "Post created successfully", postid: post._id.toString() });
     } catch (error) {
-        res.status(500).send({ error: 'Data not inserted', message: error.message });
+        res.status(500).send({ error: 'Data not inserted due to post fields are not as per schema ', message: error.message });
     }
 }
 
@@ -53,7 +58,7 @@ const getFeeds = async (req, res) => {
                 })
                 .catch((error) => {
                     console.error('Error fetching posts:', error);
-                    return res.status(500).send('Internal Server Error');
+                    return res.status(500).send('Internal Server Error: Error fetching posts');
                 });
         }
         else {
@@ -62,7 +67,7 @@ const getFeeds = async (req, res) => {
             const currentFarmerPosts = farmer.posts;
 
             // Fetch current farmer's posts
-            const currentPostsPromises = currentFarmerPosts.map(async (postId) => {
+            const currentFarmerPostsPromises = currentFarmerPosts.map(async (postId) => {
                 let post = await Post.findById(postId);
                 return post;
             });
@@ -79,20 +84,25 @@ const getFeeds = async (req, res) => {
             });
 
             // Combine all promises
-            Promise.all([Promise.all(currentPostsPromises), Promise.all(publicPostsPromises), ...followingPostsPromises])
+            Promise.all([Promise.all(currentFarmerPostsPromises), Promise.all(pubPosts), ...followingPostsPromises])
                 .then((results) => {
                     // Flatten the array of arrays
                     results.forEach((postArray) => {
                         allPosts = [...allPosts, ...postArray];
                     });
 
-
-
                     // Remove duplicates
-                    const uniquePosts = Array.from(new Set(allPosts.map(post => post._id.toString())))
-                        .map(id => {
-                            return allPosts.find(post => post._id.toString() === id);
-                        });
+                    const uniquePostsMap = new Map();
+                    allPosts.forEach(post => {
+                        uniquePostsMap.set(post._id.toString(), post);
+                    });
+                    let uniquePosts = Array.from(uniquePostsMap.values());
+
+                    //adding the isLiked field to show if the farmer liked the post or not
+                    uniquePosts.forEach(post => (
+                        post.isLikedByCurrentUser = post.likes.includes(farmer._id)
+                    ));
+                    console.log("isLikedByCurrentUser field added to posts");
 
                     return res.status(200).send(uniquePosts);
 
@@ -110,29 +120,20 @@ const getFeeds = async (req, res) => {
 const getCurrentFarmerPosts = async (req, res) => {
     try {
         const farmer = req.farmer;
-        const currentFarmerPosts = farmer.posts;
 
-        let currentPosts = [];
-
-        // Fetch current farmer's posts
-        const currentPostsPromises = currentFarmerPosts.map(async (postId) => {
-            let post = await Post.findById(postId);
-            return post;
-        });
+        const currentPostsPromises = farmer.posts.map(postId => Post.findById(postId));
 
         Promise.all(currentPostsPromises)
-            .then((postObjArrays) => {
-                currentPosts = [...currentPosts, ...postObjArrays];
-                return res.status(201).send(currentPosts);
-            })
-            .catch((error) => {
+            .then(currentPosts => res.status(200).send(currentPosts))
+            .catch(error => {
                 console.error('Error fetching posts:', error);
-                return res.status(500).send('Internal Server Error');
+                return res.status(500).send('Internal Server Error : While fetching posts of current farmer');
             });
 
     }
     catch (error) {
-        res.status(500).send({ error: error.message });
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error: at getCurrentFarmerPosts function');
     }
 }
 
@@ -231,12 +232,12 @@ const likePost = async (req, res) => {
             return res.status(404).send('Post not found');
         }
         else {
-            let likes = post.likes;
-            if (likes.indexOf(farmer._id) !== -1) return res.status(409).send("You already liked the post");
-            likes.push(farmer._id);
-            const updatedPost = await Post.updateOne(
+            let likesArray = post.likes;
+            if (likesArray.includes(farmer._id)) return res.status(409).send("You already liked the post");
+
+            await Post.updateOne(
                 { _id: post._id },
-                { $set: { likes: likes } }
+                { $addToSet: { likes: farmer._id } }
             )
             console.log("checking the post");
             try {
@@ -262,12 +263,13 @@ const unlikePost = async (req, res) => {
             return res.status(404).send('Post not found');
         }
         else {
-            let likes = post.likes;
-            likes = likes.filter(item => item !== farmer._id);
-            const updatedPost = await Post.updateOne(
+            let likesArray = post.likes;
+            if (!(likesArray.includes(farmer._id))) return res.status(409).send("You didn't like the post yet!");
+
+            await Post.updateOne(
                 { _id: post._id },
-                { $set: { likes: likes } }
-            )
+                { $pull: { likes: farmer._id } }
+            );
         }
         res.status(200).send('Post is unliked');
     } catch (error) {

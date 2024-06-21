@@ -1,22 +1,48 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import styled from "styled-components";
 import UserContext from "../context/UserContext";
 
 const Post = ({ post }) => {
-  const { setPosts } = useContext(UserContext);
+  const [isLiked, setIsLiked] = useState(false);
+  const [noOfLikes, setNoOfLikes] = useState(post.likes?.length || 0);
+  const [noOfComments, setNoOfComments] = useState(post.comments?.length || 0);
+  console.log(post.likes?.length);
+
+  useEffect(() => {
+    if (post) {
+      setIsLiked(post.isLikedByCurrentUser);
+      setNoOfLikes(post.likes?.length || 0);
+      setNoOfComments(post.comments?.length || 0);
+    }
+  }, [post]);
 
   const handleLikeClick = () => {
     console.log("Like button clicked");
     console.log(post._id);
-    axios
-      .patch(`/api/posts/${post._id}/like`)
-      .then((response) => {
-        console.log("Post liked successfully: ", response);
-      })
-      .catch((error) => {
-        console.error("Error liking post(unknown): ", error.response);
-      });
+    if (!isLiked) {
+      axios
+        .patch(`/api/posts/${post._id}/like`)
+        .then((response) => {
+          setIsLiked(true);
+          console.log("Post liked successfully: ", response);
+          setNoOfLikes((prevLikes) => prevLikes + 1);
+        })
+        .catch((error) => {
+          console.error("Error liking post(unknown): ", error.response);
+        });
+    } else {
+      setIsLiked(false);
+      axios
+        .patch(`/api/posts/${post._id}/unlike`)
+        .then((response) => {
+          console.log("Post unliked successfully: ", response);
+          setNoOfLikes((prevLikes) => prevLikes - 1);
+        })
+        .catch((error) => {
+          console.error("Error unliking post(unknown): ", error.response);
+        });
+    }
   };
 
   const handleCommentClick = () => {
@@ -62,12 +88,17 @@ const Post = ({ post }) => {
       </UserInfo>
 
       <PostMedia>
-        <img src={post.file} alt="" />
+        <img src={post.file || ""} alt="" />
       </PostMedia>
 
       <PostInfo>
         <button onClick={handleLikeClick}>
-          <i className="fa-regular fa-heart like"></i>
+          {/* <i className="fa-regular fa-heart like"></i> */}
+          {isLiked ? (
+            <i className="fa-solid fa-heart liked"></i>
+          ) : (
+            <i className="fa-regular fa-heart like"></i>
+          )}
         </button>
 
         <button onClick={handleCommentClick}>
@@ -87,7 +118,7 @@ const Post = ({ post }) => {
       </PostInfo>
 
       <PostDetails>
-        <p className="likesAndComments">{`${post.likes?.length} likes, ${post.comments?.length} comments`}</p>
+        <p className="likesAndComments">{`${noOfLikes} likes, ${noOfComments} comments`}</p>
         {/* <p className="likesAndComments">{`${post.comments.length} comments`}</p> */}
         <h2>{post.title}</h2>
         <p>{post.content}</p>
@@ -161,6 +192,9 @@ const PostInfo = styled.div`
     background-color: transparent;
     border: none;
     cursor: pointer;
+  }
+  .liked {
+    color: #f64361;
   }
 `;
 

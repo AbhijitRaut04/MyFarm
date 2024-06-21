@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Loading from "./Loading";
@@ -7,207 +7,223 @@ import Loading from "./Loading";
 const ProfilePage = () => {
   const navigate = useNavigate();
   const [loading, setLoding] = useState(true);
+  const [user, setUser] = useState();
+  const [ownPosts, setOwnPosts] = useState();
+
   //navigate to signin page if user is not logged in
-  axios
-    .get("/api/verify")
-    .then((response) => {
-      console.log(response);
-      setLoding(false);
-      if (!response.data.isLoggedIn) {
+  useEffect(() => {
+    console.log("fetching farmer posts");
+    axios
+      .get("/api/posts/myPosts")
+      .then((response) => {
+        // console.log("Current farmer posts",response);
+        console.log("featching posts completed");
+        setOwnPosts(response.data);
+      })
+      .catch((error) => {
+        console.error("Error: at fetching posts", error);
+      });
+
+    console.log("fetching farmer profile");
+    axios
+      .get("/api/farmers/profile")
+      .then((response) => {
+        console.log("featching profile completed");
+        setUser(response.data);
+        setLoding(false);
+        console.log(response);
+      })
+      .catch((error) => {
+        console.error("Error: at featching profile", error);
         navigate("/signin");
-      }
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
+      });
+  }, []);
+
+  const postImages = ownPosts?.map((post) => post.file) || [];
 
   return loading ? (
     <Loading />
   ) : (
-    <ProfileContainer>
-      <Header>
-        <img src="./src/assets/burger-menu.svg" alt="" />
-        <h1>Profile</h1>
-        {/* <BackButton></BackButton> */}
-      </Header>
-      <ProfilePicDiv>
-        <ProfilePic src="https://via.placeholder.com/80" alt="Profile" />
-      </ProfilePicDiv>
-      <Username>James Bond</Username>
-      <Handle>@jamesbond007</Handle>
-      <FollowInfo>
-        <FollowItem>
-          <div>178</div>
-          <div>Following</div>
-        </FollowItem>
-        <FollowItem>
-          <div>2.1M</div>
-          <div>Followers</div>
-        </FollowItem>
-      </FollowInfo>
-      <Bio>
-        CEO @ColambiaPictures / past creative director of @aba / Stundmen
-      </Bio>
-      <Tabs>
-        <Tab>Posts 128</Tab>
-        <Tab>Videos 56</Tab>
-      </Tabs>
-      <DraftsContainer>
-        <DraftsInfo>
-          <div>6 Posts</div>
-          <div>In Your Draft</div>
-        </DraftsInfo>
-        <DraftsButton>Take a look</DraftsButton>
-      </DraftsContainer>
-      <PostCardContainer>
-        <PostCard>
-          <PostThumbnail src="https://via.placeholder.com/150" alt="Post 1" />
-          <PostOverlay>
-            <div>542K</div>
-            <div>Dreams come true</div>
-            <div>#freedom #ocean #weekend</div>
-          </PostOverlay>
-        </PostCard>
-        <PostCard>
-          <PostThumbnail src="https://via.placeholder.com/150" alt="Post 2" />
-          <PostOverlay>
-            <div>120K</div>
-            <div>Relax&work</div>
-            <div>#work #BA #CEO</div>
-          </PostOverlay>
-        </PostCard>
-      </PostCardContainer>
-    </ProfileContainer>
+    <ProfilePageWrapper>
+      <UserDetails>
+        <ProfilePictureAndNumbers>
+          <ImageWrapper>
+            <img src={user.profilePhoto || ""} alt="" />
+          </ImageWrapper>
+          <Numbers>
+            <div>
+              <h2>{user.posts?.length || 0}</h2>
+              <p>Posts</p>
+            </div>
+            <div>
+              <h2>{user.followers?.length || 0}</h2>
+              <p>Followers</p>
+            </div>
+            <div>
+              <h2>{user.following?.length || 0}</h2>
+              <p>Following</p>
+            </div>
+          </Numbers>
+        </ProfilePictureAndNumbers>
+        <NameAndDesc>
+          <Name>{user.username || ""}</Name>
+          <p className="descignation">Farmer</p>
+          <p>
+            🌟✨ Capturing the magic of everyday moments ✨🌟 |
+            <br /> 📸 Aesthetic Enthusiast | 🎨 Color Lover <br />
+            🌍 Adventurer at Heart 🧘‍♀️ Mindfulness Seeker <br />
+            📍 [Your City] | 📬 Let's Connect! #LifeThroughMyLens 💫❤️
+            <br />
+            <br />
+            🔗 [yourwebsite.com] | 💌 DM for collaborations
+          </p>
+        </NameAndDesc>
+        <Buttons>
+          <button className="follow">Follow</button>
+          <button className="message">Message</button>
+          <button className="email">Email</button>
+          <button className="moreOptions">
+            <i className="fa-solid fa-chevron-down"></i>
+          </button>
+        </Buttons>
+      </UserDetails>
+
+      <PostWrapper>
+        {postImages.map((post, index) => (
+          <div className="post" key={index}>
+            <img src={post} alt="img link broken" />
+          </div>
+        ))}
+      </PostWrapper>
+    </ProfilePageWrapper>
   );
 };
 
 export default ProfilePage;
 
-const ProfileContainer = styled.div`
-  background-color: #1a1a1a;
-  color: #fff;
+const ProfilePageWrapper = styled.div`
+  background-color: #ffffff;
   width: 100%;
-  margin: 0 auto;
-  padding: 16px 5%;
+  min-height: 100vh;
+  height: auto;
+  /* padding-top: 2rem; */
+  padding: 1rem 1.5rem 0 1.5rem;
 `;
 
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-
-  img {
-    width: 24px;
-    height: 24px;
-  }
-
-  h1 {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-`;
-
-// const BackButton = styled.div`
-//   font-size: 18px;
-//   cursor: pointer;
-// `;
-const ProfilePicDiv = styled.div`
-  margin: 0 auto;
-  width: 80px;
-`;
-
-const ProfilePic = styled.img`
-  margin: 30px 0;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-`;
-
-const Username = styled.h2`
-  text-align: center;
-`;
-
-const Handle = styled.p`
-  text-align: center;
-  color: #888;
-`;
-
-const FollowInfo = styled.div`
-  display: flex;
-  justify-content: space-around;
-  margin: 16px 0;
-`;
-
-const FollowItem = styled.div`
-  text-align: center;
-`;
-
-const Bio = styled.p`
-  text-align: center;
-  color: #888;
-`;
-
-const Tabs = styled.div`
-  display: flex;
-  justify-content: space-around;
-  margin: 16px 0;
-`;
-
-const Tab = styled.div`
-  text-align: center;
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  background-color: #333;
-`;
-
-const DraftsContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 16px 0;
-  padding: 8px;
-  background-color: #333;
-  border-radius: 8px;
-`;
-
-const DraftsInfo = styled.div`
-  color: #888;
-`;
-
-const DraftsButton = styled.button`
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  background-color: #fff;
-  color: #333;
-`;
-
-const PostCardContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
-const PostCard = styled.div`
-  width: 48%;
-  border-radius: 8px;
-  overflow: hidden;
-  position: relative;
-`;
-
-const PostThumbnail = styled.img`
+const UserDetails = styled.div`
+  /* background-color: #bc3b8b; */
   width: 100%;
   height: auto;
 `;
 
-const PostOverlay = styled.div`
-  position: absolute;
-  bottom: 0;
+const ProfilePictureAndNumbers = styled.div`
+  /* background-color: #a663b2; */
+  height: 10rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+`;
+
+const ImageWrapper = styled.div`
+  height: 100%;
+  overflow: hidden;
+  border-radius: 50%;
+
+  img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+  }
+`;
+
+const Numbers = styled.div`
+  background-color: #fff;
+  flex: 1;
+  height: 50%;
+
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  text-align: center;
+  h2 {
+    font-size: 2rem;
+  }
+  p {
+    font-size: 1rem;
+  }
+`;
+
+const NameAndDesc = styled.div`
+  /* background-color: #45c7f3; */
+  height: 12rem;
+
+  .descignation {
+    color: #9a9595;
+  }
+`;
+
+const Name = styled.h2`
+  margin-top: 0.5rem;
+  font-size: 2rem;
+`;
+
+const Buttons = styled.div`
+  /* background-color: #f3a645; */
+  height: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.5rem;
+  button {
+    font-size: 1.2rem;
+    font-weight: 600;
+    background-color: #e7e7e7;
+    padding: 0.5rem 0;
+    text-align: center;
+    border: none;
+    border-radius: 0.3rem;
+    cursor: pointer;
+  }
+  .follow,
+  .message,
+  .email {
+    flex: 1;
+  }
+  .follow {
+    background-color: #ae2328;
+    color: #fff;
+  }
+  .moreOptions {
+    width: 2rem;
+    text-align: center;
+  }
+`;
+
+const PostWrapper = styled.div`
+  /* background-color: #f3a645; */
+  margin-top: 2rem;
+  padding-bottom: 2rem;
   width: 100%;
-  padding: 8px;
-  background: rgba(0, 0, 0, 0.6);
-  color: #fff;
+  height: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.3rem;
+  .post {
+    height: 15rem;
+    overflow: hidden;
+    /* border-radius: 0.2rem; */
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  /* img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  } */
 `;

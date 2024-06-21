@@ -111,10 +111,8 @@ const App = () => {
 
           <Outlet />
 
-          <BlankSpace></BlankSpace>
+          {/* <BlankSpace></BlankSpace> */}
           {/* Temporary code */}
-
-          <h1>Home</h1>
         </MainContent>
       </HomeWrapper>
     </>
@@ -125,7 +123,8 @@ export default App;
 
 const HomeWrapper = styled.div`
   background-color: #e5e5e5;
-  /* height: 100vh; */
+  min-height: 100vh;
+  /* height: auto; */
 `;
 const MainContent = styled.div`
   background-color: #dddddd;
