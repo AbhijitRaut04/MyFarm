@@ -18,6 +18,10 @@ const postSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Farmer'
     }],
+    isLikedByCurrentUser: {
+        type: Boolean,
+        default: false
+    },
     comments: [{
         content: String,
         createdBy: {

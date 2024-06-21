@@ -4,6 +4,7 @@ import Post from '../models/post.models.js';
 // Create a new post
 const createPost = async (req, res) => {
     try {
+        console.log("Creating post from createPost function");
         const { heading, description, isPublic, imageUrl } = req.body
         let farmer = req.farmer;
         const post = await Post.create({
@@ -23,9 +24,13 @@ const createPost = async (req, res) => {
 
         console.log("Post created successfully")
         console.log(post);
+
+        //adding the created post id to farmers posts array
+        await Farmer.findByIdAndUpdate(farmer._id, { $addToSet: { posts: post._id } });
+
         res.status(201).send({ post: "Post created successfully", postid: post._id.toString() });
     } catch (error) {
-        res.status(500).send({ error: 'Data not inserted', message: error.message });
+        res.status(500).send({ error: 'Data not inserted due to post fields are not as per schema ', message: error.message });
     }
 }
 
@@ -214,12 +219,12 @@ const likePost = async (req, res) => {
             return res.status(404).send('Post not found');
         }
         else {
-            let likes = post.likes;
-            if (likes.indexOf(farmer._id) !== -1) return res.status(409).send("You already liked the post");
-            likes.push(farmer._id);
-            const updatedPost = await Post.updateOne(
+            let likesArray = post.likes;
+            if (likesArray.includes(farmer._id)) return res.status(409).send("You already liked the post");
+
+            await Post.updateOne(
                 { _id: post._id },
-                { $set: { likes: likes } }
+                { $addToSet: { likes: farmer._id } }
             )
             console.log("checking the post");
             try {
@@ -245,12 +250,13 @@ const unlikePost = async (req, res) => {
             return res.status(404).send('Post not found');
         }
         else {
-            let likes = post.likes;
-            likes = likes.filter(item => item !== farmer._id);
-            const updatedPost = await Post.updateOne(
+            let likesArray = post.likes;
+            if (!(likesArray.includes(farmer._id))) return res.status(409).send("You didn't like the post yet!");
+
+            await Post.updateOne(
                 { _id: post._id },
-                { $set: { likes: likes } }
-            )
+                { $pull: { likes: farmer._id } }
+            );
         }
         res.status(200).send('Post is unliked');
     } catch (error) {

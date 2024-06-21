@@ -46,7 +46,7 @@ const getLoginFarmer = async (req, res, next) => {
       next();
     } catch (error) {
       console.log(error)
-      return res.status(401).send({ error: error.message });
+      return res.status(401).send({ error: error.message, message: "farmer not authorized" });
     }
   }
 };

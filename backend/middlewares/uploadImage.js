@@ -37,7 +37,7 @@ const imageUpload = async (req, res, next) => {
     }
   } catch (error) {
     if (req.file) fs.unlinkSync(req.file.path) // remove the locally saved temporary file as the upload operation got failed
-    return res.status(500).send({ Error: error.message })
+    return res.status(500).send({ Error: error.message, message: "Image upload failed"})
   }
 }
 

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Post from "./Post";
 import CreatePost from "./CreatePost";
 import UserContext from "../context/UserContext";
+import { throttle } from 'lodash';
 
 const Home = () => {
   const { posts, setIsScrolledPast } = useContext(UserContext);
@@ -21,43 +22,44 @@ const Home = () => {
   };
 
   //checking if the search is behind the category tab
-  const handleScroll = useCallback(() => {
-    const categoryBottom = document
-      .querySelector("#category")
-      .getBoundingClientRect().bottom;
-    const searchBarTop = document
-      .querySelector("#searchBar")
-      .getBoundingClientRect().bottom;
-    setIsScrolledPast(searchBarTop < categoryBottom);
-  }, []);
+
 
   useEffect(() => {
+    const handleScroll = throttle(() => {
+      const categoryBottom = document.querySelector("#category").getBoundingClientRect().bottom;
+      const searchBarTop = document.querySelector("#searchBar").getBoundingClientRect().bottom;
+      setIsScrolledPast(searchBarTop < categoryBottom);
+  
+      const currentScrollY = window.scrollY;
+  
+        if (currentScrollY > lastScrollY) {
+          setIsVisible(0); // Scrolling down
+        } else {
+          setIsVisible(1); // Scrolling up
+        }
+        setLastScrollY(currentScrollY);
+    }, 1000);
+  
     window.addEventListener("scroll", handleScroll);
+  
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [handleScroll]);
+  }, [lastScrollY]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+  // useEffect(() => {
+  //   const handleScroll = throttle(() => {
+      
+  //   }, 1000);
 
-      if (currentScrollY > lastScrollY) {
-        setIsVisible(0); // Scrolling down
-      } else {
-        setIsVisible(1); // Scrolling up
-      }
-      setLastScrollY(currentScrollY);
-    };
+  //   window.addEventListener("scroll", handleScroll, { passive: true });
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [lastScrollY]);
+  //   return () => {
+  //     window.removeEventListener("scroll", handleScroll);
+  //   };
+  // }, [lastScrollY]);
 
   const [displayCreatePost, setDisplayCreatePost] = useState(false);
   const handleCreate = () => {

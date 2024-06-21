@@ -20,9 +20,9 @@ const createFarmer = async (req, res) => {
         const farmer = await Farmer.create(info);
 
         console.log("Farmer registered successfully, logging in");
-        const token =  generateJWTToken(farmer);
+        const token = generateJWTToken(farmer);
 
-        res.cookie("token" , token)
+        res.cookie("token", token)
         res.status(201).send({
             farmer: "Farmer registered successfully",
             userId: farmer._id.toString()
@@ -42,9 +42,9 @@ const loginFarmer = async (req, res) => {
             console.log("Farmer does not exists")
             res.status(401).send({ message: "Farmer not registered yet!" })
         }
-        else{
-            if(! (await comparePasswords(data.password, farmer.password))) return res.status(401).send({message:"Invalid credentials"});
-            else{
+        else {
+            if (!(await comparePasswords(data.password, farmer.password))) return res.status(401).send({ message: "Invalid credentials" });
+            else {
                 console.log("Farmer Logged in")
                 const token = generateJWTToken(farmer);
 
@@ -78,6 +78,16 @@ const getFarmers = async (req, res) => {
         res.status(200).send(farmers);
     } catch (error) {
         res.status(500).send(error);
+    }
+}
+
+const getFarmerProfile = async (req, res) => {
+    try {
+        const farmer = req.farmer;
+        const account = await Farmer.findById(farmer._id);
+        res.status(200).send(account);
+    } catch (error) {
+        res.status(500).send({ error: error.message });
     }
 }
 
@@ -324,7 +334,7 @@ const getFollowers = async (req, res) => {
             return farmer;
         }));
         return res.status(200).send(followersList);
-        
+
     } catch (error) {
         return res.status(500).send({ error: error.message })
     }
@@ -336,22 +346,22 @@ const getFollowing = async (req, res) => {
         const farmer = req.farmer;
         const account = await Farmer.findById(req.params.id);
         if (!account) return res.status(400).send("Farmer not found");
-        
-        
+
+
         if (account.followers.indexOf(farmer._id) === -1) {
             return res.status(401).send("You cannot view followers");
         }
-        
+
         const following = farmer.following;
-        
+
         // Fetch following
         const followingList = await Promise.all(following.map(async (farmerId) => {
             let farmer = await Farmer.findById(farmerId);
             return farmer;
         }));
-        
+
         return res.status(200).send(followingList);
-        
+
     } catch (error) {
         return res.status(500).send({ error: error.message })
     }
@@ -361,6 +371,7 @@ export {
     createFarmer,
     loginFarmer,
     getFarmers,
+    getFarmerProfile,
     getFarmer,
     updateFarmer,
     deleteFarmer,
