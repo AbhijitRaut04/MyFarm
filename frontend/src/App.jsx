@@ -7,12 +7,6 @@ import { ScrollContext, UserContext } from "./context/Contexts";
 import CreatePost from "./components/CreatePost";
 
 const App = () => {
-  const categories = [
-    { icon: <i class="fa-solid fa-house"></i>, heading: "Home" },
-    { icon: <i class="fa-solid fa-message"></i>, heading: "Discussion" },
-    { icon: <i class="fa-solid fa-chalkboard-user"></i>, heading: "Experts consultation" },
-  ];
-
   // ...
   const navigate = useNavigate();
   // const { setIsScrolledPast } = useContext(ScrollContext);
@@ -34,8 +28,7 @@ const App = () => {
       });
   };
   //
-  console.log("App.jsx")
-  
+  console.log("App.jsx");
 
   //showing cross icon in the search bar only when something is written
   const [inputValue, setInputValue] = useState("");
@@ -107,15 +100,18 @@ const App = () => {
               </Other>
             </Header>
             <Category id="category" $isvisible={isVisible}>
-              {categories.map((element, index) => {
-                return (
-                  <CategoryOptions key={index}>
-                    {/* <img src={element.path} alt={element.heading} /> */}
-                    {element.icon}
-                    <p>{element.heading}</p>
-                  </CategoryOptions>
-                );
-              })}
+              <CategoryOptions onClick={() => navigate("/home")}>
+                <i class="fa-solid fa-house"></i>
+                <p>Home</p>
+              </CategoryOptions>
+              <CategoryOptions onClick={() => navigate("/discussion")}>
+                <i class="fa-solid fa-message"></i>
+                <p>Discussion</p>
+              </CategoryOptions>
+              <CategoryOptions onClick={() => navigate("/experts")}>
+                <i class="fa-solid fa-chalkboard-user"></i>
+                <p>Experts</p>
+              </CategoryOptions>
             </Category>
           </HeaderAndCategory>
 
@@ -237,14 +233,14 @@ const Category = styled.div`
   align-items: center;
   transition: bottom 0.5s ease-out;
   z-index: 10;
-  i{
+  i {
     font-size: 1.5rem;
     color: #9b1f24;
   }
   @media (max-width: 600px) {
     width: 100%;
     font-size: 0.7rem;
-    i{
+    i {
       font-size: 1.2rem;
     }
   }
