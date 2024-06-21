@@ -120,29 +120,20 @@ const getFeeds = async (req, res) => {
 const getCurrentFarmerPosts = async (req, res) => {
     try {
         const farmer = req.farmer;
-        const currentFarmerPosts = farmer.posts;
 
-        let currentPosts = [];
-
-        // Fetch current farmer's posts
-        const currentPostsPromises = currentFarmerPosts.map(async (postId) => {
-            let post = await Post.findById(postId);
-            return post;
-        });
+        const currentPostsPromises = farmer.posts.map(postId => Post.findById(postId));
 
         Promise.all(currentPostsPromises)
-            .then((postObjArrays) => {
-                currentPosts = [...currentPosts, ...postObjArrays];
-                return res.status(201).send(currentPosts);
-            })
-            .catch((error) => {
+            .then(currentPosts => res.status(200).send(currentPosts))
+            .catch(error => {
                 console.error('Error fetching posts:', error);
-                return res.status(500).send('Internal Server Error');
+                return res.status(500).send('Internal Server Error : While fetching posts of current farmer');
             });
 
     }
     catch (error) {
-        res.status(500).send({ error: error.message });
+        console.error('Error:', error);
+        res.status(500).send('Internal Server Error: at getCurrentFarmerPosts function');
     }
 }
 
@@ -274,7 +265,7 @@ const unlikePost = async (req, res) => {
         else {
             let likesArray = post.likes;
             if (!(likesArray.includes(farmer._id))) return res.status(409).send("You didn't like the post yet!");
-            
+
             await Post.updateOne(
                 { _id: post._id },
                 { $pull: { likes: farmer._id } }

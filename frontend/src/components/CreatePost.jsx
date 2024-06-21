@@ -5,9 +5,7 @@ import UserContext from "../context/UserContext";
 import Loading from "./Loading";
 
 const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
-  const { setPosts } = useContext(UserContext);
-
-  //post templete
+  //post template
   const [post, setPost] = useState({
     isPublic: true,
   });
@@ -17,11 +15,15 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     setPost({ ...post, media: file });
-    //setting the image in the post templete
+    //setting the image in the post template
     if (file) {
       const url = URL.createObjectURL(file);
       setImageURL(url);
     }
+  };
+
+  const toggleIsPublic = () => {
+    setPost({ ...post, isPublic: !post.isPublic });
   };
 
   const handleTextChange = (event) => {
@@ -43,12 +45,6 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
     formData.append("description", event.target.elements["description"].value);
     formData.append("isPublic", post.isPublic);
 
-    setPost((post) => ({
-      ...post,
-      heading: event.target.elements["heading"].value,
-      description: event.target.elements["description"].value,
-    }));
-
     axios
       .post("/api/posts/createPost", formData)
       .then((response) => {
@@ -59,8 +55,6 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
           setImageURL(null);
         }
 
-        //adding the new post to the posts (local state)
-        setPosts((prevPosts) => [...prevPosts, post]);
         setLoading(false);
         setShowPostedMessage(true);
         setDisplayCreatePost(false);
@@ -84,13 +78,6 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
     };
   }, [imageURL]);
 
-  const toggleIsPublic = () => {
-    setPost((post) => ({
-      ...post,
-      isPublic: !post.isPublic,
-    }));
-  };
-
   return (
     <>
       {(loading && <Loading />) || ""}
@@ -99,7 +86,7 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
         <form onSubmit={onSubmit}>
           <UserInfo>
             <UserData>
-              <UserProfile src="./src\assets\discussion.jpg" />
+              <UserProfile src="./src/assets/discussion.jpg" />
               <UserName>Cillian Murphy</UserName>
             </UserData>
             <div className="icons">

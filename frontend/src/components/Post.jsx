@@ -7,7 +7,7 @@ const Post = ({ post }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [noOfLikes, setNoOfLikes] = useState(post.likes?.length || 0);
   const [noOfComments, setNoOfComments] = useState(post.comments?.length || 0);
-  console.log(post.likes.length);
+  console.log(post.likes?.length);
 
   useEffect(() => {
     if (post) {
@@ -16,24 +16,22 @@ const Post = ({ post }) => {
       setNoOfComments(post.comments?.length || 0);
     }
   }, [post]);
-  
+
   const handleLikeClick = () => {
-    
     console.log("Like button clicked");
     console.log(post._id);
-    if(!isLiked){
-      setIsLiked(true);
+    if (!isLiked) {
       axios
-      .patch(`/api/posts/${post._id}/like`)
-      .then((response) => {
+        .patch(`/api/posts/${post._id}/like`)
+        .then((response) => {
+          setIsLiked(true);
           console.log("Post liked successfully: ", response);
           setNoOfLikes((prevLikes) => prevLikes + 1);
         })
         .catch((error) => {
           console.error("Error liking post(unknown): ", error.response);
         });
-    }
-    else {
+    } else {
       setIsLiked(false);
       axios
         .patch(`/api/posts/${post._id}/unlike`)
@@ -90,13 +88,17 @@ const Post = ({ post }) => {
       </UserInfo>
 
       <PostMedia>
-        <img src={post.file} alt="" />
+        <img src={post.file || ""} alt="" />
       </PostMedia>
 
       <PostInfo>
         <button onClick={handleLikeClick}>
           {/* <i className="fa-regular fa-heart like"></i> */}
-          {isLiked ? <i className="fa-solid fa-heart liked"></i> : <i className="fa-regular fa-heart like"></i>}
+          {isLiked ? (
+            <i className="fa-solid fa-heart liked"></i>
+          ) : (
+            <i className="fa-regular fa-heart like"></i>
+          )}
         </button>
 
         <button onClick={handleCommentClick}>
@@ -191,8 +193,8 @@ const PostInfo = styled.div`
     border: none;
     cursor: pointer;
   }
-  .liked{
-    color: #F64361
+  .liked {
+    color: #f64361;
   }
 `;
 
