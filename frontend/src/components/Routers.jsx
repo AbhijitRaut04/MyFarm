@@ -15,10 +15,10 @@ const Routers = () => {
         <Route path="/" element={<App />}>
           <Route path="home" element={<Home />} />
           <Route path="cart" element={<Cart />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/signin" element={<Signin />} />
+          <Route path="/signup" element={<Signup />} />
         </Route>
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/signin" element={<Signin />} />
-        <Route path="/signup" element={<Signup />} />
         <Route path="*" element={<Navigate replace to="/home" />} />
       </Routes>
     </BrowserRouter>
