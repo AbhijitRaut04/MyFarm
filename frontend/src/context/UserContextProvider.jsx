@@ -1,5 +1,5 @@
-import React, { createContext, useEffect, useState } from "react";
-import UserContext from "./UserContext";
+import React, { useEffect, useState } from "react";
+import { UserContext } from "./Contexts";
 import axios from "axios";
 
 // const UserContext = createContext();
@@ -32,12 +32,8 @@ const UserContextProvider = ({ children }) => {
       });
   }, []);
 
-  const [isScrolledPast, setIsScrolledPast] = useState(false);
-
   return (
-    <UserContext.Provider
-      value={{ posts, setPosts, isScrolledPast, setIsScrolledPast }}
-    >
+    <UserContext.Provider value={{ posts, setPosts }}>
       {children}
     </UserContext.Provider>
   );
