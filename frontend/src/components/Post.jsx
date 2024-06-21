@@ -55,8 +55,8 @@ const Post = ({ post }) => {
     <PostWrapper>
       <UserInfo>
         <UserData>
-          <UserProfile src="./src\assets\discussion.jpg" />
-          <UserName>Cillian Murphy</UserName>
+          <UserProfile src={post.createdBy.profilePhoto} />
+          <UserName>{post.createdBy.username}</UserName>
         </UserData>
         <i className="fa-solid fa-bars"></i>
       </UserInfo>
@@ -128,8 +128,10 @@ const UserData = styled.div`
   gap: 10px;
 `;
 const UserProfile = styled.img`
-  width: 45px;
+  height: 30px;
+  width: 30px;
   border-radius: 50%;
+  object-fit: center;
 `;
 
 const UserName = styled.div``;

@@ -90,6 +90,11 @@ const Signup = () => {
               placeholder="Location"
             />
 
+            <Input
+              {...register("profilePhoto", { required: true })}
+              type="file"
+            />
+
             <CheckboxWrapper>
               <label>
                 <Checkbox

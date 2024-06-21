@@ -18,10 +18,10 @@ dotenv.config({
     path: './.env'
 })
 const app = express()
-const server = http.createServer(app);
-const io = new SocketIoServer(server, {
-    path: '/chat/socket.io'
-});
+// const server = http.createServer(app);
+// const io = new SocketIoServer(server, {
+//     path: '/chat/socket.io'
+// });
 connectDB()
 
 app.use(express.json());
@@ -51,4 +51,4 @@ const listener = app.listen(process.env.PORT, () => {
 })
 
 export { listener }
-socketSetUp(io);
+// socketSetUp(io);

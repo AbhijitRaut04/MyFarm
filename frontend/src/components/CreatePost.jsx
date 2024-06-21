@@ -37,12 +37,12 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
     //setting loading animation
     setLoading(true);
 
-    const formData = new FormData();
+    let formData = new FormData();
     formData.append("media", post.media);
     formData.append("heading", event.target.elements["heading"].value);
     formData.append("description", event.target.elements["description"].value);
     formData.append("isPublic", post.isPublic);
-
+    console.log(formData)
     setPost((post) => ({
       ...post,
       heading: event.target.elements["heading"].value,

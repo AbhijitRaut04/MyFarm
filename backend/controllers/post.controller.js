@@ -5,7 +5,7 @@ import Post from '../models/post.models.js';
 const createPost = async (req, res) => {
     try {
         const { heading, description, isPublic, imageUrl } = req.body
-        const farmer = req.farmer;
+        let farmer = req.farmer;
         const post = await Post.create({
             title: heading,
             content: description,
@@ -13,6 +13,13 @@ const createPost = async (req, res) => {
             createdBy: farmer._id,
             isPublic
         });
+
+        farmer.posts.push(post._id);
+
+        await Farmer.updateOne(
+            {_id: farmer._id},
+            {posts: farmer.posts}
+        )
 
         console.log("Post created successfully")
         console.log(post);
@@ -25,182 +32,158 @@ const createPost = async (req, res) => {
 // Get all feeds
 const getFeeds = async (req, res) => {
     try {
-
         let allPosts = [];
 
-        // public posts
-        const pubPosts = await Post.find({ isPublic: true });
+        // Fetch public posts
+        let pubPosts = await Post.find({ isPublic: true });
 
-
-        // Fetch current farmer's posts
-        // const publicPostsPromises = pubPosts.map(async (postId) => {
-        //     let post = await Post.findById(postId);
-        //     return post;
-        // });
+        // Attach createdBy information to public posts
+        const publicPosts = await Promise.all(pubPosts.map(async (post) => {
+            post.createdBy = await Farmer.findById(post.createdBy);
+            return post;
+        }));
 
         const farmer = req.farmer;
 
         if (!farmer) {
-            // let publicPosts = [];
-            // Promise.all(publicPostsPromises)
-            //     .then((postObjArrays) => {
-            //         publicPosts = [...publicPosts, ...postObjArrays];
-            //         return res.status(200).send(publicPosts);
-            //     })
-            Promise.all(pubPosts)
-                .then((posts) => {
-                    return res.status(200).send(posts);
-                })
-                .catch((error) => {
-                    console.error('Error fetching posts:', error);
-                    return res.status(500).send('Internal Server Error');
-                });
-        }
-        else {
-
-            const following = farmer.following;
-            const currentFarmerPosts = farmer.posts;
+            // If no farmer is logged in, return public posts
+            return res.status(200).send(publicPosts);
+        } else {
+            const { following, posts: currentFarmerPosts } = farmer;
 
             // Fetch current farmer's posts
-            const currentPostsPromises = currentFarmerPosts.map(async (postId) => {
+            const currentPosts = await Promise.all(currentFarmerPosts.map(async (postId) => {
                 let post = await Post.findById(postId);
+                post.createdBy = farmer;
                 return post;
-            });
+            }));
 
             // Fetch posts from following farmers
-            const followingPostsPromises = following.map(async (farmerId) => {
-                let farmer = await Farmer.findById(farmerId).select("posts");
-                const posts = farmer.posts;
-                const postPromises = posts.map(async (postId) => {
+            const followingPosts = await Promise.all(following.map(async farmerId => {
+                let followingFarmer = await Farmer.findById(farmerId).select("-password");
+                const posts = await Promise.all(followingFarmer.posts.map(async (postId) => {
                     let post = await Post.findById(postId);
+                    post.createdBy = followingFarmer;
                     return post;
+                }));
+                return posts;
+            }));
+
+            // Flatten the array of arrays
+            const flattenedFollowingPosts = followingPosts.flat();
+
+            // Combine all posts
+            allPosts = [...publicPosts, ...currentPosts, ...flattenedFollowingPosts];
+
+            // Remove duplicates
+            const uniquePosts = Array.from(new Set(allPosts.map(post => post._id.toString())))
+                .map(id => {
+                    return allPosts.find(post => post._id.toString() === id);
                 });
-                return Promise.all(postPromises);
-            });
 
-            // Combine all promises
-            Promise.all([Promise.all(currentPostsPromises), Promise.all(publicPostsPromises), ...followingPostsPromises])
-                .then((results) => {
-                    // Flatten the array of arrays
-                    results.forEach((postArray) => {
-                        allPosts = [...allPosts, ...postArray];
-                    });
-
-
-
-                    // Remove duplicates
-                    const uniquePosts = Array.from(new Set(allPosts.map(post => post._id.toString())))
-                        .map(id => {
-                            return allPosts.find(post => post._id.toString() === id);
-                        });
-
-                    return res.status(200).send(uniquePosts);
-
-
-                })
+            return res.status(200).send(uniquePosts);
         }
-
-
     } catch (error) {
-        res.status(502).send(error.message);
+        console.error('Error fetching posts:', error);
+        return res.status(500).send('Internal Server Error');
     }
 }
+
+
 
 // Get current farmer posts
 const getCurrentFarmerPosts = async (req, res) => {
     try {
         const farmer = req.farmer;
+
+        if (!farmer) {
+            return res.status(400).send('Farmer not found');
+        }
+
         const currentFarmerPosts = farmer.posts;
 
-        let currentPosts = [];
-
         // Fetch current farmer's posts
-        const currentPostsPromises = currentFarmerPosts.map(async (postId) => {
-            let post = await Post.findById(postId);
-            return post;
-        });
+        const currentPostsPromises = currentFarmerPosts.map(postId => Post.findById(postId));
 
-        Promise.all(currentPostsPromises)
-            .then((postObjArrays) => {
-                currentPosts = [...currentPosts, ...postObjArrays];
-                return res.status(201).send(currentPosts);
-            })
-            .catch((error) => {
-                console.error('Error fetching posts:', error);
-                return res.status(500).send('Internal Server Error');
-            });
+        const currentPosts = await Promise.all(currentPostsPromises);
 
+        return res.status(200).send(currentPosts);
+    } catch (error) {
+        console.error('Error fetching posts:', error);
+        return res.status(500).send('Internal Server Error');
     }
-    catch (error) {
-        res.status(500).send({ error: error.message });
-    }
-}
+};
+
 
 // Get a post by ID
 const getPost = async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
+
         if (!post) {
             return res.status(404).send('Post not found');
         }
+
         if (post.isPublic) {
             return res.status(200).send(post);
         }
-        else {
-            const farmer = req.farmer;
-            if (farmer) {
-                const createdBy = post.createdBy;
-                const following = farmer.following;
-                if (following.indexOf(createdBy) !== -1) {
-                    return res.status(200).send(post);
-                }
-            }
-            else {
-                return res.status(401).send({ message: 'This post is Private' })
-            }
+
+        const farmer = req.farmer;
+
+        if (!farmer) {
+            return res.status(401).send({ message: 'Unauthorized access to private post' });
+        }
+
+        const createdBy = post.createdBy.toString();
+        const following = farmer.following.map(farmerId => farmerId.toString());
+
+        if (following.includes(createdBy) || createdBy === farmer._id.toString()) {
+            return res.status(200).send(post);
+        } else {
+            return res.status(403).send({ message: 'Forbidden: You do not have access to this private post' });
         }
     } catch (error) {
-        res.status(500).send(error);
+        console.error('Error fetching post:', error);
+        return res.status(500).send('Internal Server Error');
     }
-}
+};
+
 
 // Update a post by ID
 const updatePost = async (req, res) => {
     try {
-        let { imageUrl } = req.body;
+        const { imageUrl } = req.body;
         const farmer = req.farmer;
-        const posts = farmer.posts;
-        if (posts.indexOf(req.params.id) === -1) {
-            return res.status(402).send({ message: "Only Posts Owner can Edit this post" });
+
+        if (!farmer) {
+            return res.status(401).send({ message: "Unauthorized access" });
         }
-        else {
-            if (!imageUrl) {
-                const post = await Post.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-                if (!post) {
-                    return res.status(404).send('Post not found');
-                }
-                return res.status(200).send(post);
-            }
-            else {
-                const post = await Post.findById(req.params.id);
-                if (!post) {
-                    return res.status(404).send('Post not found');
-                }
-                let info = {
-                    ...req.body,
-                    profilePhoto: imageUrl
-                }
-                const updatedPost = await Post.findByIdAndUpdate(req.params.id, info, { new: true, runValidators: true });
-                if (!updatedPost) {
-                    return res.status(404).send('Post not found');
-                }
-                return res.status(200).send(post);
-            }
+
+        const posts = farmer.posts.map(postId => postId.toString());
+
+        if (!posts.includes(req.params.id)) {
+            return res.status(403).send({ message: "Only the post owner can edit this post" });
         }
+
+        let updateData = { ...req.body };
+
+        if (imageUrl) {
+            updateData.profilePhoto = imageUrl;
+        }
+
+        const post = await Post.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true });
+
+        if (!post) {
+            return res.status(404).send('Post not found');
+        }
+
+        return res.status(200).send(post);
     } catch (error) {
-        res.status(500).send(error);
+        console.error('Error updating post:', error);
+        return res.status(500).send('Internal Server Error');
     }
-}
+};
+
 
 // Delete a post by ID
 const deletePost = async (req, res) => {
