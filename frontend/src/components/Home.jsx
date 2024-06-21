@@ -1,14 +1,11 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import Post from "./Post";
-import CreatePost from "./CreatePost";
-import UserContext from "../context/UserContext";
-import { throttle } from 'lodash';
+import { ScrollContext, UserContext } from "../context/Contexts";
 
 const Home = () => {
-  const { posts, setIsScrolledPast } = useContext(UserContext);
-  const [isVisible, setIsVisible] = useState(1);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const { posts } = useContext(UserContext);
+  const { setIsScrolledPast } = useContext(ScrollContext);
 
   //showing cross icon in the search bar only when something is written
   const [inputValue, setInputValue] = useState("");
@@ -22,52 +19,15 @@ const Home = () => {
   };
 
   //checking if the search is behind the category tab
-
-
   useEffect(() => {
-    const handleScroll = throttle(() => {
-      const categoryBottom = document.querySelector("#category").getBoundingClientRect().bottom;
-      const searchBarTop = document.querySelector("#searchBar").getBoundingClientRect().bottom;
-      setIsScrolledPast(searchBarTop < categoryBottom);
-  
-      const currentScrollY = window.scrollY;
-  
-        if (currentScrollY > lastScrollY) {
-          setIsVisible(0); // Scrolling down
-        } else {
-          setIsVisible(1); // Scrolling up
-        }
-        setLastScrollY(currentScrollY);
-    }, 1000);
-  
-    window.addEventListener("scroll", handleScroll);
-  
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+    return () => {
+      setIsScrolledPast(false);
+    };
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  // useEffect(() => {
-  //   const handleScroll = throttle(() => {
-      
-  //   }, 1000);
-
-  //   window.addEventListener("scroll", handleScroll, { passive: true });
-
-  //   return () => {
-  //     window.removeEventListener("scroll", handleScroll);
-  //   };
-  // }, [lastScrollY]);
-
-  const [displayCreatePost, setDisplayCreatePost] = useState(false);
-  const handleCreate = () => {
-    console.log("creating new post");
-    setDisplayCreatePost(true);
-  };
-
-  const [showPostedMessage, setShowPostedMessage] = useState(false);
 
   return (
     <>
@@ -100,21 +60,7 @@ const Home = () => {
         // console.log(post)
       )}
 
-      <CreatePostWrapper $display={displayCreatePost}>
-        <CreatePost
-          setShowPostedMessage={setShowPostedMessage}
-          setDisplayCreatePost={setDisplayCreatePost}
-        />
-      </CreatePostWrapper>
-      <PostedMsg $display={showPostedMessage}>Posted</PostedMsg>
-
       <BlankSpace></BlankSpace>
-      {/* Temporary code */}
-      {/* <Create /> */}
-
-      <Create onClick={handleCreate} $isvisible={isVisible}>
-        <i className="fa-regular fa-plus"></i>
-      </Create>
     </>
   );
 };
@@ -178,62 +124,6 @@ const InputBox = styled.div`
   }
 `;
 
-const CreatePostWrapper = styled.div`
-  width: 600px;
-  height: 100%;
-  background-color: rgba(18, 8, 8, 0.1);
-  /* border: 1px solid rgba(255,255,255,0.1); */
-  backdrop-filter: blur(2px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  position: fixed;
-  top: 0;
-  display: ${(props) => (props.$display ? "block" : "none")};
-`;
-
-const PostedMsg = styled.div`
-  position: fixed;
-  bottom: ${(props) => (props.$display ? "20px" : "-100px")};
-  opacity: ${(props) => (props.$display ? 1 : 0)};
-  left: 50%;
-  transform: translate(-50%, -50%);
-  transition: bottom 1s ease-in-out, opacity 1s ease-in-out;
-
-  background-color: #303030;
-  color: #13cb35;
-  padding: 10px 20px;
-  border-radius: 5px;
-  font-size: 1.5rem;
-`;
-
 const BlankSpace = styled.div`
   height: 100vh;
-`;
-
-const Create = styled.div`
-  position: fixed;
-  width: 60px;
-  height: 60px;
-  bottom: ${(props) => (props.$isvisible == 1 ? "0" : "-200px")};
-  right: calc(50vw - 300px);
-  background-color: #9b1f24;
-  color: white;
-  font-size: 1.7rem;
-  margin: 0 30px 30px 0;
-  border-radius: 50%;
-  transition: bottom 0.5s ease-out;
-  cursor: pointer;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  @media (max-width: 600px) {
-    right: 10px; /* Adjust for mobile screens */
-    width: 85px;
-    height: 85px;
-    margin: 0 50px 50px 0;
-  }
 `;

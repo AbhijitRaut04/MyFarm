@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import styled from "styled-components";
-import UserContext from "../context/UserContext";
+import { UserContext } from "../context/Contexts";
 
 const Post = ({ post }) => {
   const [isLiked, setIsLiked] = useState(false);

@@ -1,7 +1,6 @@
 import axios from "axios";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import UserContext from "../context/UserContext";
 import Loading from "./Loading";
 
 const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
