@@ -128,11 +128,22 @@ const deleteShopkeeper = async (req, res) => {
     }
 }
 
+// Function to get all shopkeepers from the database
+const getAllShopkeepers = async (req, res) => {
+  try {
+    const shopkeepers = await Shopkeeper.find({});
+    res.status(200).json(shopkeepers);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching shopkeepers', error: error.message });
+  }
+};
+
 export {
     createShopkeeper,
     loginShopkeeper,
     logoutShopkeeper,
     getCurrentShopkeeper,
     updateShopkeeper,
-    deleteShopkeeper
+    deleteShopkeeper,
+    getAllShopkeepers
 }
