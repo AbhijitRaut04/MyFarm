@@ -9,7 +9,6 @@ const SessionContextProvider = ({ children }) => {
       .get("api/farmers/profile")
       .then((response) => {
         setFarmer(response.data);
-        console.log(response.data._id);
       })
       .catch((error) => {
         console.error("Error:", error);

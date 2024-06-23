@@ -9,16 +9,16 @@ const Store = () => {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-      if(shopkeeper) {
+    if (shopkeeper) {
       axios
-        .get(`api/shopkeepers/${shopkeeper._id}/allProducts`)
-        .then((data) => {
-          setProducts(data);
-          console.log(data)
+        .get(`/api/shopkeepers/${shopkeeper._id}/allProducts`)
+        .then((res) => {
+          setProducts(res.data);
+          // console.log(res.data);
         })
         .catch((error) => console.error("Error fetching products:", error));
-      }
-    }, [shopkeeper]);
+    }
+  }, [shopkeeper]);
 
   useEffect(() => {
     console.log("Shopkeeper:", shopkeeper);
@@ -37,16 +37,17 @@ const Store = () => {
         </div>
       </StoreInfo>
       <Products>
-        {products.length > 0 && products.map((product) => (
-          <Product key={product.id}>
-            <ProductImg src={product.productImg} alt={product.productName} />
-            <ProductName>{product.productName}</ProductName>
-            <ProductDetails>
-              <ProductPrice>${product.productPrice}</ProductPrice>
-              <ProductRating>{product.productRating} ★</ProductRating>
-            </ProductDetails>
-          </Product>
-        ))}
+        {products.length > 0 &&
+          products.map((product) => (
+            <Product key={product.id}>
+              <ProductImg src={product.image} alt={product.name} />
+              <ProductName>{product.name}</ProductName>
+              <ProductDetails>
+                <ProductPrice>${product.price}</ProductPrice>
+                <ProductRating>{product.productRating} ★</ProductRating>
+              </ProductDetails>
+            </Product>
+          ))}
       </Products>
     </Container>
   );
