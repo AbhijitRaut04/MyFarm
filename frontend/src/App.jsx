@@ -7,16 +7,9 @@ import { ScrollContext, UserContext } from "./context/Contexts";
 import CreatePost from "./components/CreatePost";
 
 const App = () => {
-  const categories = [
-    { path: "./src/assets/allCrops.jpg", heading: "All Crops" },
-    { path: "./src/assets/knowledge.png", heading: "Knowledge" },
-    { path: "./src/assets/discussion.jpg", heading: "Discussion" },
-    { path: "./src/assets/shop.jpg", heading: "AgriStore" },
-  ];
-
   // ...
   const navigate = useNavigate();
-
+  // const { setIsScrolledPast } = useContext(ScrollContext);
   // ...
 
   // checking if the user is logged in or not if yes -> "/profile" else -> "/signin"
@@ -35,6 +28,7 @@ const App = () => {
       });
   };
   //
+  console.log("App.jsx");
 
   //showing cross icon in the search bar only when something is written
   const [inputValue, setInputValue] = useState("");
@@ -61,7 +55,7 @@ const App = () => {
       <HomeWrapper>
         <MainContent>
           <HeaderAndCategory>
-            <Header>
+            <Header id="headerSection">
               {/* if scrolled -> searchInHeader else -> logo */}
               {isScrolledPast ? (
                 <SearchInHeader>
@@ -105,15 +99,23 @@ const App = () => {
                 </div> */}
               </Other>
             </Header>
-            <Category id="category">
-              {categories.map((element, index) => {
-                return (
-                  <CategoryOptions key={index}>
-                    <img src={element.path} alt={element.heading} />
-                    <p>{element.heading}</p>
-                  </CategoryOptions>
-                );
-              })}
+            <Category id="category" $isvisible={isVisible}>
+              <CategoryOptions onClick={() => navigate("/home")}>
+                <i class="fa-solid fa-house"></i>
+                <p>Home</p>
+              </CategoryOptions>
+              <CategoryOptions onClick={() => navigate("/stores")}>
+                <i class="fa-solid fa-store"></i>
+                <p>Stores</p>
+              </CategoryOptions>
+              <CategoryOptions onClick={() => navigate("/experts")}>
+                <i class="fa-solid fa-chalkboard-user"></i>
+                <p>Experts</p>
+              </CategoryOptions>
+              <CategoryOptions onClick={() => navigate("/discussion")}>
+                <i class="fa-solid fa-message"></i>
+                <p>Discussion</p>
+              </CategoryOptions>
             </Category>
           </HeaderAndCategory>
 
@@ -152,6 +154,10 @@ const MainContent = styled.div`
   width: 600px;
   height: 100%;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Example shadow */
+  @media (max-width: 600px) {
+    width: 100%;
+    background-color: #fff;
+  }
 `;
 
 const HeaderAndCategory = styled.div`
@@ -169,6 +175,9 @@ const Header = styled.div`
   background-color: #9b1f24;
   color: white;
   padding: 0 20px;
+  @media (max-width: 600px) {
+    height: 3.5rem;
+  }
 `;
 
 const Logo = styled.img`
@@ -218,17 +227,36 @@ const Other = styled.div`
 `;
 
 const Category = styled.div`
-  width: 100%;
+  position: fixed;
+  bottom: ${(props) => (props.$isvisible == 1 ? "0" : "-200px")};
+  width: 600px;
   height: 67.27px;
   background-color: #fff;
   display: flex;
   justify-content: space-around;
+  align-items: center;
+  transition: bottom 0.5s ease-out;
+  z-index: 10;
+  i {
+    font-size: 1.5rem;
+    color: #9b1f24;
+  }
+  @media (max-width: 600px) {
+    width: 100%;
+    font-size: 0.7rem;
+    i {
+      font-size: 1.2rem;
+    }
+  }
 `;
 
 const CategoryOptions = styled.div`
   display: flex;
+  flex: 1;
+  cursor: pointer;
   gap: 5px;
-  /* flex-direction: column; */
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
   img {
     width: 40px;
@@ -300,7 +328,7 @@ const Create = styled.div`
   background-color: #9b1f24;
   color: white;
   font-size: 1.7rem;
-  margin: 0 30px 30px 0;
+  margin: 0 30px 80px 0;
   border-radius: 50%;
   transition: bottom 0.5s ease-out;
   cursor: pointer;
@@ -310,10 +338,10 @@ const Create = styled.div`
   align-items: center;
 
   @media (max-width: 600px) {
-    right: 10px; /* Adjust for mobile screens */
-    width: 85px;
-    height: 85px;
-    margin: 0 50px 50px 0;
+    right: 10px;
+    width: 55px;
+    height: 55px;
+    margin: 0 20px 90px 0;
   }
 `;
 
@@ -330,6 +358,9 @@ const CreatePostWrapper = styled.div`
   position: fixed;
   top: 0;
   display: ${(props) => (props.$display ? "block" : "none")};
+  @media (max-width: 600px) {
+    width: 100%;
+  }
 `;
 
 const PostedMsg = styled.div`
@@ -345,4 +376,5 @@ const PostedMsg = styled.div`
   padding: 10px 20px;
   border-radius: 5px;
   font-size: 1.5rem;
+  z-index: 1100;
 `;

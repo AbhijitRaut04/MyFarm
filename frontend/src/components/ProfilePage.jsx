@@ -126,14 +126,23 @@ const ProfilePictureAndNumbers = styled.div`
 `;
 
 const ImageWrapper = styled.div`
-  height: 100%;
+  height: 10rem;
   overflow: hidden;
   border-radius: 50%;
 
   img {
-    height: 100%;
-    width: 100%;
+    height: 10rem;
+    width: 10rem;
     object-fit: cover;
+    object-position: top;
+  }
+
+  @media (max-width: 600px) {
+    height: 7rem;
+    img {
+      height: 7rem;
+      width: 7rem;
+    }
   }
 `;
 
@@ -156,7 +165,9 @@ const Numbers = styled.div`
 
 const NameAndDesc = styled.div`
   /* background-color: #45c7f3; */
-  height: 12rem;
+  height: auto;
+  min-height: 12rem;
+  padding-bottom: 1rem;
 
   .descignation {
     color: #9a9595;
@@ -178,7 +189,7 @@ const Buttons = styled.div`
   padding: 0 0.5rem;
   button {
     font-size: 1.2rem;
-    font-weight: 600;
+    /* font-weight: 600; */
     background-color: #e7e7e7;
     padding: 0.5rem 0;
     text-align: center;
@@ -199,6 +210,9 @@ const Buttons = styled.div`
     width: 2rem;
     text-align: center;
   }
+  @media (max-width: 600px) {
+    padding: 0;
+  }
 `;
 
 const PostWrapper = styled.div`
@@ -218,6 +232,14 @@ const PostWrapper = styled.div`
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+  }
+  @media (max-width: 600px) {
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1rem;
+    .post {
+      border-radius: 0.5rem;
+      height: 20rem;
     }
   }
 `;

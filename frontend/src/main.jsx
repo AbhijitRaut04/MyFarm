@@ -5,14 +5,17 @@ import "./index.css";
 import UserContextProvider from "./context/UserContextProvider.jsx";
 import Routers from "./components/Routers.jsx";
 import ScrollContextProvider from "./context/ScrollContextProvider.jsx";
+import SessionContextProvider from "./context/SessionContextProvider.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  // <React.StrictMode>
-  <ScrollContextProvider>
-    <UserContextProvider>
-      {/* <App /> */}
-      <Routers />
-    </UserContextProvider>
-  </ScrollContextProvider>
+  // <React.StrictMode
+  <SessionContextProvider>
+    <ScrollContextProvider>
+      <UserContextProvider>
+        {/* <App /> */}
+        <Routers />
+      </UserContextProvider>
+    </ScrollContextProvider>
+  </SessionContextProvider>
   // </React.StrictMode>,
 );
