@@ -3,24 +3,33 @@ import http from 'http';
 import { Server } from 'socket.io';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import cors from 'cors';
 import Chat from '../models/chat.models.js';
 import Message from '../models/message.models.js';
 
 // Create an Express application
 const app = express();
 
-// Determine the directory name
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+app.use(cors({ origin: 'http://localhost:5173' }));
 
-// Serve the client file
-app.use(express.static(path.join(__dirname, 'public')));
+
+// Determine the directory name
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+
+// // Serve the client file
+// app.use(express.static(path.join(__dirname, 'public')));
 
 // Create an HTTP server
 const server = http.createServer(app);
 
 // Create a Socket.IO server
-const io = new Server(server);
+const io = new Server(server, {
+    cors: {
+        origin: 'http://localhost:5173',
+        methods: ['GET', 'POST']
+    }
+});
 
 // Listen for client connections
 io.on('connection', (socket) => {

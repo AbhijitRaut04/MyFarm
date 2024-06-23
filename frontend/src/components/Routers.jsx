@@ -6,8 +6,11 @@ import ProfilePage from "./ProfilePage";
 import Signin from "./Signin";
 import Signup from "./Signup";
 import App from "../App";
+import ChatRoom from "./ChatRoom";
+import Chats from "./Chats";
 
 const Routers = () => {
+  const farmerId = 'farmer1';
   return (
     <BrowserRouter>
       <Routes>
@@ -20,6 +23,8 @@ const Routers = () => {
           <Route path="/signup" element={<Signup />} />
         </Route>
         <Route path="*" element={<Navigate replace to="/home" />} />
+        <Route path="/chats" element={<Chats />} />
+        <Route path="/chats/:chatId" element={<ChatRoom />} />
       </Routes>
     </BrowserRouter>
   );
