@@ -16,6 +16,8 @@ const UserContextProvider = ({ children }) => {
     },
   ]);
 
+  const [showLoginMessage, setShowLoginMessage] = useState(false);
+
   console.log(posts);
 
   useEffect(() => {
@@ -31,7 +33,9 @@ const UserContextProvider = ({ children }) => {
   }, []);
 
   return (
-    <UserContext.Provider value={{ posts, setPosts }}>
+    <UserContext.Provider
+      value={{ posts, setPosts, showLoginMessage, setShowLoginMessage }}
+    >
       {children}
     </UserContext.Provider>
   );

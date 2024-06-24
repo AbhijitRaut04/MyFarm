@@ -1,7 +1,7 @@
 import React, { memo, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import styled from "styled-components";
-import { SessionContext } from "../context/Contexts";
+import { SessionContext, UserContext } from "../context/Contexts";
 
 const Post = memo(({ post }) => {
   const [isLiked, setIsLiked] = useState(false);
@@ -9,6 +9,7 @@ const Post = memo(({ post }) => {
   const [noOfLikes, setNoOfLikes] = useState(post.likes?.length || 0);
   const [noOfComments, setNoOfComments] = useState(post.comments?.length || 0);
   const { farmer } = useContext(SessionContext);
+  const { setShowLoginMessage } = useContext(UserContext);
   // console.log(post.likes?.length);
 
   useEffect(() => {
@@ -17,7 +18,6 @@ const Post = memo(({ post }) => {
       setIsBookmarked(post.saved?.includes(farmer?._id) || false);
       setNoOfLikes(post.likes?.length || 0);
       setNoOfComments(post.comments?.length || 0);
-      console.log("Post: ", post?.saved);
     }
   }, [post, farmer]);
 
@@ -33,7 +33,8 @@ const Post = memo(({ post }) => {
           setNoOfLikes((prevLikes) => prevLikes + 1);
         })
         .catch((error) => {
-          console.error("Error liking post(unknown): ", error.response);
+          console.error("Error liking post(unknown): ", error.response.status);
+          if (error.response.status === 401) setShowLoginMessage(true);
         });
     } else {
       setIsLiked(false);
@@ -71,6 +72,7 @@ const Post = memo(({ post }) => {
         })
         .catch((error) => {
           console.error("Error Bookmarking post(unknown): ", error.response);
+          if (error.response.status === 401) setShowLoginMessage(true);
         });
     } else {
       setIsBookmarked(false);
