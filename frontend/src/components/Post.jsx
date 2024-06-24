@@ -5,18 +5,21 @@ import { SessionContext } from "../context/Contexts";
 
 const Post = memo(({ post }) => {
   const [isLiked, setIsLiked] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
   const [noOfLikes, setNoOfLikes] = useState(post.likes?.length || 0);
   const [noOfComments, setNoOfComments] = useState(post.comments?.length || 0);
-  const {farmer} = useContext(SessionContext);
-  console.log(post.likes?.length);
+  const { farmer } = useContext(SessionContext);
+  // console.log(post.likes?.length);
 
   useEffect(() => {
     if (post) {
       setIsLiked(post.likes?.includes(farmer?._id) || false);
+      setIsBookmarked(post.saved?.includes(farmer?._id) || false);
       setNoOfLikes(post.likes?.length || 0);
       setNoOfComments(post.comments?.length || 0);
+      console.log("Post: ", post?.saved);
     }
-  }, [post,farmer]);
+  }, [post, farmer]);
 
   const handleLikeClick = () => {
     console.log("Like button clicked");
@@ -58,7 +61,28 @@ const Post = memo(({ post }) => {
 
   const handleBookmarkClick = () => {
     console.log("Bookmark button clicked");
-    // Add your functionality here
+    console.log(post._id);
+    if (!isBookmarked) {
+      axios
+        .patch(`/api/posts/${post._id}/save`)
+        .then((response) => {
+          setIsBookmarked(true);
+          console.log("Post Bookmark successfully: ", response);
+        })
+        .catch((error) => {
+          console.error("Error Bookmarking post(unknown): ", error.response);
+        });
+    } else {
+      setIsBookmarked(false);
+      axios
+        .patch(`/api/posts/${post._id}/unsave`)
+        .then((response) => {
+          console.log("Post unmark successfully: ", response);
+        })
+        .catch((error) => {
+          console.error("Error unmarking post(unknown): ", error.response);
+        });
+    }
   };
 
   // const handleDeleteClick = () => {
@@ -107,7 +131,11 @@ const Post = memo(({ post }) => {
         </button>
 
         <button onClick={handleBookmarkClick}>
-          <i className="fa-regular fa-bookmark"></i>
+          {isBookmarked ? (
+            <i class="fa-solid fa-bookmark"></i>
+          ) : (
+            <i className="fa-regular fa-bookmark"></i>
+          )}
         </button>
 
         {/* <button onClick={handleEditClick}>
