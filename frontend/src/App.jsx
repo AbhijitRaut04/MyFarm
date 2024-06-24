@@ -5,8 +5,22 @@ import styled from "styled-components";
 import axios from "axios";
 import { ScrollContext, SessionContext, UserContext } from "./context/Contexts";
 import CreatePost from "./components/CreatePost";
+// import io from "socket.io-client";
 
 const App = () => {
+  // useEffect(() => {
+  //   const socket = io('http://localhost:5000');
+
+  //   socket.on('connection', (message) => {
+  //     console.log(message);
+  //   });
+
+  //   // Step 4: Clean up on component unmount
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, []);
+
   // ...
   const navigate = useNavigate();
   const { farmer } = useContext(SessionContext);
@@ -86,7 +100,7 @@ const App = () => {
                 </SearchInHeader>
               ) : (
                 <Logo
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/home")}
                   src="./src/assets/download1.png"
                 />
               )}
@@ -105,24 +119,6 @@ const App = () => {
                 </div> */}
               </Other>
             </Header>
-            <Category id="category" $isvisible={isVisible}>
-              <CategoryOptions onClick={() => navigate("/home")}>
-                <i class="fa-solid fa-house"></i>
-                <p>Home</p>
-              </CategoryOptions>
-              <CategoryOptions onClick={() => navigate("/stores")}>
-                <i class="fa-solid fa-store"></i>
-                <p>Stores</p>
-              </CategoryOptions>
-              <CategoryOptions onClick={() => navigate("/experts")}>
-                <i class="fa-solid fa-chalkboard-user"></i>
-                <p>Experts</p>
-              </CategoryOptions>
-              <CategoryOptions onClick={() => navigate("/chats")}>
-                <i class="fa-solid fa-message"></i>
-                <p>Discussion</p>
-              </CategoryOptions>
-            </Category>
           </HeaderAndCategory>
 
           <Outlet />
@@ -131,13 +127,34 @@ const App = () => {
             <i className="fa-regular fa-plus"></i>
           </Create>
 
+          <Category id="category" $isvisible={isVisible}>
+            <CategoryOptions onClick={() => navigate("/home")}>
+              <i class="fa-solid fa-house"></i>
+              <p>Home</p>
+            </CategoryOptions>
+            <CategoryOptions onClick={() => navigate("/stores")}>
+              <i class="fa-solid fa-store"></i>
+              <p>Stores</p>
+            </CategoryOptions>
+            <CategoryOptions onClick={() => navigate("/experts")}>
+              <i class="fa-solid fa-chalkboard-user"></i>
+              <p>Experts</p>
+            </CategoryOptions>
+            <CategoryOptions onClick={() => navigate("/discussion")}>
+              <i class="fa-solid fa-message"></i>
+              <p>Discussion</p>
+            </CategoryOptions>
+          </Category>
+
           <CreatePostWrapper $display={displayCreatePost}>
             <CreatePost
               setShowPostedMessage={setShowPostedMessage}
               setDisplayCreatePost={setDisplayCreatePost}
             />
           </CreatePostWrapper>
+
           <PostedMsg $display={showPostedMessage}>Posted</PostedMsg>
+
           <LoginPopup $display={showLoginMessage}>
             <div className="please-login">
               <h1>Please login</h1>
@@ -185,7 +202,7 @@ const MainContent = styled.div`
 const HeaderAndCategory = styled.div`
   position: sticky;
   top: 0;
-  border-bottom: 2px solid #dddddd;
+  /* border-bottom: 2px solid #dddddd; */
   z-index: 100;
 `;
 
@@ -409,7 +426,7 @@ const LoginPopup = styled.div`
   /* top: 50%; */
   top: ${(props) => (props.$display ? "50%" : "55%")};
   opacity: ${(props) => (props.$display ? 1 : 0)};
-
+  visibility: ${(props) => (props.$display ? "visible" : "hidden")};
   left: 50%;
   border-radius: 0.5rem;
   /* display: none; */

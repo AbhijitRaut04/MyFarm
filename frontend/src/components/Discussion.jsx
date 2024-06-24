@@ -11,10 +11,11 @@ const Discussion = () => {
 
   useEffect(() => {
     if (farmer) setUsers(farmer.followers);
-    // console.log(farmer.followers);
+    console.log(farmer?.followers);
   }, [farmer]);
 
-  const handleOnClick = (e) => {
+  const handleOnClick = (user) => {
+    navigate(`/chat/${user.username}`, { state: { user: user } })
     // console.log(e);
     // const formattedShopName = e.shopName.replace(/\s+/g, "-");
     // navigate(`/stores/${formattedShopName}`, { state: { user: e } });
@@ -22,7 +23,7 @@ const Discussion = () => {
 
   return (
     <DiscussionList>
-      {users.map((user, index) => (
+      {users!= [] && users.map((user, index) => (
         <User key={index} onClick={() => handleOnClick(user)}>
           <ProfilePicture>
             <img src={user.profilePhoto} alt={user.name} />
