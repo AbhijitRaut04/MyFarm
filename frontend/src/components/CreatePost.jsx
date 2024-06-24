@@ -9,6 +9,18 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
     isPublic: true,
   });
 
+  
+  const VisibilityIcon = React.memo(({ isPublic, toggleIsPublic }) => (
+    <button onClick={toggleIsPublic}>
+      {isPublic ? (
+        <i className="fa-solid fa-earth-asia"></i>
+      ) : (
+        <i className="fa-solid fa-lock"></i>
+      )}
+    </button>
+  ));
+  
+
   const [imageURL, setImageURL] = useState(null);
 
   const handleImageUpload = (event) => {
@@ -43,7 +55,7 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
     formData.append("heading", event.target.elements["heading"].value);
     formData.append("description", event.target.elements["description"].value);
     formData.append("isPublic", post.isPublic);
-    console.log(formData)
+    // console.log(formData)
     setPost((post) => ({
       ...post,
       heading: event.target.elements["heading"].value,
@@ -59,6 +71,10 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
           URL.revokeObjectURL(imageURL);
           setImageURL(null);
         }
+
+        //set the heading and content to empty
+        event.target.elements["heading"].value = "";
+        event.target.elements["description"].value = "";
 
         setLoading(false);
         setShowPostedMessage(true);
@@ -98,11 +114,15 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
               <button onClick={() => setDisplayCreatePost(false)}>
                 <i className="fa-solid fa-xmark"></i>
               </button>
-              <button onClick={toggleIsPublic}>
+              {/* <button onClick={toggleIsPublic}>
                 {(post.isPublic && (
                   <i className="fa-solid fa-earth-asia"></i>
                 )) || <i className="fa-solid fa-lock"></i>}
-              </button>
+              </button> */}
+              <VisibilityIcon
+                isPublic={post.isPublic}
+                toggleIsPublic={toggleIsPublic}
+              />
               <button type="submit">
                 <i className="fa-solid fa-paper-plane"></i>
               </button>
@@ -147,7 +167,7 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
 export default CreatePost;
 
 const PostWrapper = styled.div`
-  width: 80%;
+  width: 90%;
   min-height: 550px;
   margin: 0 auto;
   margin-top: 20px;

@@ -1,32 +1,20 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { memo, useCallback, useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import Post from "./Post";
-import { ScrollContext, UserContext } from "../context/Contexts";
+import { UserContext } from "../context/Contexts";
 
 const Home = () => {
   const { posts } = useContext(UserContext);
-  const { setIsScrolledPast } = useContext(ScrollContext);
 
   //showing cross icon in the search bar only when something is written
   const [inputValue, setInputValue] = useState("");
 
-  const handleInputChange = (event) => {
+  const handleInputChange = useCallback((event) => {
     setInputValue(event.target.value);
-  };
-
-  const clearInput = () => {
-    setInputValue("");
-  };
-
-  //checking if the search is behind the category tab
-  useEffect(() => {
-    return () => {
-      setIsScrolledPast(false);
-    };
   }, []);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
+  const clearInput = useCallback(() => {
+    setInputValue("");
   }, []);
 
   return (
@@ -53,11 +41,10 @@ const Home = () => {
       </SearchBar>
 
       {/* Temporary code */}
-      {posts.map(
-        (post, index) => (
+      {posts.map((post, index) => (
           <Post key={index} post={post} />
-        )
-        // console.log(post)
+        ),
+        console.log("ffsdfsd")
       )}
 
       <BlankSpace></BlankSpace>

@@ -28,7 +28,7 @@ const ChatRoom = () => {
 
         fetchMessages();
 
-        socket.emit('joinChat', { currentFarmerId: farmerId, chatId });
+        socket.emit('joinChat', { chatId });
 
         socket.on('receiveMessage', (message) => {
             setMessages((prevMessages) => [...prevMessages, message]);
@@ -41,7 +41,7 @@ const ChatRoom = () => {
 
     const sendMessage = () => {
         if (message.trim()) {
-            const newMessage = { currentFarmerId: farmerId, chatId, sender: farmerId, message };
+            const newMessage = { sender: farmerId, message };
             socket.emit('sendMessage', newMessage);
             setMessages((prevMessages) => [...prevMessages, newMessage]);
             setMessage('');

@@ -20,7 +20,7 @@ const createProduct = async (req, res) => {
             image: imageUrl,
             stock,
             category,
-            shopkeeper: shopkeeper._id  
+            shopkeeper: shopkeeper._id
         });
 
         let products = shopkeeper.products;
@@ -88,7 +88,18 @@ const getCurrentShopkeeperProducts = async (req, res) => {
     }
 }
 
+const getProductsByShopkeeper = async (req, res) => {
 
+    try {
+        const shopkeeperId = req.params.id;
+
+        const products = await Product.find({ shopkeeper: shopkeeperId });
+        return res.status(200).send(products);
+    } catch (error) {
+        res.status(500).json({ message: "An error occurred while fetching the products of the shopkeeper." });
+    }
+
+};
 
 // Get a product by ID
 const getProduct = async (req, res) => {
@@ -557,6 +568,7 @@ export {
     createProduct,
     getProducts,
     getCurrentShopkeeperProducts,
+    getProductsByShopkeeper,
     getProduct,
     updateProduct,
     deleteProduct,

@@ -5,18 +5,21 @@ import "./index.css";
 import UserContextProvider from "./context/UserContextProvider.jsx";
 import Routers from "./components/Routers.jsx";
 import ScrollContextProvider from "./context/ScrollContextProvider.jsx";
+import SessionContextProvider from "./context/SessionContextProvider.jsx";
 import { FarmerProvider } from "./context/FarmerContext.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  // <React.StrictMode>
-  <ScrollContextProvider>
-    <UserContextProvider>
-    <FarmerProvider>
+  // <React.StrictMode
+  <SessionContextProvider>
+    <ScrollContextProvider>
+      <UserContextProvider>
+      <FarmerProvider>
       
       {/* <App /> */}
-      <Routers />
-    </FarmerProvider>
+        <Routers />
+      </FarmerProvider>
     </UserContextProvider>
-  </ScrollContextProvider>
+    </ScrollContextProvider>
+  </SessionContextProvider>
   // </React.StrictMode>,
 );
