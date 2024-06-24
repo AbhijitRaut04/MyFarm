@@ -10,6 +10,7 @@ import Discussion from "./Discussion";
 import Experts from "./Experts";
 import Stores from "./Stores";
 import Store from "./Store";
+import Chat from "./Chat";
 
 const Routers = () => {
   return (
@@ -21,6 +22,7 @@ const Routers = () => {
           <Route path="/stores" element={<Stores />}></Route>
           <Route path="/stores/:name" element={<Store />} />
           <Route path="/discussion" element={<Discussion />} />
+          <Route path="/chat/:username" element={ <Chat /> } />
           <Route path="/experts" element={<Experts />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/profile" element={<ProfilePage />} />

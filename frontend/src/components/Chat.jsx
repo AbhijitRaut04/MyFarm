@@ -1,48 +1,137 @@
-import React, { useEffect, useState } from 'react';
-import { useSocket } from '../context/SocketContext';
+import React, { useContext, useEffect, useState } from "react";
+import styled from "styled-components";
+import { ScrollContext } from "../context/Contexts";
+import io from "socket.io-client";
 
-const ChatComponent = ({ currentFarmerId, chatId }) => {
-    const socket = useSocket();
-    const [messages, setMessages] = useState([]);
-    const [newMessage, setNewMessage] = useState('');
-    const [sender, setSender] = useState(''); // Adjust as necessary for your sender logic
+const Chat = () => {
 
     useEffect(() => {
-        const room = [currentFarmerId, chatId].sort().join('_');
-        socket.emit('joinChat', { currentFarmerId, chatId });
+        const socket = io('http://localhost:5000');
+        console.log("inside chat page")
+        
 
-        socket.on('receiveMessage', (message) => {
-            setMessages((prevMessages) => [...prevMessages, message]);
+        const fetchMessages = async () => {
+            try {
+              const response = await axios.get('http://localhost:5000/messages');
+              setMessages(response.data);
+            } catch (error) {
+              console.error("Failed to fetch messages:", error);
+            }
+          };
+      
+          fetchMessages();
+      
+        
+        
+        socket.on('connection', (message) => {
+          console.log(message);
         });
-
+    
+        // Step 4: Clean up on component unmount
         return () => {
-            socket.off('receiveMessage');
+          socket.disconnect();
         };
-    }, [socket, currentFarmerId, chatId]);
+      }, []);
+  
+      
 
-    const sendMessage = () => {
-        const room = [currentFarmerId, chatId].sort().join('_');
-        socket.emit('sendMessage', { currentFarmerId, chatId, sender, message: newMessage });
-        setNewMessage('');
-    };
 
-    return (
-        <div>
-            <div>
-                {messages.map((msg, index) => (
-                    <div key={index}>
-                        <strong>{msg.sender}:</strong> {msg.message}
-                    </div>
-                ))}
-            </div>
-            <input
-                type="text"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-            />
-            <button onClick={sendMessage}>Send</button>
-        </div>
-    );
+    const { setCalculateVisibility } = useContext(ScrollContext);
+    useEffect(() => {
+        setCalculateVisibility(0);
+      return () => {
+        setCalculateVisibility(1);
+      };
+    }, []);
+    
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+
+  const handleInputChange = (e) => {
+    setInput(e.target.value);
+  };
+
+  const sendMessage = (e) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    setMessages([...messages, input]);
+    socket.emit('sendMessage', input);
+    setInput("");
+  };
+
+  return (
+    <ChatContainer>
+      <Messages>
+        {messages.map((message, index) => (
+          <Message key={index}>{message}</Message>
+        ))}
+      </Messages>
+      <MessageForm onSubmit={sendMessage}>
+        <Input
+          type="text"
+          value={input}
+          onChange={handleInputChange}
+          placeholder="Type a message..."
+        />
+        <Button type="submit">Send</Button>
+      </MessageForm>
+    </ChatContainer>
+  );
 };
 
-export default ChatComponent;
+export default Chat;
+
+const ChatContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 45px);
+  height: auto;
+  max-width: 600px;
+  margin: auto;
+  border: 1px solid #ccc;
+  overflow: hidden;
+  position: relative;
+`;
+
+const Messages = styled.div`
+  flex-grow: 1;
+  padding: 10px;
+  overflow-y: auto;
+`;
+
+const Message = styled.div`
+  margin-bottom: 10px;
+  padding: 5px;
+  background-color: #f3f3f3;
+  border-radius: 5px;
+`;
+
+const MessageForm = styled.form`
+  display: flex;
+  bottom: 10px;
+  padding: 10px;
+  border-top: 1px solid #ccc;
+  position: fixed;
+  width: 600px;
+
+  @media (max-width: 600px) {
+    width: 100%;
+  }
+`;
+
+const Input = styled.input`
+  flex-grow: 1;
+  margin-right: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+`;
+
+const Button = styled.button`
+  padding: 10px 20px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+`;
