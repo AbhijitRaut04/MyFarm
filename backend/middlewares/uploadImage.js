@@ -25,9 +25,7 @@ const imageUpload = async (req, res, next) => {
         req.body.imageUrl = ""
       }
       else {
-        console.log("Hello")
         const response = await cloudinary.uploader.upload(filePath, { resource_type: "auto" })
-        console.log(response.url)
         fs.unlinkSync(filePath)
         req.body.imageUrl = response.secure_url;
         console.log("Image uploaded Successfully")

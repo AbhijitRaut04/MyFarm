@@ -118,7 +118,7 @@ const App = () => {
                 <i class="fa-solid fa-chalkboard-user"></i>
                 <p>Experts</p>
               </CategoryOptions>
-              <CategoryOptions onClick={() => navigate("/chats")}>
+              <CategoryOptions onClick={() => navigate("/discussion")}>
                 <i class="fa-solid fa-message"></i>
                 <p>Discussion</p>
               </CategoryOptions>

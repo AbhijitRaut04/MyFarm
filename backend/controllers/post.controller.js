@@ -4,7 +4,6 @@ import Post from '../models/post.models.js';
 // Create a new post
 const createPost = async (req, res) => {
     try {
-        console.log("Creating post from createPost function");
         const { heading, description, isPublic, imageUrl } = req.body
         let farmer = req.farmer;
         const post = await Post.create({
@@ -15,15 +14,7 @@ const createPost = async (req, res) => {
             isPublic
         });
 
-        // farmer.posts.push(post._id);
-
-        // await Farmer.updateOne(
-        //     {_id: farmer._id},
-        //     {posts: farmer.posts}
-        // )
-
         console.log("Post created successfully")
-        console.log(post);
 
         //adding the created post id to farmers posts array
         await Farmer.findByIdAndUpdate(farmer._id, { $addToSet: { posts: post._id } });
