@@ -6,6 +6,8 @@ import ProfilePage from "./ProfilePage";
 import Signin from "./Signin";
 import Signup from "./Signup";
 import App from "../App";
+import ChatRoom from "./ChatRoom";
+import Chats from "./Chats";
 import Discussion from "./Discussion";
 import Experts from "./Experts";
 import Stores from "./Stores";
@@ -13,6 +15,7 @@ import Store from "./Store";
 import Chat from "./Chat";
 
 const Routers = () => {
+  const farmerId = 'farmer1';
   return (
     <BrowserRouter>
       <Routes>
@@ -30,6 +33,8 @@ const Routers = () => {
           <Route path="/signup" element={<Signup />} />
         </Route>
         <Route path="*" element={<Navigate replace to="/home" />} />
+        <Route path="/discussion" element={<Chats />} />
+        <Route path="/discussion/:chatId" element={<ChatRoom />} />
       </Routes>
     </BrowserRouter>
   );
