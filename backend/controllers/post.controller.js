@@ -352,19 +352,22 @@ const editComment = async (req, res) => {
 const savePost = async (req, res) => {
     try {
         const farmer = req.farmer;
+        const post = await Post.findById(req.params.id);
+        if (!post) {
+            return res.status(404).send('Post not found');
+        }
+        else {
+            let savedArray = post.saved;
+            if (savedArray.includes(farmer._id)) return res.status(409).send("You already saved the post");
 
-        let saved = farmer.saved;
-        if (saved.indexOf(req.params.id) !== -1) return res.status(502).send("Post is already saved");
-
-        saved.push(req.params.id);
-
-        const updated = await Farmer.updateOne(
-            { _id: farmer._id },
-            { $set: { saved: saved } }
-        )
+            await Post.updateOne(
+                { _id: post._id },
+                { $addToSet: { saved: farmer._id } }
+            )
+        }
         res.status(200).send('Post is saved');
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).send("Error saving post(at savePost function):", error);
     }
 }
 
@@ -372,19 +375,24 @@ const savePost = async (req, res) => {
 const unsavePost = async (req, res) => {
     try {
         const farmer = req.farmer;
+        const post = await Post.findById(req.params.id);
+        if (!post) {
+            return res.status(404).send('Post not found');
+        }
+        else {
+            let savedArray = post.saved;
+            if (!(savedArray.includes(farmer._id))) return res.status(409).send("You didn't saved the post yet!");
 
-        let saved = farmer.saved;
-        saved = saved.filter(item => item !== req.params.id);
-        const updated = await Farmer.updateOne(
-            { _id: farmer._id },
-            { $set: { saved: saved } }
-        )
-        res.status(200).send('Post is removed from saved');
+            await Post.updateOne(
+                { _id: post._id },
+                { $pull: { saved: farmer._id } }
+            );
+        }
+        res.status(200).send('Post is unsaved');
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).send("Error unsaving post(at unsavePost function):", error);
     }
 }
-
 // get List of farmers who liked the post
 const getFarmersWhoLikedPost = async (req, res) => {
     try {

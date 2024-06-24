@@ -18,10 +18,10 @@ const postSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Farmer'
     }],
-    isLikedByCurrentUser: {
-        type: Boolean,
-        default: false
-    },
+    saved: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Farmer'
+    }],
     comments: [{
         content: String,
         createdBy: {
@@ -37,9 +37,9 @@ const postSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    isPublic:{
-        type:Boolean,
-        default:true
+    isPublic: {
+        type: Boolean,
+        default: true
     }
 });
 

@@ -9,7 +9,6 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
     isPublic: true,
   });
 
-  
   const VisibilityIcon = React.memo(({ isPublic, toggleIsPublic }) => (
     <button onClick={toggleIsPublic}>
       {isPublic ? (
@@ -19,7 +18,6 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
       )}
     </button>
   ));
-  
 
   const [imageURL, setImageURL] = useState(null);
 

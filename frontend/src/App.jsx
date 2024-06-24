@@ -3,12 +3,13 @@ import "./App.css";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
-import { ScrollContext, UserContext } from "./context/Contexts";
+import { ScrollContext, SessionContext, UserContext } from "./context/Contexts";
 import CreatePost from "./components/CreatePost";
 
 const App = () => {
   // ...
   const navigate = useNavigate();
+  const { farmer } = useContext(SessionContext);
   // const { setIsScrolledPast } = useContext(ScrollContext);
   // ...
 
@@ -42,10 +43,15 @@ const App = () => {
   };
 
   const { isVisible, isScrolledPast } = useContext(ScrollContext);
+  const { showLoginMessage, setShowLoginMessage } = useContext(UserContext);
   const [displayCreatePost, setDisplayCreatePost] = useState(false);
   const [showPostedMessage, setShowPostedMessage] = useState(false);
 
   const handleCreate = () => {
+    if (!farmer) {
+      setShowLoginMessage(true);
+      return;
+    }
     console.log("creating new post");
     setDisplayCreatePost(true);
   };
@@ -132,6 +138,22 @@ const App = () => {
             />
           </CreatePostWrapper>
           <PostedMsg $display={showPostedMessage}>Posted</PostedMsg>
+          <LoginPopup $display={showLoginMessage}>
+            <div className="please-login">
+              <h1>Please login</h1>
+            </div>
+            <div className="buttons">
+              <button
+                onClick={() => {
+                  navigateIt();
+                  setShowLoginMessage(false);
+                }}
+              >
+                Login
+              </button>
+              <button onClick={() => setShowLoginMessage(false)}>Cancel</button>
+            </div>
+          </LoginPopup>
 
           {/* <BlankSpace></BlankSpace> */}
           {/* Temporary code */}
@@ -377,4 +399,63 @@ const PostedMsg = styled.div`
   border-radius: 5px;
   font-size: 1.5rem;
   z-index: 1100;
+`;
+
+const LoginPopup = styled.div`
+  position: fixed;
+  width: 20rem;
+  height: 10rem;
+  background-color: rgb(255, 255, 255);
+  /* top: 50%; */
+  top: ${(props) => (props.$display ? "50%" : "55%")};
+  opacity: ${(props) => (props.$display ? 1 : 0)};
+
+  left: 50%;
+  border-radius: 0.5rem;
+  /* display: none; */
+
+  transform: translate(-50%, -50%);
+  transition: top 0.3s linear, opacity 0.5s linear;
+  z-index: 1100;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+  .please-login {
+    flex: 1;
+    /* background-color: #893333; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    h1 {
+      font-size: 2rem;
+      color: #8a3d3d;
+      font-weight: 600;
+    }
+  }
+  .buttons {
+    display: flex;
+    border-top: 1px solid #ddd;
+    width: 100%;
+    height: 30%;
+    button {
+      width: 50%;
+      font-size: 1.3rem;
+      border: none;
+      cursor: pointer;
+    }
+    button:nth-child(1) {
+      background-color: #fff;
+      color: #9b1f24;
+      font-weight: 600;
+      border-right: 1px solid #ddd;
+    }
+    button:nth-child(2) {
+      background-color: #ffffff;
+      color: #9b1f24;
+      font-weight: 600;
+    }
+  }
 `;

@@ -84,12 +84,37 @@ const getFarmers = async (req, res) => {
 const getFarmerProfile = async (req, res) => {
     try {
         const farmer = req.farmer;
-        const account = await Farmer.findById(farmer._id);
+        let account = await Farmer.findById(farmer._id);
+        const followerProfilePromises = await Promise.all(account.followers.map(async (followerId) => {
+            try {
+                const follower = await Farmer.findById(followerId);
+                return follower;
+            } catch (error) {
+                console.error(`Failed to fetch follower ${followerId}: ${error}`);
+                return null;
+            }
+        }));
+        // Filter out any null values
+        account.followers = followerProfilePromises.filter(follower => follower !== null);
         res.status(200).send(account);
     } catch (error) {
+        console.error(`Failed to fetch farmer profile: ${error}`);
         res.status(500).send({ error: error.message });
     }
 }
+
+// const getProductsByShopkeeper = async (req, res) => {
+
+//     try {
+//         const shopkeeperId = req.params.id;
+
+//         const products = await Product.find({ shopkeeper: shopkeeperId });
+//         return res.status(200).send(products);
+//     } catch (error) {
+//         res.status(500).json({ message: "An error occurred while fetching the products of the shopkeeper." });
+//     }
+
+// };
 
 // Get a farmer by ID
 const getFarmer = async (req, res) => {
