@@ -12,10 +12,9 @@ import Discussion from "./Discussion";
 import Experts from "./Experts";
 import Stores from "./Stores";
 import Store from "./Store";
-import Chat from "./Chat";
 
 const Routers = () => {
-  const farmerId = 'farmer1';
+  const farmerId = "farmer1";
   return (
     <BrowserRouter>
       <Routes>
@@ -25,7 +24,8 @@ const Routers = () => {
           <Route path="/stores" element={<Stores />}></Route>
           <Route path="/stores/:name" element={<Store />} />
           <Route path="/discussion" element={<Discussion />} />
-          <Route path="/chat/:username" element={ <Chat /> } />
+          <Route path="/discussion/:chatId" element={<ChatRoom />} />
+          {/* <Route path="/chat/:username" element={ <Chat /> } /> */}
           <Route path="/experts" element={<Experts />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/profile" element={<ProfilePage />} />
@@ -33,8 +33,7 @@ const Routers = () => {
           <Route path="/signup" element={<Signup />} />
         </Route>
         <Route path="*" element={<Navigate replace to="/home" />} />
-        <Route path="/discussion" element={<Chats />} />
-        <Route path="/discussion/:chatId" element={<ChatRoom />} />
+        {/* <Route path="/discussion" element={<Discussion />} /> */}
       </Routes>
     </BrowserRouter>
   );

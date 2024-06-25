@@ -38,7 +38,7 @@ const Signin = () => {
       // console.log("trying to send data");
       const response = await axios.post("api/farmers/login", data);
 
-      console.log("Login Success:", response);
+      // console.log("Login Success:", response);
       if (!response.data.message) {
         // console.log(response.message);
         navigate("/home");

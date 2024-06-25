@@ -5,35 +5,85 @@ import styled from "styled-components";
 import { SessionContext } from "../context/Contexts";
 
 const Discussion = () => {
-  const [users, setUsers] = useState([]);
+  const [chatProfiles, setChatProfiles] = useState();
   const navigate = useNavigate();
   const { farmer } = useContext(SessionContext);
 
+  console.log("in discussion page");
+
+  const fetchChatsAndFarmers = async () => {
+    try {
+      const chatsResponse = await axios.get(`/api/chats`);
+      const chats = chatsResponse.data;
+      console.log("calling api", chatsResponse);
+      //here chats contains the chat model with participants and messages
+
+      const chatsWithFarmerDataPromise = chats.map(async (chat) => {
+        const otherFarmerId = chat.participants.find((id) => id !== farmer._id);
+
+        try {
+          const farmerResponse = await axios.get(
+            `/api/farmers/${otherFarmerId}`
+          );
+          const farmerData = farmerResponse.data;
+          console.log("fetching farmer profiles");
+          return {
+            ...farmerData,
+            chatId: chat._id,
+          };
+        } catch (error) {
+          console.error(
+            `Error fetching farmer data for ID ${otherFarmerId}: `,
+            error
+          );
+          return null;
+        }
+      });
+
+      const chatsWithFarmerData = await Promise.all(chatsWithFarmerDataPromise);
+
+      const validChatsWithFarmerData = chatsWithFarmerData.filter(
+        (chat) => chat !== null
+      );
+
+      console.log(validChatsWithFarmerData);
+      setChatProfiles(validChatsWithFarmerData);
+    } catch (error) {
+      console.error("Error fetching chats: ", error);
+    }
+  };
+
   useEffect(() => {
-    if (farmer) setUsers(farmer.followers);
-    console.log(farmer?.followers);
+    if (farmer) fetchChatsAndFarmers();
   }, [farmer]);
 
-  const handleOnClick = (user) => {
-    navigate(`/chat/${user.username}`, { state: { user: user } })
-    // console.log(e);
-    // const formattedShopName = e.shopName.replace(/\s+/g, "-");
-    // navigate(`/stores/${formattedShopName}`, { state: { user: e } });
+  const handleOnClick = (profile) => {
+    navigate(`/discussion/${profile.chatId}`);
   };
 
   return (
     <DiscussionList>
-      {users!= [] && users.map((user, index) => (
-        <User key={index} onClick={() => handleOnClick(user)}>
-          <ProfilePicture>
-            <img src={user.profilePhoto} alt={user.name} />
-          </ProfilePicture>
-          <UserInfo>
-            <h2>{user.username}</h2>
-            <p>{user.location}</p>
-          </UserInfo>
-        </User>
-      ))}
+      {chatProfiles &&
+        chatProfiles.map(
+          (profile, index) =>
+            profile && (
+              <User key={index} onClick={() => handleOnClick(profile)}>
+                <ProfilePicture>
+                  <img src={profile.profilePhoto} alt={profile.username} />
+                </ProfilePicture>
+                <UserInfo>
+                  <h2>{profile.username}</h2>
+                  {/* <p>{profile.location}</p> */}
+                  <h2>
+                    {/* Chat with{" "}
+                {user.participants
+                  .filter((member) => member !== farmer._id)
+                  .join(", ")} */}
+                  </h2>
+                </UserInfo>
+              </User>
+            )
+        )}
     </DiscussionList>
   );
 };

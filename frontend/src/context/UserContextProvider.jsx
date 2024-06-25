@@ -18,14 +18,14 @@ const UserContextProvider = ({ children }) => {
 
   const [showLoginMessage, setShowLoginMessage] = useState(false);
 
-  console.log(posts);
+  // console.log(posts);
 
   useEffect(() => {
     axios
       .get("/api/posts")
       .then((response) => {
         setPosts(response.data);
-        console.log(response.data);
+        // console.log(response.data);
       })
       .catch((error) => {
         console.error("Error:", error);
