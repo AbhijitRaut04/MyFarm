@@ -28,7 +28,7 @@ io.on('connection', (socket) => {
         socket.join(room);
         // send message
         socket.on('sendMessage', (data) => {
-            socket.to(room).emit('receiveMessage', data);
+            socket.to(room).emit('receiveMessage', data.message);
             
             sendMessage({data, chatId})
         });

@@ -55,7 +55,6 @@ const getMessagesFromChat = async (req, res) => {
 
         const messagesList = await Promise.all(chat.messages.map(async (messageId) => {
             let message = await Message.findById(messageId)
-            const farmer = await Farmer.findById(message.farmer);
             message.farmer = farmer;
             return message;
         }))
