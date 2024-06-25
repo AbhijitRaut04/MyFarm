@@ -6,16 +6,33 @@ const messageSchema = new mongoose.Schema({
         ref: 'Farmer',
         required: true
     },
-    post:{
+    media: {
+        type: String
+    },
+    post: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Post'
     },
+    replyTo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Message'
+    },
+    reacts: [{
+        reactedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Farmer'
+        },
+        emoji: {
+            type: String,
+            enum: ["❤️","🙏","😂","👍","😍"]
+        }
+    }],
     message: {
         type: String
     },
     timestamp: {
         type: Date,
-        default: Date.now,
+        default: Date.now
     }
 });
 

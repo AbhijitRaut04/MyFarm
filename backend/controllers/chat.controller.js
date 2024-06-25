@@ -87,26 +87,25 @@ const getParticipantsFromChat = async (req, res) => {
     }
 }
 
-
-const sendChat = async (req, res) => {
+// delete chat
+const deleteChat = async (req, res) => {
     const { chatId } = req.params;
-    const { sender, message } = req.body;
 
     try {
         let chat = await Chat.findById(chatId);
+        let messages = chat.messages;
 
-        if (!chat) {
-            return res.status(404).send("Chat not found");
-        } else {
-            chat.messages.push({ sender, message });
-        }
+        messages.forEach(async (message) => {
+            await Message.findByIdAndDelete(message);
+        })
+        await Chat.findByIdAndDelete(chat._id);
 
-        await chat.save();
-
-        res.status(201).json(chat);
+        res.status(201).json({message : "Chat deleted successfully"});
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 }
 
-export { sendChat, getChats, getMessagesFromChat, getParticipantsFromChat, createChat }
+// 
+
+export { deleteChat, getChats, getMessagesFromChat, getParticipantsFromChat, createChat }

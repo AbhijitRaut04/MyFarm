@@ -1,5 +1,5 @@
 import express from 'express';
-import { createFarmer, getFarmers, getFarmerProfile, getFarmer, updateFarmer, deleteFarmer, loginFarmer, logoutFarmer, getSavedPosts, followFarmer, unfollowFarmer, getFollowers, getFollowing } from '../controllers/farmer.controller.js';
+import { createFarmer, getFarmers, getFarmerProfile, getFarmer, updateFarmer, deleteFarmer, loginFarmer, logoutFarmer, getSavedPosts, followFarmer, unfollowFarmer, getFollowers, getFollowing, starMessage, unstarMessage } from '../controllers/farmer.controller.js';
 import validateFarmer from '../middlewares/validateFarmer.js';
 import { verifyToken } from '../db/generateToken.js';
 import { getLoginFarmer, isFarmerSignin } from '../middlewares/isAuthenticated.js';
@@ -23,6 +23,9 @@ router.patch('/follow/:id', isFarmerSignin, followFarmer)
 router.patch('/unfollow/:id', isFarmerSignin, unfollowFarmer)
 router.get('/followers/:id', isFarmerSignin, getFollowers)
 router.get('/following/:id', isFarmerSignin, getFollowing)
+
+router.patch('/star/:messageId', isFarmerSignin, starMessage);
+router.patch('/unstar/:messageId', isFarmerSignin, unstarMessage);
 
 
 export default router;

@@ -1,6 +1,7 @@
 import { generateJWTToken } from '../db/generateToken.js';
 import { encryptData, comparePasswords } from '../db/hashPassword.js';
 import Farmer from '../models/farmer.models.js';
+import Message from '../models/message.models.js';
 import Post from '../models/post.models.js';
 
 // Create a new farmer
@@ -353,6 +354,34 @@ const getFollowing = async (req, res) => {
     }
 }
 
+// star message
+const starMessage = async (req, res) => {
+    try {
+        let farmer = await Farmer.findById(req.farmer.userId);
+        const message = await Message.findById(req.params.messageId);
+        if(!message) return res.status(400).send("Message not found");
+        farmer.starredMessages.push(req.params.messageId)
+
+        await farmer.save();
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+// unstar message
+const unstarMessage = async (req, res) => {
+    try {
+        let farmer = await Farmer.findById(req.farmer.userId);
+        const message = await Message.findById(req.params.messageId);
+        if(!message) return res.status(400).send("Message not found");
+        farmer.starredMessages = farmer.starredMessages.filter((item) => item != req.params.messageId);
+
+        await farmer.save();
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 export {
     createFarmer,
     loginFarmer,
@@ -366,5 +395,7 @@ export {
     followFarmer,
     unfollowFarmer,
     getFollowers,
-    getFollowing
+    getFollowing,
+    starMessage,
+    unstarMessage
 }
