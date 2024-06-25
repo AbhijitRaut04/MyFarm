@@ -2,9 +2,8 @@ import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
-import Chat from '../models/chat.models.js';
-import Message from '../models/message.models.js';
 import connectDB from '../db/connect.js';
+import { deleteMessage, sendMessage, sendReaction } from '../controllers/message.controller.js';
 
 const app = express();
 
@@ -23,35 +22,39 @@ const io = new Server(server, {
 
 io.on('connection', (socket) => {
     console.log('A user connected');
-})
+
     socket.on('joinChat', ({ chatId }) => {
         const room = chatId;
         socket.join(room);
-        socket.on('sendMessage', async ({ sender, message }) => {
-            socket.to(room).emit('receiveMessage', { sender, message });
-    
-            let chat = await Chat.findById(chatId);
-            if (!chat) {
-                console.log("Chat not found");
-                return "";
-            } else {
-                const newMessage = await Message.create({
-                    sender,
-                    message
-                })
-                chat.messages.push(newMessage);
-            }
-    
-            await chat.save();
+        // send message
+        socket.on('sendMessage', (data) => {
+            socket.to(room).emit('receiveMessage', data);
+            
+            sendMessage({data, chatId})
         });
+        
+        // delete message
+        socket.on('deleteMessage', (messageId) => {
+            socket.to(room).emit('receiveMessage', "This message deleted");
+            
+            deleteMessage({messageId, chatId});
+        });
+        
+        // react to message
+        socket.on("react", ({messageId, emoji, reactedBy}) => {
+            socket.to(room).emit('receiveMessage', "Reaction added to message");
+            
+            sendReaction({messageId, emoji, reactedBy});
+        })
+        
     });
-    
+
 
     socket.on('disconnect', () => {
         console.log('A user disconnected');
     });
 
-// });
+});
 
 const PORT = 3000;
 server.listen(PORT, () => {
