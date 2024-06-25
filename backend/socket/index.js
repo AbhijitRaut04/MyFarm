@@ -23,13 +23,13 @@ const io = new Server(server, {
 
 io.on('connection', (socket) => {
     console.log('A user connected');
-})
+
     socket.on('joinChat', ({ chatId }) => {
         const room = chatId;
         socket.join(room);
         socket.on('sendMessage', async ({ sender, message }) => {
             socket.to(room).emit('receiveMessage', { sender, message });
-    
+
             let chat = await Chat.findById(chatId);
             if (!chat) {
                 console.log("Chat not found");
@@ -41,17 +41,17 @@ io.on('connection', (socket) => {
                 })
                 chat.messages.push(newMessage);
             }
-    
+
             await chat.save();
         });
     });
-    
+
 
     socket.on('disconnect', () => {
         console.log('A user disconnected');
     });
 
-// });
+});
 
 const PORT = 3000;
 server.listen(PORT, () => {
