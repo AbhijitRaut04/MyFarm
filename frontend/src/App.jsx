@@ -129,19 +129,19 @@ const App = () => {
 
           <Category id="category" $isvisible={isVisible}>
             <CategoryOptions onClick={() => navigate("/home")}>
-              <i class="fa-solid fa-house"></i>
+              <i className="fa-solid fa-house"></i>
               <p>Home</p>
             </CategoryOptions>
             <CategoryOptions onClick={() => navigate("/stores")}>
-              <i class="fa-solid fa-store"></i>
+              <i className="fa-solid fa-store"></i>
               <p>Stores</p>
             </CategoryOptions>
             <CategoryOptions onClick={() => navigate("/experts")}>
-              <i class="fa-solid fa-chalkboard-user"></i>
+              <i className="fa-solid fa-chalkboard-user"></i>
               <p>Experts</p>
             </CategoryOptions>
             <CategoryOptions onClick={() => navigate("/discussion")}>
-              <i class="fa-solid fa-message"></i>
+              <i className="fa-solid fa-message"></i>
               <p>Discussion</p>
             </CategoryOptions>
           </Category>

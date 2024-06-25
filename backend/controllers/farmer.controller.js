@@ -121,77 +121,38 @@ const getFarmerProfile = async (req, res) => {
 const getFarmer = async (req, res) => {
     try {
         const farmer = req.farmer;
-        if (!farmer) {
-            const account = await Farmer.findById(req.params.id).select("profilePhoto username posts followers following");
+        const account = await Farmer.findById(req.params.id).select("profilePhoto username posts followers following");
+        if (!account) return res.status(404).send({ message: "Farmer not found" });
 
-            let partialAccount = {
-                profilePhoto: profilePhoto,
-                username: account.username,
-                publicPosts: [],
-                countFollwers: account.followers.length,
-                countFollowing: account.following.length
-            }
-            // public posts
-            const pubPosts = account.posts;
+        let partialAccount = {
+            profilePhoto: account.profilePhoto,
+            username: account.username,
+            publicPosts: [],
+            countFollowers: account.followers ? account.followers.length : 0,
+            countFollowing: account.following ? account.following.length : 0,
+            followers: account.followers,
+            following: account.following
+        };
 
+        // Fetch and filter public posts
+        const publicPosts = await Promise.all(account.posts.map(async (postId) => {
+            let post = await Post.findById(postId);
+            return post && post.isPublic ? post : null;
+        })).then(posts => posts.filter(post => post !== null));
 
-            // Fetch current farmer's posts
-            const publicPostsPromises = pubPosts.map(async (postId) => {
-                let post = await Post.findById(postId);
-                return post;
-            });
+        partialAccount.publicPosts = publicPosts;
 
-            publicPostsPromises = publicPostsPromises.filter(item => item.isPublic === true)
-
-            let publicPosts = [];
-            Promise.all(publicPostsPromises)
-                .then((postObjArrays) => {
-                    publicPosts = [...publicPosts, ...postObjArrays];
-                    partialAccount.publicPosts = publicPosts
-                    return res.status(201).send(partialAccount);
-                })
-
+        if (farmer && farmer.following.indexOf(req.params.id) !== -1) {
+            // Additional logic for when the farmer is viewing another farmer's profile they follow
         }
-        else {
-            if (farmer.following.indexOf(req.params.id) === -1) {
-                const account = await Farmer.findById(req.params.id).select("profilePhoto username posts followers following");
 
-                let partialAccount = {
-                    profilePhoto: profilePhoto,
-                    username: account.username,
-                    publicPosts: [],
-                    followers: account.followers,
-                    following: account.following
-                }
-                // public posts
-                const pubPosts = account.posts;
-
-
-                // Fetch current farmer's posts
-                const publicPostsPromises = pubPosts.map(async (postId) => {
-                    let post = await Post.findById(postId);
-                    return post;
-                });
-
-                publicPostsPromises = publicPostsPromises.filter(item => item.isPublic === true)
-
-                let publicPosts = [];
-                Promise.all(publicPostsPromises)
-                    .then((postObjArrays) => {
-                        publicPosts = [...publicPosts, ...postObjArrays];
-                        partialAccount.publicPosts = publicPosts
-                        return res.status(201).send(partialAccount);
-                    })
-            }
-            else {
-                const account = await Farmer.findById(req.params.id).select("-password -saved")
-                res.status(200).send(account);
-            }
-        }
+        return res.status(200).send(partialAccount);
     } catch (error) {
-        res.status(500).send(error);
+        console.error(error);
+        return res.status(500).send({ message: "An error occurred while fetching farmer data." });
     }
-}
+};
+
 
 // Update a farmer by ID
 const updateFarmer = async (req, res) => {

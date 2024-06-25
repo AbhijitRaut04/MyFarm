@@ -26,19 +26,21 @@ const Experts = () => {
   };
 
   return (
-    <ExpertsList>
-      {expertUsers.map((expertUser, index) => (
-        <Expert key={index} onClick={() => handleOnClick(expertUser)}>
-          <ProfilePicture>
-            <img src={expertUser.profilePhoto} alt={expertUser.name} />
-          </ProfilePicture>
-          <ExpertInfo>
-            <h2>{expertUser.name}</h2>
-            <p>{expertUser.location}</p>
-          </ExpertInfo>
-        </Expert>
-      ))}
-    </ExpertsList>
+    expertUsers && (
+      <ExpertsList>
+        {expertUsers.map((expertUser, index) => (
+          <Expert key={index} onClick={() => handleOnClick(expertUser)}>
+            <ProfilePicture>
+              <img src={expertUser.profilePhoto} alt={expertUser.name} />
+            </ProfilePicture>
+            <ExpertInfo>
+              <h2>{expertUser.name}</h2>
+              <p>{expertUser.location}</p>
+            </ExpertInfo>
+          </Expert>
+        ))}
+      </ExpertsList>
+    )
   );
 };
 

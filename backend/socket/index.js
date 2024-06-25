@@ -26,6 +26,24 @@ io.on('connection', (socket) => {
     socket.on('joinChat', ({ chatId }) => {
         const room = chatId;
         socket.join(room);
+      
+        socket.on('sendMessage', async ({ sender, message }) => {
+            socket.to(room).emit('receiveMessage', { sender, message });
+
+            let chat = await Chat.findById(chatId);
+            if (!chat) {
+                console.log("Chat not found");
+                return "";
+            } else {
+                const newMessage = await Message.create({
+                    sender,
+                    message
+                })
+                chat.messages.push(newMessage);
+            }
+
+            await chat.save();
+
         // send message
         socket.on('sendMessage', (data) => {
             socket.to(room).emit('receiveMessage', data.message);
@@ -38,6 +56,7 @@ io.on('connection', (socket) => {
             socket.to(room).emit('receiveMessage', "This message deleted");
             
             deleteMessage({messageId, chatId});
+
         });
         
         // react to message
