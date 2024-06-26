@@ -9,43 +9,39 @@ import { ScrollContext } from "../context/Contexts";
 
 const ChatRoom = () => {
   const socket = io("http://localhost:3000");
-  const { setCalculateVisibility } = useContext(ScrollContext);
-  // const { farmerId, loading } = useFarmer();
-  const [farmerId, setFarmerId] = useState();
+  // const { setCalculateVisibility } = useContext(ScrollContext);
+  const { farmerId, loading } = useFarmer();
+  // const [farmerId, setFarmerId] = useState();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const { chatId } = useParams();
 
-  useEffect(() => {
-    setCalculateVisibility(0);
-    const verifyToken = async () => {
-      try {
-        const response = await axios.get("/api/verify");
-        console.log(response);
-        setFarmerId(response.data.farmer.userId);
-      } catch (error) {
-        console.error("Error verifying token:", error);
-      } finally {
-        // setLoading(false); // Set loading to false after the request is complete
-      }
-    };
+  // useEffect(() => {
+  //   setCalculateVisibility(0);
+  //   const verifyToken = async () => {
+  //     try {
+  //       const response = await axios.get("/api/verify");
+  //       console.log(response);
+  //       setFarmerId(response.data.farmer.userId);
+  //     } catch (error) {
+  //       console.error("Error verifying token:", error);
+  //     } finally {
+  //       // setLoading(false); // Set loading to false after the request is complete
+  //     }
+  //   };
 
-    verifyToken();
-    return () => {
-      setCalculateVisibility(1);
-    };
-  }, []);
+  //   verifyToken();
+  //   return () => {
+  //     setCalculateVisibility(1);
+  //   };
+  // }, []);
 
   useEffect(() => {
     const fetchMessages = async () => {
       if (farmerId) {
         try {
-          console.log(farmerId);
-          console.log(chatId);
           const response = await axios.get(`/api/chats/messages/${chatId}`);
           console.log(response);
-          // const chat = response.data.filter(chat => chat._id === chatId);
-          // setMessages(chat.messages);
           setMessages(response.data);
         } catch (error) {
           console.error("Error fetching messages:", error);
@@ -69,7 +65,7 @@ const ChatRoom = () => {
   const sendMessage = () => {
     if (message.trim()) {
       const newMessage = { sender: farmerId, message };
-      socket.emit("sendMessage", newMessage);
+      socket.emit("sendMessage", {newMessage, chatId});
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       setMessage("");
     }

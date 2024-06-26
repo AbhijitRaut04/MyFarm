@@ -2,15 +2,15 @@ import Chat from "../models/chat.models.js";
 import Message from "../models/message.models.js";
 
 
-const sendMessage = async ({ data, chatId }) => {
+const sendMessage = async ({newMessage, chatId}) => {
     try {
         let chat = await Chat.findById(chatId);
         if (!chat) {
             console.log("Chat not found");
             return "";
         } else {
-            const newMessage = await Message.create(data)
-            chat.messages.push(newMessage);
+            const newmessage = await Message.create(newMessage)
+            chat.messages.push(newmessage);
         }
 
         await chat.save();

@@ -5,6 +5,7 @@ import cors from 'cors';
 import connectDB from '../db/connect.js';
 import { deleteMessage, sendMessage, sendReaction } from '../controllers/message.controller.js';
 
+
 const app = express();
 
 app.use(cors({ origin: 'http://localhost:5173' }));
@@ -26,47 +27,31 @@ io.on('connection', (socket) => {
     socket.on('joinChat', ({ chatId }) => {
         const room = chatId;
         socket.join(room);
-      
-        socket.on('sendMessage', async ({ sender, message }) => {
-            socket.to(room).emit('receiveMessage', { sender, message });
 
-            let chat = await Chat.findById(chatId);
-            if (!chat) {
-                console.log("Chat not found");
-                return "";
-            } else {
-                const newMessage = await Message.create({
-                    sender,
-                    message
-                })
-                chat.messages.push(newMessage);
-            }
-
-            await chat.save();
-
-        // send message
-        socket.on('sendMessage', (data) => {
-            socket.to(room).emit('receiveMessage', data.message);
-            
-            sendMessage({data, chatId})
-        });
-        
-        // delete message
-        socket.on('deleteMessage', (messageId) => {
-            socket.to(room).emit('receiveMessage', "This message deleted");
-            
-            deleteMessage({messageId, chatId});
-
-        });
-        
-        // react to message
-        socket.on("react", ({messageId, emoji, reactedBy}) => {
-            socket.to(room).emit('receiveMessage', "Reaction added to message");
-            
-            sendReaction({messageId, emoji, reactedBy});
-        })
-        
     });
+
+    // send message
+    socket.on('sendMessage', ({newMessage, chatId}) => {
+        socket.to(chatId).emit('receiveMessage', newMessage);
+        sendMessage({newMessage, chatId})
+        console.log("Message inserted");
+    });
+
+    // delete message
+    socket.on('deleteMessage', (messageId) => {
+        socket.to(room).emit('receiveMessage', "This message deleted");
+
+        deleteMessage({ messageId, chatId });
+
+    });
+
+    // react to message
+    socket.on("react", ({ messageId, emoji, reactedBy }) => {
+        socket.to(room).emit('receiveMessage', "Reaction added to message");
+
+        sendReaction({ messageId, emoji, reactedBy });
+    })
+
 
 
     socket.on('disconnect', () => {

@@ -15,7 +15,7 @@ export const FarmerProvider = ({ children }) => {
       try {
         const response = await axios.get("/api/verify");
         console.log(response);
-        setFarmerId(response.data.farmer._id);
+        setFarmerId(response.data.farmer.userId);
       } catch (error) {
         console.error("Error verifying token:", error);
       } finally {

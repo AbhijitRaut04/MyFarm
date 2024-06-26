@@ -13,41 +13,42 @@ const Discussion = () => {
 
   const fetchChatsAndFarmers = async () => {
     try {
-      const chatsResponse = await axios.get(`/api/chats`);
+      console.log("Fetching chats.......")
+      const chatsResponse = await axios.get(`api/chats`);
       const chats = chatsResponse.data;
-      console.log("calling api", chatsResponse);
+      console.log("calling api", chats);
       //here chats contains the chat model with participants and messages
 
-      const chatsWithFarmerDataPromise = chats.map(async (chat) => {
-        const otherFarmerId = chat.participants.find((id) => id !== farmer._id);
+      // const chatsWithFarmerDataPromise = chats.map(async (chat) => {
+      //   const otherFarmerId = chat.participants.find((id) => id !== farmer._id);
 
-        try {
-          const farmerResponse = await axios.get(
-            `/api/farmers/${otherFarmerId}`
-          );
-          const farmerData = farmerResponse.data;
-          console.log("fetching farmer profiles");
-          return {
-            ...farmerData,
-            chatId: chat._id,
-          };
-        } catch (error) {
-          console.error(
-            `Error fetching farmer data for ID ${otherFarmerId}: `,
-            error
-          );
-          return null;
-        }
-      });
+      //   try {
+      //     const farmerResponse = await axios.get(
+      //       `/api/farmers/${otherFarmerId}`
+      //     );
+      //     const farmerData = farmerResponse.data;
+      //     console.log("fetching farmer profiles");
+      //     return {
+      //       ...farmerData,
+      //       chatId: chat._id,
+      //     };
+        // } catch (error) {
+        //   console.error(
+        //     `Error fetching farmer data for ID ${otherFarmerId}: `,
+        //     error
+        //   );
+        //   return null;
+        // }
+      // });
 
-      const chatsWithFarmerData = await Promise.all(chatsWithFarmerDataPromise);
+      // const chatsWithFarmerData = await Promise.all(chatsWithFarmerDataPromise);
 
-      const validChatsWithFarmerData = chatsWithFarmerData.filter(
-        (chat) => chat !== null
-      );
+      // const validChatsWithFarmerData = chatsWithFarmerData.filter(
+      //   (chat) => chat !== null
+      // );
 
-      console.log(validChatsWithFarmerData);
-      setChatProfiles(validChatsWithFarmerData);
+      // console.log(validChatsWithFarmerData);
+      setChatProfiles(chats);
     } catch (error) {
       console.error("Error fetching chats: ", error);
     }
