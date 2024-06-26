@@ -12,6 +12,7 @@ import Discussion from "./Discussion";
 import Experts from "./Experts";
 import Stores from "./Stores";
 import Store from "./Store";
+import EditProfile from "./EditProfile";
 
 const Routers = () => {
   const farmerId = "farmer1";
@@ -23,17 +24,25 @@ const Routers = () => {
           <Route path="/home" element={<Home />} />
           <Route path="/stores" element={<Stores />}></Route>
           <Route path="/stores/:name" element={<Store />} />
-          <Route path="/discussion" element={<Chats />} />
+          <Route path="/discussion" element={<Discussion />} />
+          {/* <Route path="/discussion" element={<Chats />} /> */}
           <Route path="/discussion/:chatId" element={<ChatRoom />} />
           {/* <Route path="/chat/:username" element={ <Chat /> } /> */}
           <Route path="/experts" element={<Experts />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route
+            path="/edit-profile"
+            element={<EditProfile key={window.location.pathname} />}
+          />
+          <Route
+            path="/profile/:id"
+            element={<ProfilePage key={window.location.pathname} />}
+          />
           <Route path="/signin" element={<Signin />} />
           <Route path="/signup" element={<Signup />} />
         </Route>
         <Route path="*" element={<Navigate replace to="/home" />} />
-        {/* <Route path="/discussion" element={<Discussion />} /> */}
       </Routes>
     </BrowserRouter>
   );

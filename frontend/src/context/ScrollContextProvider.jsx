@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { ScrollContext } from "./Contexts";
-import { set, throttle } from "lodash";
+import { throttle } from "lodash";
 
 const ScrollContextProvider = ({ children }) => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isVisible, setIsVisible] = useState(1);
+  const [isCreatePostDisplay, setIsCreatePostDisplay] = useState(1);
   const [isScrolledPast, setIsScrolledPast] = useState(false);
   const [calculateVisibility, setCalculateVisibility] = useState(true);
 
   useEffect(() => {
-    if(calculateVisibility){
+    if (calculateVisibility) {
       const handleScroll = throttle(() => {
         const headerSectionBottom = document
           .querySelector("#headerSection")
@@ -18,9 +19,9 @@ const ScrollContextProvider = ({ children }) => {
           .querySelector("#searchBar")
           ?.getBoundingClientRect().bottom;
         setIsScrolledPast(searchBarTop < headerSectionBottom);
-  
+
         const currentScrollY = window.scrollY;
-  
+
         if (currentScrollY > lastScrollY) {
           setIsVisible(0); // Scrolling down
         } else {
@@ -28,19 +29,26 @@ const ScrollContextProvider = ({ children }) => {
         }
         setLastScrollY(currentScrollY);
       }, 1000);
-  
+
       window.addEventListener("scroll", handleScroll, { passive: true });
-  
+
       return () => window.removeEventListener("scroll", handleScroll);
-    }
-    else {
+    } else {
       setIsVisible(0);
     }
   }, [lastScrollY, calculateVisibility]);
 
   return (
     <ScrollContext.Provider
-      value={{ isVisible, setIsVisible, isScrolledPast, setIsScrolledPast, setCalculateVisibility }}
+      value={{
+        isVisible,
+        setIsVisible,
+        isCreatePostDisplay,
+        setIsCreatePostDisplay,
+        isScrolledPast,
+        setIsScrolledPast,
+        setCalculateVisibility,
+      }}
     >
       {children}
     </ScrollContext.Provider>

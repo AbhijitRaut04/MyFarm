@@ -8,24 +8,8 @@ import CreatePost from "./components/CreatePost";
 // import io from "socket.io-client";
 
 const App = () => {
-  // useEffect(() => {
-  //   const socket = io('http://localhost:5000');
-
-  //   socket.on('connection', (message) => {
-  //     console.log(message);
-  //   });
-
-  //   // Step 4: Clean up on component unmount
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // }, []);
-
-  // ...
   const navigate = useNavigate();
   const { farmer } = useContext(SessionContext);
-  // const { setIsScrolledPast } = useContext(ScrollContext);
-  // ...
 
   // checking if the user is logged in or not if yes -> "/profile" else -> "/signin"
   const navigateIt = async () => {
@@ -56,7 +40,8 @@ const App = () => {
     setInputValue("");
   };
 
-  const { isVisible, isScrolledPast } = useContext(ScrollContext);
+  const { isVisible, isScrolledPast, isCreatePostDisplay } =
+    useContext(ScrollContext);
   const { showLoginMessage, setShowLoginMessage } = useContext(UserContext);
   const [displayCreatePost, setDisplayCreatePost] = useState(false);
   const [showPostedMessage, setShowPostedMessage] = useState(false);
@@ -123,7 +108,11 @@ const App = () => {
 
           <Outlet />
 
-          <Create onClick={handleCreate} $isvisible={isVisible}>
+          <Create
+            onClick={handleCreate}
+            $isvisible={isVisible}
+            $isdisplayed={isCreatePostDisplay}
+          >
             <i className="fa-regular fa-plus"></i>
           </Create>
 
@@ -171,9 +160,6 @@ const App = () => {
               <button onClick={() => setShowLoginMessage(false)}>Cancel</button>
             </div>
           </LoginPopup>
-
-          {/* <BlankSpace></BlankSpace> */}
-          {/* Temporary code */}
         </MainContent>
       </HomeWrapper>
     </>
@@ -185,7 +171,7 @@ export default App;
 const HomeWrapper = styled.div`
   background-color: #e5e5e5;
   min-height: 100vh;
-  /* height: auto; */
+  min-height: calc(100vh - 48px);
 `;
 const MainContent = styled.div`
   background-color: #dddddd;
@@ -350,10 +336,6 @@ const InputBox = styled.div`
   }
 `;
 
-// Temporary Code
-
-// Temporary code
-
 const BlankSpace = styled.div`
   height: 100vh;
 `;
@@ -372,7 +354,7 @@ const Create = styled.div`
   transition: bottom 0.5s ease-out;
   cursor: pointer;
 
-  display: flex;
+  display: ${(props) => (props.$isdisplayed == 1 ? "flex" : "none")};
   justify-content: center;
   align-items: center;
 

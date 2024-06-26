@@ -1,42 +1,60 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Loading from "./Loading";
+import { ScrollContext } from "../context/Contexts";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
   const [loading, setLoding] = useState(true);
   const [user, setUser] = useState();
   const [ownPosts, setOwnPosts] = useState();
+  const { setIsCreatePostDisplay } = useContext(ScrollContext);
 
   //navigate to signin page if user is not logged in
-  useEffect(() => {
-    console.log("fetching farmer posts");
-    axios
-      .get("/api/posts/myPosts")
-      .then((response) => {
-        // console.log("Current farmer posts",response);
-        console.log("featching posts completed");
-        setOwnPosts(response.data);
-      })
-      .catch((error) => {
-        console.error("Error: at fetching posts", error);
-      });
+  const location = useLocation();
+  const { otherFarmer } = location.state || {};
 
-    console.log("fetching farmer profile");
-    axios
-      .get("/api/farmers/profile")
-      .then((response) => {
-        console.log("featching profile completed");
-        setUser(response.data);
-        setLoding(false);
-        console.log(response);
-      })
-      .catch((error) => {
-        console.error("Error: at featching profile", error);
-        navigate("/signin");
-      });
+  useEffect(() => {
+    setIsCreatePostDisplay(0);
+    console.log("fetching farmer posts");
+
+    if (!otherFarmer) {
+      axios
+        .get("/api/posts/myPosts")
+        .then((response) => {
+          // console.log("Current farmer posts",response);
+          console.log("featching posts completed");
+          setOwnPosts(response.data);
+        })
+        .catch((error) => {
+          console.error("Error: at fetching posts", error);
+        });
+
+      console.log("fetching farmer profile");
+
+      axios
+        .get("/api/farmers/profile")
+        .then((response) => {
+          console.log("featching profile completed");
+          setUser(response.data);
+          setLoding(false);
+          console.log(response);
+        })
+        .catch((error) => {
+          console.error("Error: at featching profile", error);
+          navigate("/signin");
+        });
+    } else {
+      setUser(otherFarmer);
+      setOwnPosts(otherFarmer.posts);
+      setLoding(false);
+    }
+
+    return () => {
+      setIsCreatePostDisplay(1);
+    };
   }, []);
 
   const postImages = ownPosts?.map((post) => post.file) || [];
@@ -79,9 +97,18 @@ const ProfilePage = () => {
           </p>
         </NameAndDesc>
         <Buttons>
-          <button className="follow">Follow</button>
-          <button className="message">Message</button>
-          <button className="email">Email</button>
+          {(otherFarmer && (
+            <>
+              <button className="follow">Follow</button>
+              <button className="message">Message</button>
+              <button className="email">Email</button>
+            </>
+          )) || (
+            <button onClick={() => navigate("/edit-profile")} className="edit">
+              Edit
+            </button>
+          )}
+
           <button className="moreOptions">
             <i className="fa-solid fa-chevron-down"></i>
           </button>
@@ -123,6 +150,10 @@ const ProfilePictureAndNumbers = styled.div`
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+  position: relative;
+  @media (max-width: 600px) {
+    height: 8rem;
+  }
 `;
 
 const ImageWrapper = styled.div`
@@ -199,7 +230,8 @@ const Buttons = styled.div`
   }
   .follow,
   .message,
-  .email {
+  .email,
+  .edit {
     flex: 1;
   }
   .follow {

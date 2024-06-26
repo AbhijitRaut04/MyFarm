@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -6,6 +6,7 @@ import backgroundImage from "../assets/signinimg.png";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Loading from "./Loading";
+import { SessionContext } from "../context/Contexts";
 
 const Signin = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const Signin = () => {
   const [loading, setLoading] = useState(true);
   const [loginError, setLoginError] = useState(""); // State to store login error message
 
+  const { setCheckout } = useContext(SessionContext);
   //navigate to home page if user is already logged in
   useEffect(() => {
     console.log("Checking if user is already logged in");
@@ -23,6 +25,7 @@ const Signin = () => {
         setLoading(false);
         if (response.data.isLoggedIn) {
           navigate("/home");
+          setCheckout((prev) => !prev); // to refresh the sessionContextProvider
         }
       })
       .catch((error) => {
@@ -42,6 +45,7 @@ const Signin = () => {
       if (!response.data.message) {
         // console.log(response.message);
         navigate("/home");
+        setCheckout((prev) => !prev); // to refresh the sessionContextProvider
       } else {
         console.log(response);
         setLoginError(response.data.message); // Set login error message
