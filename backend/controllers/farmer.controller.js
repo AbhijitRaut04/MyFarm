@@ -127,11 +127,12 @@ const getFarmer = async (req, res) => {
         let partialAccount = {
             profilePhoto: account.profilePhoto,
             username: account.username,
-            publicPosts: [],
+            posts: [],
             countFollowers: account.followers ? account.followers.length : 0,
             countFollowing: account.following ? account.following.length : 0,
             followers: account.followers,
-            following: account.following
+            following: account.following,
+            farmerId: account._id.toString()
         };
 
         // Fetch and filter public posts
@@ -140,7 +141,7 @@ const getFarmer = async (req, res) => {
             return post && post.isPublic ? post : null;
         })).then(posts => posts.filter(post => post !== null));
 
-        partialAccount.publicPosts = publicPosts;
+        partialAccount.posts = publicPosts;
 
         if (farmer && farmer.following.indexOf(req.params.id) !== -1) {
             // Additional logic for when the farmer is viewing another farmer's profile they follow
@@ -359,7 +360,7 @@ const starMessage = async (req, res) => {
     try {
         let farmer = await Farmer.findById(req.farmer.userId);
         const message = await Message.findById(req.params.messageId);
-        if(!message) return res.status(400).send("Message not found");
+        if (!message) return res.status(400).send("Message not found");
         farmer.starredMessages.push(req.params.messageId)
 
         await farmer.save();
@@ -373,7 +374,7 @@ const unstarMessage = async (req, res) => {
     try {
         let farmer = await Farmer.findById(req.farmer.userId);
         const message = await Message.findById(req.params.messageId);
-        if(!message) return res.status(400).send("Message not found");
+        if (!message) return res.status(400).send("Message not found");
         farmer.starredMessages = farmer.starredMessages.filter((item) => item != req.params.messageId);
 
         await farmer.save();

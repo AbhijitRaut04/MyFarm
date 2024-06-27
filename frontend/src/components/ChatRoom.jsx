@@ -1,44 +1,45 @@
 // src/ChatRoom.js
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import io from "socket.io-client";
-import { useFarmer } from "../context/FarmerContext";
 import styled from "styled-components";
-import { ScrollContext } from "../context/Contexts";
+import {
+  ScrollContext,
+  SessionContext,
+  SocketContext,
+} from "../context/Contexts";
 
 const ChatRoom = () => {
-  const socket = io("http://localhost:3000");
-  // const { setCalculateVisibility } = useContext(ScrollContext);
-  const { farmerId, loading } = useFarmer();
+  // const socket = io("http://localhost:3000");
+  const { setCalculateVisibility } = useContext(ScrollContext);
+  const { farmer } = useContext(SessionContext);
   // const [farmerId, setFarmerId] = useState();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const { chatId } = useParams();
+  const { socket } = useContext(SocketContext);
+  const messagesEndRef = useRef(null); // Create a ref for the last message
 
-  // useEffect(() => {
-  //   setCalculateVisibility(0);
-  //   const verifyToken = async () => {
-  //     try {
-  //       const response = await axios.get("/api/verify");
-  //       console.log(response);
-  //       setFarmerId(response.data.farmer.userId);
-  //     } catch (error) {
-  //       console.error("Error verifying token:", error);
-  //     } finally {
-  //       // setLoading(false); // Set loading to false after the request is complete
-  //     }
-  //   };
-
-  //   verifyToken();
-  //   return () => {
-  //     setCalculateVisibility(1);
-  //   };
-  // }, []);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollTo({
+      top: messagesEndRef.current.scrollHeight,
+      block: "end",
+    });
+  };
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+  useEffect(() => {
+    setCalculateVisibility(0);
+    return () => {
+      setCalculateVisibility(1);
+    };
+  }, []);
 
   useEffect(() => {
+    if (socket == null) return;
     const fetchMessages = async () => {
-      if (farmerId) {
+      if (farmer) {
         try {
           const response = await axios.get(`/api/chats/messages/${chatId}`);
           console.log(response);
@@ -59,50 +60,42 @@ const ChatRoom = () => {
 
     return () => {
       socket.off("receiveMessage");
+      console.log("ChatRoom unmounted");
     };
-  }, [chatId, farmerId]);
+  }, [chatId, farmer, socket]);
 
   const sendMessage = () => {
-    if (message.trim()) {
-      const newMessage = { sender: farmerId, message };
-      socket.emit("sendMessage", {newMessage, chatId});
+    if (message.trim() && socket) {
+      const newMessage = { sender: farmer._id, message };
+      socket.emit("sendMessage", { newMessage, chatId });
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       setMessage("");
     }
   };
 
-  // if (loading) {
-  //     return <div>Loading...</div>;
-  // }
-
   return (
     <ChatContainer>
       {/* <h1>Chat Room</h1> */}
-      <Messages>
+      <Messages ref={messagesEndRef}>
         {messages.map((msg, index) => {
-          if (msg.timestamp) {
-            if (msg.sender === farmerId) {
+          if (1) {
+            if (msg.sender === farmer._id) {
               return (
                 <FirstPerson key={index} style={{ textAlign: "right" }}>
                   <h2>{msg.message}</h2>
-                  <p>{msg.timestamp.slice(11, 16)}</p>
+                  {/* <p>{msg && msg.timestamp.slice(11, 16)}</p> */}
                 </FirstPerson>
               );
             } else {
               return (
                 <SecondPerson key={index}>
                   <h2>{msg.message}</h2>
-                  <p>{msg.timestamp.slice(11, 16)}</p>
+                  {/* <p>{msg && msg.timestamp.slice(11, 16)}</p> */}
                 </SecondPerson>
               );
             }
           }
         })}
-
-        {/* <Message key={index}>
-                        <strong>{msg.sender}:</strong> {msg.message}
-                    </Message>
-                ))} */}
       </Messages>
       <MessageForm>
         <Input
