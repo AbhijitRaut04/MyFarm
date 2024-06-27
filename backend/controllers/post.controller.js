@@ -348,12 +348,12 @@ const savePost = async (req, res) => {
             return res.status(404).send('Post not found');
         }
         else {
-            let savedArray = post.saved;
-            if (savedArray.includes(farmer._id)) return res.status(409).send("You already saved the post");
+            let savedArray = farmer.saved;
+            if (savedArray.includes(post._id)) return res.status(409).send("You already saved the post");
 
-            await Post.updateOne(
-                { _id: post._id },
-                { $addToSet: { saved: farmer._id } }
+            await Farmer.updateOne(
+                { _id: farmer._id },
+                { $addToSet: { saved: post._id } }
             )
         }
         res.status(200).send('Post is saved');
@@ -371,12 +371,12 @@ const unsavePost = async (req, res) => {
             return res.status(404).send('Post not found');
         }
         else {
-            let savedArray = post.saved;
-            if (!(savedArray.includes(farmer._id))) return res.status(409).send("You didn't saved the post yet!");
+            let savedArray = farmer.saved;
+            if (!(savedArray.includes(post._id))) return res.status(409).send("You didn't saved the post yet!");
 
-            await Post.updateOne(
-                { _id: post._id },
-                { $pull: { saved: farmer._id } }
+            await Farmer.updateOne(
+                { _id: farmer._id },
+                { $pull: { saved: post._id } }
             );
         }
         res.status(200).send('Post is unsaved');

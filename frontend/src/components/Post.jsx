@@ -1,7 +1,9 @@
 import React, { memo, useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import styled from "styled-components";
 import { SessionContext, UserContext } from "../context/Contexts";
+import { ToastContainer, toast } from 'react-toastify';
 
 const Post = memo(({ post }) => {
   const [isLiked, setIsLiked] = useState(false);
@@ -21,6 +23,13 @@ const Post = memo(({ post }) => {
     }
   }, [post, farmer]);
 
+
+  const navigate = useNavigate();
+
+  const viewProfile = () => {
+    navigate(`/profile/${post.createdBy.username}`)
+  }
+
   const handleLikeClick = () => {
     console.log("Like button clicked");
     console.log(post._id);
@@ -28,21 +37,21 @@ const Post = memo(({ post }) => {
       axios
         .patch(`/api/posts/${post._id}/like`)
         .then((response) => {
-          setIsLiked(true);
           console.log("Post liked successfully: ", response);
           setNoOfLikes((prevLikes) => prevLikes + 1);
+          setIsLiked(true);
         })
         .catch((error) => {
           console.error("Error liking post(unknown): ", error.response.status);
           if (error.response.status === 401) setShowLoginMessage(true);
         });
     } else {
-      setIsLiked(false);
       axios
         .patch(`/api/posts/${post._id}/unlike`)
         .then((response) => {
           console.log("Post unliked successfully: ", response);
           setNoOfLikes((prevLikes) => prevLikes - 1);
+          setIsLiked(false);
         })
         .catch((error) => {
           console.error("Error unliking post(unknown): ", error.response);
@@ -61,27 +70,28 @@ const Post = memo(({ post }) => {
   // };
 
   const handleBookmarkClick = () => {
-    console.log("Bookmark button clicked");
     console.log(post._id);
     if (!isBookmarked) {
       axios
         .patch(`/api/posts/${post._id}/save`)
         .then((response) => {
           setIsBookmarked(true);
-          console.log("Post Bookmark successfully: ", response);
+          toast.success("Post is Saved");
         })
         .catch((error) => {
-          console.error("Error Bookmarking post(unknown): ", error.response);
+          
+          toast.error("Somethind went wrong!");
           if (error.response.status === 401) setShowLoginMessage(true);
         });
-    } else {
-      setIsBookmarked(false);
-      axios
+      } else {
+        axios
         .patch(`/api/posts/${post._id}/unsave`)
         .then((response) => {
           console.log("Post unmark successfully: ", response);
+          setIsBookmarked(false);
         })
         .catch((error) => {
+          toast.error("Cannot unmark Post!");
           console.error("Error unmarking post(unknown): ", error.response);
         });
     }
@@ -106,8 +116,9 @@ const Post = memo(({ post }) => {
 
   return (
     <PostWrapper>
+      <ToastContainer />
       <UserInfo>
-        <UserData>
+        <UserData onClick={viewProfile}>
           <UserProfile src={post.createdBy.profilePhoto} />
           <UserName>{post.createdBy.username}</UserName>
         </UserData>

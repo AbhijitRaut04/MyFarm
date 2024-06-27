@@ -14,11 +14,10 @@ router.post('/logout', isFarmerSignin, logoutFarmer);
 router.get('/verifyToken', verifyToken);
 router.get('/', getLoginFarmer, getFarmers);
 router.get('/profile', isFarmerSignin, getFarmerProfile);
-router.get('/:id', getLoginFarmer, getFarmer);
+router.get('/saved', isFarmerSignin, getSavedPosts)
 router.patch('/', isFarmerSignin, upload.single("profilePhoto"), imageUpload, updateFarmer);
 router.delete('/', isFarmerSignin, deleteFarmer);
 
-router.get('/saved', isFarmerSignin, getSavedPosts)
 router.patch('/follow/:id', isFarmerSignin, followFarmer)
 router.patch('/unfollow/:id', isFarmerSignin, unfollowFarmer)
 router.get('/followers/:id', isFarmerSignin, getFollowers)
@@ -26,6 +25,7 @@ router.get('/following/:id', isFarmerSignin, getFollowing)
 
 router.patch('/star/:messageId', isFarmerSignin, starMessage);
 router.patch('/unstar/:messageId', isFarmerSignin, unstarMessage);
+router.get('/:id', getLoginFarmer, getFarmer);
 
 
 export default router;

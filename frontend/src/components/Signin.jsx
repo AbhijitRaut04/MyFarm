@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Loading from "./Loading";
 import { SessionContext } from "../context/Contexts";
+import { ToastContainer, toast } from "react-toastify";
 
 const Signin = () => {
   const navigate = useNavigate();
@@ -17,19 +18,19 @@ const Signin = () => {
   const { setCheckout } = useContext(SessionContext);
   //navigate to home page if user is already logged in
   useEffect(() => {
-    console.log("Checking if user is already logged in");
     setLoading(true);
     axios
-      .get("/api/verify")
-      .then((response) => {
-        setLoading(false);
-        if (response.data.isLoggedIn) {
+    .get("/api/verify")
+    .then((response) => {
+      setLoading(false);
+      if (response.data.isLoggedIn) {
+          toast.info("Farmer already loggedIn");
           navigate("/home");
           setCheckout((prev) => !prev); // to refresh the sessionContextProvider
         }
       })
       .catch((error) => {
-        console.error("Error:", error);
+        toast.error("Internal server error");
         setLoading(false);
       });
   }, [navigate]);
@@ -44,14 +45,18 @@ const Signin = () => {
       // console.log("Login Success:", response);
       if (!response.data.message) {
         // console.log(response.message);
+        const temp = setTimeout(() => {
+          toast.success("Farmer loggedIn 🎉")
+        }, 500)
         navigate("/home");
         setCheckout((prev) => !prev); // to refresh the sessionContextProvider
       } else {
         console.log(response);
+        toast.error("Invalid credentials!");
         setLoginError(response.data.message); // Set login error message
       }
     } catch (error) {
-      console.log("Login Error:", error);
+      toast.error("Invalid credentials!");
       setLoginError(error.response.data.message); // Set login error message for any error
     }
   };
@@ -60,6 +65,7 @@ const Signin = () => {
     <Loading />
   ) : (
     <Container>
+      <ToastContainer />
       <ImageSection />
       <FormSection>
         <FormWrapper>
@@ -71,7 +77,7 @@ const Signin = () => {
           <Subtitle>
             Please sign-in to your account and start the adventure
           </Subtitle>
-          {loginError && <ErrorMessage>{loginError}</ErrorMessage>}{" "}
+          {/* {loginError && <ErrorMessage>{loginError}</ErrorMessage>}{" "} */}
           {/* Display login error message */}
           <Form onSubmit={handleSubmit(onSubmit)}>
             <Input

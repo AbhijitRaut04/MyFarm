@@ -121,39 +121,36 @@ const getFarmerProfile = async (req, res) => {
 const getFarmer = async (req, res) => {
     try {
         const farmer = req.farmer;
-        const account = await Farmer.findById(req.params.id).select("profilePhoto username posts followers following");
-        if (!account) return res.status(404).send({ message: "Farmer not found" });
+        if (!farmer || farmer.following.indexOf(req.params.id) === -1) {
+            let account = await Farmer.findById(req.params.id).select("profilePhoto username posts followers following");
 
-        let partialAccount = {
-            profilePhoto: account.profilePhoto,
-            username: account.username,
-            posts: [],
-            countFollowers: account.followers ? account.followers.length : 0,
-            countFollowing: account.following ? account.following.length : 0,
-            followers: account.followers,
-            following: account.following,
-            farmerId: account._id.toString()
-        };
 
-        // Fetch and filter public posts
-        const publicPosts = await Promise.all(account.posts.map(async (postId) => {
-            let post = await Post.findById(postId);
-            return post && post.isPublic ? post : null;
-        })).then(posts => posts.filter(post => post !== null));
+            // Fetch current farmer's posts
+            let publicPosts = await Promise.all(account.posts.map(async (postId) => {
+                let post = await Post.findById(postId);
+                return post;
+            }));
 
-        partialAccount.posts = publicPosts;
+            publicPosts = publicPosts.filter(item => item.isPublic === true)
 
-        if (farmer && farmer.following.indexOf(req.params.id) !== -1) {
-            // Additional logic for when the farmer is viewing another farmer's profile they follow
+            account.posts = publicPosts
+            return res.status(201).send(account);
+
         }
+        else {
+            let account = await Farmer.findById(req.params.id).select("-password -saved")
 
-        return res.status(200).send(partialAccount);
+            account.posts = await Promise.all(account.posts.map(async (postId) => {
+                let post = await Post.findById(postId);
+                return post;
+            }))
+
+            return res.status(200).send(account);
+        }
     } catch (error) {
-        console.error(error);
-        return res.status(500).send({ message: "An error occurred while fetching farmer data." });
+        res.status(500).send(error);
     }
-};
-
+}
 
 // Update a farmer by ID
 const updateFarmer = async (req, res) => {
@@ -209,25 +206,14 @@ const deleteFarmer = async (req, res) => {
 const getSavedPosts = async (req, res) => {
     try {
         const farmer = req.farmer;
-        const saved = farmer.saved;
-
-        let savedPosts = [];
-
+        
         // Fetch saved posts
-        const savedPostsPromises = saved.map(async (postId) => {
+        const savedPosts = await Promise.all(farmer.saved.map(async (postId) => {
             let post = await Post.findById(postId);
             return post;
-        });
+        }));
 
-        Promise.all(savedPostsPromises)
-            .then((postObjArrays) => {
-                savedPosts = [...savedPosts, ...postObjArrays];
-                return res.status(201).send(savedPosts);
-            })
-            .catch((error) => {
-                console.log('Error fetching posts:', error);
-                return res.status(500).send('Internal Server Error');
-            });
+        return res.status(200).send(savedPosts)
     }
     catch (error) {
         console.error('Error fetching posts:', error);

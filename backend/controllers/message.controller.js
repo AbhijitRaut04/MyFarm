@@ -10,7 +10,7 @@ const sendMessage = async ({newMessage, chatId}) => {
             return "";
         } else {
             const newmessage = await Message.create(newMessage)
-            chat.messages.push(newmessage);
+            chat.messages.push(newmessage._id);
         }
 
         await chat.save();

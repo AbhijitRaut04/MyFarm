@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import { ToastContainer, toast } from 'react-toastify';
 import Loading from "./Loading";
 
 const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
@@ -64,7 +65,7 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
       .post("/api/posts/createPost", formData)
       .then((response) => {
         //revolking the object URL to free up memory
-        console.log("Post created successfully: ", response);
+        toast.success("Post created successfully🎉");
         if (imageURL) {
           URL.revokeObjectURL(imageURL);
           setImageURL(null);
@@ -82,7 +83,7 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
         }, 2000);
       })
       .catch((error) => {
-        console.error(`Error creating post: ${error}`);
+        toast.error(`Error creating post!`);
         setLoading(false);
         setShowPostedMessage(false);
       });

@@ -5,6 +5,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import backgroundImage from "../assets/signupimg.png";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -35,15 +36,17 @@ const Signup = () => {
       if (response.message) {
         console.log(response.message);
       } else {
-        console.log("Success:", response);
-        navigate("/signin");
+        const temp = setTimeout(() => {
+          toast.success("Farmer Registered successfully 🎉")
+        }, 500)
       }
     } catch (error) {
-      console.error("Error:", error);
+      toast.error("Error while signin");
     }
   };
   return (
     <Container>
+      <ToastContainer />
       <ImageSection />
       <FormSection>
         <FormWrapper>
