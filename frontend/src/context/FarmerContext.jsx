@@ -10,19 +10,18 @@ export const FarmerProvider = ({ children }) => {
   const [farmerId, setFarmerId] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const verifyToken = async () => {
-      try {
-        const response = await axios.get("/api/verify");
-        console.log(response);
-        setFarmerId(response.data.farmer.userId);
-      } catch (error) {
-        console.error("Error verifying token:", error);
-      } finally {
-        setLoading(false); // Set loading to false after the request is complete
-      }
-    };
+  const verifyToken = async () => {
+    try {
+      const response = await axios.get("/api/verify");
+      setFarmerId(response.data.farmer.userId);
+    } catch (error) {
+      console.error("Error verifying token:", error);
+    } finally {
+      setLoading(false); // Set loading to false after the request is complete
+    }
+  };
 
+  useEffect(() => {
     verifyToken();
   }, []);
 

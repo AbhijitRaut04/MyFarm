@@ -9,6 +9,9 @@ const chatSchema = new mongoose.Schema({
     dp:{
         type: String
     },
+    name:{
+        type: String
+    },
     messages: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Message'

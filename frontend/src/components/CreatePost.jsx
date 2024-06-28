@@ -1,10 +1,13 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import Loading from "./Loading";
+import { SessionContext } from "../context/Contexts";
 
-const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
+const CreatePost = ({ setDisplayCreatePost }) => {
+
+  const {farmer} = useContext(SessionContext)
   //post template
   const [post, setPost] = useState({
     isPublic: true,
@@ -45,8 +48,6 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
 
   const onSubmit = (event) => {
     event.preventDefault();
-    console.log("Send button clicked");
-    //setting loading animation
     setLoading(true);
 
     let formData = new FormData();
@@ -54,7 +55,7 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
     formData.append("heading", event.target.elements["heading"].value);
     formData.append("description", event.target.elements["description"].value);
     formData.append("isPublic", post.isPublic);
-    // console.log(formData)
+    
     setPost((post) => ({
       ...post,
       heading: event.target.elements["heading"].value,
@@ -64,28 +65,24 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
     axios
       .post("/api/posts/createPost", formData)
       .then((response) => {
-        //revolking the object URL to free up memory
         toast.success("Post created successfully🎉");
         if (imageURL) {
           URL.revokeObjectURL(imageURL);
           setImageURL(null);
         }
 
-        //set the heading and content to empty
         event.target.elements["heading"].value = "";
         event.target.elements["description"].value = "";
 
         setLoading(false);
-        setShowPostedMessage(true);
         setDisplayCreatePost(false);
         setTimeout(() => {
-          setShowPostedMessage(false);
+          
         }, 2000);
       })
       .catch((error) => {
-        toast.error(`Error creating post!`);
         setLoading(false);
-        setShowPostedMessage(false);
+        
       });
   };
 
@@ -106,8 +103,8 @@ const CreatePost = ({ setShowPostedMessage, setDisplayCreatePost }) => {
         <form onSubmit={onSubmit}>
           <UserInfo>
             <UserData>
-              <UserProfile src="./src/assets/discussion.jpg" />
-              <UserName>Cillian Murphy</UserName>
+              <UserProfile src={farmer?.profilePhoto} />
+              <UserName>{farmer?.username}</UserName>
             </UserData>
             <div className="icons">
               <button onClick={() => setDisplayCreatePost(false)}>
@@ -205,6 +202,8 @@ const UserData = styled.div`
 `;
 const UserProfile = styled.img`
   width: 45px;
+  height: 45px;
+  object-fit:center;
   border-radius: 50%;
 `;
 

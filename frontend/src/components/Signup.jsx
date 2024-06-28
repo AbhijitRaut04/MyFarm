@@ -5,7 +5,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import backgroundImage from "../assets/signupimg.png";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -46,7 +46,6 @@ const Signup = () => {
   };
   return (
     <Container>
-      <ToastContainer />
       <ImageSection />
       <FormSection>
         <FormWrapper>

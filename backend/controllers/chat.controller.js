@@ -8,10 +8,12 @@ const createChat = async (req, res) => {
     try {
         let participants = req.body.participants;
         participants.push(farmer._id);
-        let dp = (participants.length <= 2) ? participants[0].profilePhoto : "";
+        let dp = (participants.length <= 2) ? participants[0].profilePhoto : req.body.dp;
+        let name = (participants.length <= 2) ? participants[0].username : req.body.groupName;
         const chat = await Chat.create({
             participants,
-            dp
+            dp,
+            name
         })
         await Promise.all(participants.map(async (id) => {
             let temp = await Farmer.findById(id);

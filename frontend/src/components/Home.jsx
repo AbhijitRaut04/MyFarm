@@ -1,10 +1,11 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
-import Post from "./Post";
-import { UserContext } from "../context/Contexts";
+import AllPosts from "./AllPosts";
+import Likes from "./Likes";
+
 
 const Home = () => {
-  const { posts } = useContext(UserContext);
+  
 
   //showing cross icon in the search bar only when something is written
   const [inputValue, setInputValue] = useState("");
@@ -40,14 +41,10 @@ const Home = () => {
         </InputBox>
       </SearchBar>
 
-      {/* Temporary code */}
-      {posts.map((post, index) => (
-          <Post key={index} post={post} />
-        ),
-        console.log("ffsdfsd")
-      )}
+      
+      <AllPosts />
 
-      <BlankSpace></BlankSpace>
+      {/* <BlankSpace></BlankSpace> */}
     </>
   );
 };

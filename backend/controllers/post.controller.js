@@ -387,25 +387,14 @@ const unsavePost = async (req, res) => {
 // get List of farmers who liked the post
 const getFarmersWhoLikedPost = async (req, res) => {
     try {
-        const post = Post.findById(req.params.id);
-        const likes = post.likes;
+        const post = await Post.findById(req.params.id);
 
-        let farmersWhoLikedPost = [];
-
-        const farmersLikedPromises = likes.map(async (farmerId) => {
-            let farmer = await Farmer.findById(farmerId);
+        const farmersWhoLikedPost = await Promise.all(post.likes.map(async (farmerId) => {
+            let farmer = await Farmer.findById(farmerId).select("-password");
             return farmer;
-        });
+        }))
 
-        Promise.all(farmersLikedPromises)
-            .then((farmerObjArrays) => {
-                farmersWhoLikedPost = [...farmersWhoLikedPost, ...farmerObjArrays];
-                return res.status(201).send(farmersWhoLikedPost);
-            })
-            .catch((error) => {
-                console.error('Error fetching accounts:', error);
-                return res.status(500).send('Internal Server Error');
-            });
+        return res.status(201).send(farmersWhoLikedPost);
 
     } catch (error) {
         res.status(501).send({ message: error.message })

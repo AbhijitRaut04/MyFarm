@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Loading from "./Loading";
 import { SessionContext } from "../context/Contexts";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 const Signin = () => {
   const navigate = useNavigate();
@@ -65,7 +65,6 @@ const Signin = () => {
     <Loading />
   ) : (
     <Container>
-      <ToastContainer />
       <ImageSection />
       <FormSection>
         <FormWrapper>

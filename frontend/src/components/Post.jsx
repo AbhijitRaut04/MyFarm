@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import styled from "styled-components";
 import { SessionContext, UserContext } from "../context/Contexts";
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
+import Likes from "./Likes";
 
 const Post = memo(({ post }) => {
   const [isLiked, setIsLiked] = useState(false);
@@ -12,6 +13,9 @@ const Post = memo(({ post }) => {
   const [noOfComments, setNoOfComments] = useState(post.comments?.length || 0);
   const { farmer } = useContext(SessionContext);
   const { setShowLoginMessage } = useContext(UserContext);
+  const [displayLikes, setDisplayLikes] = useState(false);
+
+  
   // console.log(post.likes?.length);
 
   useEffect(() => {
@@ -26,35 +30,38 @@ const Post = memo(({ post }) => {
 
   const navigate = useNavigate();
 
+const viewLikes = () => {
+  setDisplayLikes(displayLikes => !displayLikes)
+}
+
   const viewProfile = () => {
     navigate(`/profile/${post.createdBy.username}`)
   }
+  
+  const viewComments = () => {
+    // navigate(`/profile/${post.createdBy.username}`)
+  }
 
   const handleLikeClick = () => {
-    console.log("Like button clicked");
-    console.log(post._id);
     if (!isLiked) {
       axios
         .patch(`/api/posts/${post._id}/like`)
         .then((response) => {
-          console.log("Post liked successfully: ", response);
           setNoOfLikes((prevLikes) => prevLikes + 1);
           setIsLiked(true);
         })
         .catch((error) => {
-          console.error("Error liking post(unknown): ", error.response.status);
-          if (error.response.status === 401) setShowLoginMessage(true);
+          toast.info("Please login!");
         });
-    } else {
+      } else {
       axios
         .patch(`/api/posts/${post._id}/unlike`)
         .then((response) => {
-          console.log("Post unliked successfully: ", response);
           setNoOfLikes((prevLikes) => prevLikes - 1);
           setIsLiked(false);
         })
         .catch((error) => {
-          console.error("Error unliking post(unknown): ", error.response);
+          toast.error("Something went wrong!");
         });
     }
   };
@@ -70,7 +77,6 @@ const Post = memo(({ post }) => {
   // };
 
   const handleBookmarkClick = () => {
-    console.log(post._id);
     if (!isBookmarked) {
       axios
         .patch(`/api/posts/${post._id}/save`)
@@ -80,19 +86,18 @@ const Post = memo(({ post }) => {
         })
         .catch((error) => {
           
-          toast.error("Somethind went wrong!");
+          console.log(error);
           if (error.response.status === 401) setShowLoginMessage(true);
         });
       } else {
         axios
         .patch(`/api/posts/${post._id}/unsave`)
         .then((response) => {
-          console.log("Post unmark successfully: ", response);
+          toast.info("Post unmark successfully: ", response);
           setIsBookmarked(false);
         })
         .catch((error) => {
-          toast.error("Cannot unmark Post!");
-          console.error("Error unmarking post(unknown): ", error.response);
+          console.log("Error unmarking post(unknown): ", error.response);
         });
     }
   };
@@ -116,7 +121,6 @@ const Post = memo(({ post }) => {
 
   return (
     <PostWrapper>
-      <ToastContainer />
       <UserInfo>
         <UserData onClick={viewProfile}>
           <UserProfile src={post.createdBy.profilePhoto} />
@@ -160,11 +164,16 @@ const Post = memo(({ post }) => {
       </PostInfo>
 
       <PostDetails>
-        <p className="likesAndComments">{`${noOfLikes} likes, ${noOfComments} comments`}</p>
-        {/* <p className="likesAndComments">{`${post.comments.length} comments`}</p> */}
+        <button style={{background:"white", border:0, cursor:"pointer"}} onClick={viewLikes}>{`${noOfLikes} likes`}</button>
+        {/* <button style={{background:"white", border:0, cursor:"pointer"}} onClick={viewComments}>{`${noOfComments} comments`}</button> */}
+  
         <h2>{post.title}</h2>
         <p>{post.content}</p>
       </PostDetails>
+      {displayLikes ? <Likes post={post} setDisplayLikes={setDisplayLikes} /> : ""}
+
+    
+
     </PostWrapper>
   );
 });
@@ -174,11 +183,11 @@ export default Post;
 const PostWrapper = styled.div`
   width: 80%;
   height: auto;
-  margin: 0 auto;
-  /* margin-top: 10px; */
+  // margin: 0 auto;
+  margin: 10px auto; 
   padding-bottom: 30px;
   background-color: #fff;
-  /* border-radius: 10px; */
+  border-radius: 10px;
   border-top: 1px solid #ddd;
   /* border-bottom: 1px solid #ddd; */
   @media (max-width: 600px) {
@@ -207,6 +216,7 @@ const UserInfo = styled.div`
 `;
 
 const UserData = styled.div`
+cursor: pointer;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -241,7 +251,7 @@ const PostInfo = styled.div`
   display: flex;
   justify-content: flex-start;
   gap: 30px;
-  padding: 15px 0 10px 20px;
+  padding: 15px 0 0px 20px;
   /* background-color: #afdaaf; */
   button {
     font-size: 1.5rem;
@@ -268,7 +278,7 @@ const PostDetails = styled.div`
   h2 {
     /* margin: 5px 0 10px 15px; */
     font-size: 2rem;
-    margin-top: 10px;
+    margin-top: 5px;
     color: #333333;
     margin-bottom: 7px;
   }
