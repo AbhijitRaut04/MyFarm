@@ -84,20 +84,15 @@ const getFarmers = async (req, res) => {
 
 const getFarmerProfile = async (req, res) => {
     try {
-        const farmer = req.farmer;
-        let account = await Farmer.findById(farmer._id);
-        const followerProfilePromises = await Promise.all(account.followers.map(async (followerId) => {
-            try {
-                const follower = await Farmer.findById(followerId);
-                return follower;
-            } catch (error) {
-                console.error(`Failed to fetch follower ${followerId}: ${error}`);
-                return null;
-            }
-        }));
-        // Filter out any null values
-        account.followers = followerProfilePromises.filter(follower => follower !== null);
-        res.status(200).send(account);
+
+        let farmer = req.farmer;
+        const posts = await Promise.all(farmer.posts.map(async (postId) => {
+            const post = await Post.findById(postId);
+            return post;
+        }))
+        farmer.posts = posts;
+        return res.status(200).send(farmer);
+
     } catch (error) {
         console.error(`Failed to fetch farmer profile: ${error}`);
         res.status(500).send({ error: error.message });
@@ -120,34 +115,40 @@ const getFarmerProfile = async (req, res) => {
 // Get a farmer by ID
 const getFarmer = async (req, res) => {
     try {
-        const farmer = req.farmer;
-        if (!farmer || farmer.following.indexOf(req.params.id) === -1) {
-            let account = await Farmer.findById(req.params.id).select("profilePhoto username posts followers following");
+
+        let farmer = req.farmer;
+
+        let account = await Farmer.findById(req.params.id);
+        if (!account) return res.status(404).send("Farmer not found")
+        const posts = await Promise.all(account.posts.map(async (postId) => {
+            const post = await Post.findById(postId);
+            return post;
+        }))
 
 
-            // Fetch current farmer's posts
-            let publicPosts = await Promise.all(account.posts.map(async (postId) => {
-                let post = await Post.findById(postId);
-                return post;
-            }));
+        const followers = await Promise.all(account.followers.map(async (followerId) => {
+            const follower = await Farmer.findById(followerId);
+            return follower;
+        }));
+        const followings = await Promise.all(account.following.map(async (followingId) => {
+            const following = await Farmer.findById(followingId);
+            return following;
+        }));
+        // Filter out any null values
+        account.followers = followers.filter(follower => follower !== null);
+        account.following = followings.filter(following => following !== null);
 
-            publicPosts = publicPosts.filter(item => item.isPublic === true)
-
-            account.posts = publicPosts
-            return res.status(201).send(account);
-
-        }
-        else {
-            let account = await Farmer.findById(req.params.id).select("-password -saved")
-
-            account.posts = await Promise.all(account.posts.map(async (postId) => {
-                let post = await Post.findById(postId);
-                return post;
-            }))
-
+        if ((farmer && account.followers.includes(farmer._id)) || farmer._id === account._id) {
             return res.status(200).send(account);
         }
-    } catch (error) {
+        else {
+            account.posts = posts.filter(post => post.isPublic === true)
+            return res.status(200).send(account);
+        }
+
+
+    }
+    catch (error) {
         res.status(500).send(error);
     }
 }
@@ -206,7 +207,7 @@ const deleteFarmer = async (req, res) => {
 const getSavedPosts = async (req, res) => {
     try {
         const farmer = req.farmer;
-        
+
         // Fetch saved posts
         const savedPosts = await Promise.all(farmer.saved.map(async (postId) => {
             let post = await Post.findById(postId);

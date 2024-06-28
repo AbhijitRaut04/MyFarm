@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
     });
 
     // delete message
-    socket.on('deleteMessage', (messageId) => {
+    socket.on('deleteMessage', ({ messageId, chatId }) => {
         socket.to(room).emit('receiveMessage', "This message deleted");
 
         deleteMessage({ messageId, chatId });

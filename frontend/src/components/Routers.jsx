@@ -30,15 +30,15 @@ const Routers = () => {
           {/* <Route path="/chat/:username" element={ <Chat /> } /> */}
           <Route path="/experts" element={<Experts />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile/:id" element={<ProfilePage />} />
           <Route
             path="/edit-profile"
             element={<EditProfile key={window.location.pathname} />}
           />
-          <Route
+          {/* <Route
             path="/profile/:id"
             element={<ProfilePage key={window.location.pathname} />}
-          />
+          /> */}
           <Route path="/signin" element={<Signin />} />
           <Route path="/signup" element={<Signup />} />
         </Route>

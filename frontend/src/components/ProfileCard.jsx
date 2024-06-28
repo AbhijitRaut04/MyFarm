@@ -2,18 +2,18 @@ import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
 import { SessionContext } from '../context/Contexts'
 
-const ProfileCard = ({likedBy}) => {
+const ProfileCard = ({farmerId}) => {
     const {farmer} = useContext(SessionContext);
     const [isFollowing, setFollowing] = useState(false);
-    if(farmer.following.includes(likedBy._id)){
+    if(farmer.following.includes(farmerId._id)){
         setFollowing(true);
     }
     return (
         <Card>
             <Image>
-                <img src={likedBy.profilePhoto} />
+                <img src={farmerId.profilePhoto} />
             </Image>
-            <h4>{likedBy.username} </h4>
+            <h4>{farmerId.username} </h4>
             {/* {isFollowing ? 
                 <button>Unfollow</button>:
                 <button>Follow</button>

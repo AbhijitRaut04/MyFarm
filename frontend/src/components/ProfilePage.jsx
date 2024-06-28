@@ -1,63 +1,53 @@
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import Loading from "./Loading";
-import { ScrollContext } from "../context/Contexts";
+import { ScrollContext, SessionContext } from "../context/Contexts";
+import PopupContainer from "./PopupContainer";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
   const [loading, setLoding] = useState(true);
   const [user, setUser] = useState();
-  const [ownPosts, setOwnPosts] = useState();
   const { setIsCreatePostDisplay } = useContext(ScrollContext);
 
-  //navigate to signin page if user is not logged in
-  const location = useLocation();
-  const { otherFarmer } = location.state || {};
+  const { farmer } = useContext(SessionContext);
+
+  const { id } = useParams();
+
+  const [displayFollowers, setDisplayFollowers] = useState(false);
+  const [displayFollowing, setDisplayFollowing] = useState(false);
+
+  const showFollowers = () => {
+    setDisplayFollowers(true);
+    setDisplayFollowing(false);
+  }
+  const showFollowing = () => {
+    setDisplayFollowing(true);
+    setDisplayFollowers(false);
+  }
 
   useEffect(() => {
     setIsCreatePostDisplay(0);
-    console.log("fetching farmer posts");
 
-    if (!otherFarmer) {
-      axios
-        .get("/api/posts/myPosts")
-        .then((response) => {
-          // console.log("Current farmer posts",response);
-          console.log("featching posts completed");
-          setOwnPosts(response.data);
-        })
-        .catch((error) => {
-          console.error("Error: at fetching posts", error);
-        });
-
-      console.log("fetching farmer profile");
-
-      axios
-        .get("/api/farmers/profile")
-        .then((response) => {
-          console.log("featching profile completed");
-          setUser(response.data);
-          setLoding(false);
-          console.log(response);
-        })
-        .catch((error) => {
-          console.error("Error: at featching profile", error);
-          navigate("/signin");
-        });
-    } else {
-      setUser(otherFarmer);
-      setOwnPosts(otherFarmer.posts);
-      setLoding(false);
-    }
+    axios
+      .get(`/api/farmers/${id}`)
+      .then((response) => {
+        setUser(response.data);
+        setLoding(false);
+        console.log(response);
+      })
+      .catch((error) => {
+        console.error("Error: at featching profile", error);
+        navigate("/signin");
+      });
 
     return () => {
       setIsCreatePostDisplay(1);
     };
   }, []);
 
-  const postImages = ownPosts?.map((post) => post.file) || [];
 
   return loading ? (
     <Loading />
@@ -73,14 +63,27 @@ const ProfilePage = () => {
               <h2>{user.posts?.length || 0}</h2>
               <p>Posts</p>
             </div>
-            <div>
-              <h2>{user.followers?.length || 0}</h2>
-              <p>Followers</p>
-            </div>
-            <div>
-              <h2>{user.following?.length || 0}</h2>
-              <p>Following</p>
-            </div>
+            {!farmer ?
+              <>
+                <div>
+                  <h2>{user.followers?.length || 0}</h2>
+                  <p>Followers</p>
+                </div>
+                <div>
+                  <h2>{user.following?.length || 0}</h2>
+                  <p>Following</p>
+                </div>
+              </> :
+              <>
+                <div onClick={showFollowers}>
+                  <h2>{user.followers?.length || 0}</h2>
+                  <p>Followers</p>
+                </div>
+                <div onClick={showFollowing}>
+                  <h2>{user.following?.length || 0}</h2>
+                  <p>Following</p>
+                </div>
+              </>}
           </Numbers>
         </ProfilePictureAndNumbers>
         <NameAndDesc>
@@ -97,17 +100,19 @@ const ProfilePage = () => {
           </p>
         </NameAndDesc>
         <Buttons>
-          {(otherFarmer && (
+          {(farmer && id != farmer._id) ?
             <>
               <button className="follow">Follow</button>
-              <button className="message">Message</button>
+              <Link to={`/discussion/${farmer.username}`} >
+                <button className="message" style={{ width: "120px" }}>Message</button>
+              </Link>
               <button className="email">Email</button>
-            </>
-          )) || (
-            <button onClick={() => navigate("/edit-profile")} className="edit">
-              Edit
-            </button>
-          )}
+            </> :
+            <Link to={"/edit-profile"} >
+              <button className="edit" style={{ width: "500px" }}>Edit</button>
+            </Link>
+
+          }
 
           <button className="moreOptions">
             <i className="fa-solid fa-chevron-down"></i>
@@ -115,13 +120,19 @@ const ProfilePage = () => {
         </Buttons>
       </UserDetails>
 
+
       <PostWrapper>
-        {postImages.map((post, index) => (
-          <div className="post" key={index}>
-            <img src={post} alt="img link broken" />
+        {user.posts.map((post) => (
+          <div className="post" key={post._id}>
+            <img src={post.file} alt="img link broken" />
           </div>
         ))}
       </PostWrapper>
+
+      {displayFollowers ? <PopupContainer fetchRoute={`/api/farmers/followers/${user._id}`} setDisplay={setDisplayFollowers} Title={`${user.followers.length} Farmers follows ${user.username}`} /> : ""}
+      {displayFollowing ? <PopupContainer fetchRoute={`/api/farmers/following/${user._id}`} setDisplay={setDisplayFollowing} Title={`${user.username} follows to ${user.following.length} Farmers`} /> : ""}
+
+
     </ProfilePageWrapper>
   );
 };
@@ -228,11 +239,14 @@ const Buttons = styled.div`
     border-radius: 0.3rem;
     cursor: pointer;
   }
-  .follow,
-  .message,
-  .email,
-  .edit {
+  .follow{
+    width:120px;
+  }
+  .email{
     flex: 1;
+  }
+  .edit{
+    width:100px;
   }
   .follow {
     background-color: #ae2328;

@@ -4,7 +4,7 @@ import axios from "axios";
 import styled from "styled-components";
 import { SessionContext, UserContext } from "../context/Contexts";
 import { toast } from 'react-toastify';
-import Likes from "./Likes";
+import PopupContainer from "./PopupContainer";
 
 const Post = memo(({ post }) => {
   const [isLiked, setIsLiked] = useState(false);
@@ -35,7 +35,7 @@ const viewLikes = () => {
 }
 
   const viewProfile = () => {
-    navigate(`/profile/${post.createdBy.username}`)
+    navigate(`/profile/${post.createdBy._id}`)
   }
   
   const viewComments = () => {
@@ -170,7 +170,7 @@ const viewLikes = () => {
         <h2>{post.title}</h2>
         <p>{post.content}</p>
       </PostDetails>
-      {displayLikes ? <Likes post={post} setDisplayLikes={setDisplayLikes} /> : ""}
+      {displayLikes ? <PopupContainer fetchRoute={`/api/posts/${post._id}/likes`} setDisplay={setDisplayLikes} Title={`Liked by ${post.likes.length} Farmers`} /> : ""}
 
     
 
@@ -203,7 +203,7 @@ const UserInfo = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 30px;
+  padding: 10px 15px;
   /* background-color: #afdaaf; */
   i {
     font-size: 1.5rem;

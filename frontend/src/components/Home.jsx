@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import AllPosts from "./AllPosts";
-import Likes from "./Likes";
 
 
 const Home = () => {
