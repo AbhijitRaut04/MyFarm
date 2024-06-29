@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import styled from "styled-components";
 import { SessionContext, UserContext } from "../context/Contexts";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 import PopupContainer from "./PopupContainer";
 
 const Post = memo(({ post }) => {
@@ -15,7 +15,6 @@ const Post = memo(({ post }) => {
   const { setShowLoginMessage } = useContext(UserContext);
   const [displayLikes, setDisplayLikes] = useState(false);
 
-  
   // console.log(post.likes?.length);
 
   useEffect(() => {
@@ -27,20 +26,19 @@ const Post = memo(({ post }) => {
     }
   }, [post, farmer]);
 
-
   const navigate = useNavigate();
 
-const viewLikes = () => {
-  setDisplayLikes(displayLikes => !displayLikes)
-}
+  const viewLikes = () => {
+    setDisplayLikes((displayLikes) => !displayLikes);
+  };
 
   const viewProfile = () => {
-    navigate(`/profile/${post.createdBy._id}`)
-  }
-  
+    navigate(`/profile/${post.createdBy._id}`);
+  };
+
   const viewComments = () => {
     // navigate(`/profile/${post.createdBy.username}`)
-  }
+  };
 
   const handleLikeClick = () => {
     if (!isLiked) {
@@ -53,7 +51,7 @@ const viewLikes = () => {
         .catch((error) => {
           toast.info("Please login!");
         });
-      } else {
+    } else {
       axios
         .patch(`/api/posts/${post._id}/unlike`)
         .then((response) => {
@@ -71,11 +69,6 @@ const viewLikes = () => {
     // Add your functionality here
   };
 
-  // const handleEditClick = () => {
-  //   console.log("Edit button clicked");
-  //   // Add your functionality here
-  // };
-
   const handleBookmarkClick = () => {
     if (!isBookmarked) {
       axios
@@ -85,12 +78,11 @@ const viewLikes = () => {
           toast.success("Post is Saved");
         })
         .catch((error) => {
-          
           console.log(error);
           if (error.response.status === 401) setShowLoginMessage(true);
         });
-      } else {
-        axios
+    } else {
+      axios
         .patch(`/api/posts/${post._id}/unsave`)
         .then((response) => {
           toast.info("Post unmark successfully: ", response);
@@ -101,23 +93,6 @@ const viewLikes = () => {
         });
     }
   };
-
-  // const handleDeleteClick = () => {
-  //   console.log("Delete button clicked");
-  //   //deleting the post from the backend
-  //   axios
-  //     .delete(`/api/posts/${post.id}`)
-  //     .then((response) => {
-  //       console.log(response);
-  //     })
-  //     .catch((error) => {
-  //       console.error(`Error deleting post: ${error}`);
-  //     });
-  //   //deleting the post from the frontend
-  //   setPosts((prevPosts) => {
-  //     return prevPosts.filter((item) => item.id !== post.id);
-  //   });
-  // };
 
   return (
     <PostWrapper>
@@ -154,26 +129,25 @@ const viewLikes = () => {
             <i className="fa-regular fa-bookmark"></i>
           )}
         </button>
-
-        {/* <button onClick={handleEditClick}>
-          <i className="fa-regular fa-pen-to-square"></i>
-          </button> */}
-        {/* <button onClick={handleDeleteClick}>
-          <i className="fa-regular fa-trash-can"></i>
-        </button> */}
       </PostInfo>
 
       <PostDetails>
-        <button style={{background:"white", border:0, cursor:"pointer"}} onClick={viewLikes}>{`${noOfLikes} likes`}</button>
-        {/* <button style={{background:"white", border:0, cursor:"pointer"}} onClick={viewComments}>{`${noOfComments} comments`}</button> */}
-  
+        <p
+          className="no-of-likes"
+          onClick={viewLikes}
+        >{`${noOfLikes} likes`}</p>
         <h2>{post.title}</h2>
         <p>{post.content}</p>
       </PostDetails>
-      {displayLikes ? <PopupContainer fetchRoute={`/api/posts/${post._id}/likes`} setDisplay={setDisplayLikes} Title={`Liked by ${post.likes.length} Farmers`} /> : ""}
-
-    
-
+      {displayLikes ? (
+        <PopupContainer
+          fetchRoute={`/api/posts/${post._id}/likes`}
+          setDisplay={setDisplayLikes}
+          type="Liked"
+        />
+      ) : (
+        ""
+      )}
     </PostWrapper>
   );
 });
@@ -184,7 +158,7 @@ const PostWrapper = styled.div`
   width: 80%;
   height: auto;
   // margin: 0 auto;
-  margin: 10px auto; 
+  margin: 10px auto;
   padding-bottom: 30px;
   background-color: #fff;
   border-radius: 10px;
@@ -216,7 +190,7 @@ const UserInfo = styled.div`
 `;
 
 const UserData = styled.div`
-cursor: pointer;
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -287,5 +261,8 @@ const PostDetails = styled.div`
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 0.8rem;
     color: #818181;
+  }
+  .no-of-likes {
+    cursor: pointer;
   }
 `;

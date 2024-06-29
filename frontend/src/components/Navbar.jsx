@@ -1,65 +1,62 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState } from "react";
 import styled from "styled-components";
-import { ScrollContext, SessionContext, UserContext } from '../context/Contexts';
-import { useNavigate } from 'react-router-dom';
-import CreatePost from './CreatePost';
-import { ToastContainer, toast } from 'react-toastify';
+import { ScrollContext, SessionContext } from "../context/Contexts";
+import { useNavigate } from "react-router-dom";
+import CreatePost from "./CreatePost";
+import { toast } from "react-toastify";
 
 const Navbar = () => {
-    const navigate = useNavigate();
-    
-    const { farmer } = useContext(SessionContext)
+  const navigate = useNavigate();
 
-    const { isVisible, isCreatePostDisplay } = useContext(ScrollContext);
-    const [displayCreatePost, setDisplayCreatePost] = useState(false);
+  const { farmer } = useContext(SessionContext);
 
-    const handleCreate = () => {
-        if (!farmer) {
-            toast.info("Please login")
-            return;
-        }
-        setDisplayCreatePost(true);
-    };
+  const { isVisible, isCreatePostDisplay } = useContext(ScrollContext);
+  const [displayCreatePost, setDisplayCreatePost] = useState(false);
 
-    return (
-        <>
-            <Create
-                onClick={handleCreate}
-                $isvisible={isVisible}
-                $isdisplayed={isCreatePostDisplay}
-            >
-                <i className="fa-regular fa-plus"></i>
-            </Create>
-            <CreatePostWrapper $display={displayCreatePost}>
-                <CreatePost
-                    setDisplayCreatePost={setDisplayCreatePost}
-                />
-            </CreatePostWrapper>
+  const handleCreate = () => {
+    if (!farmer) {
+      toast.info("Please login");
+      return;
+    }
+    setDisplayCreatePost(true);
+  };
 
-            <Category id="category" $isvisible={isVisible}>
-                <CategoryOptions onClick={() => navigate("/home")}>
-                    <i className="fa-solid fa-house"></i>
-                    <p>Home</p>
-                </CategoryOptions>
-                <CategoryOptions onClick={() => navigate("/stores")}>
-                    <i className="fa-solid fa-store"></i>
-                    <p>Stores</p>
-                </CategoryOptions>
-                <CategoryOptions onClick={() => navigate("/experts")}>
-                    <i className="fa-solid fa-chalkboard-user"></i>
-                    <p>Experts</p>
-                </CategoryOptions>
-                <CategoryOptions onClick={() => navigate("/discussion")}>
-                    <i className="fa-solid fa-message"></i>
-                    <p>Discussion</p>
-                </CategoryOptions>
-            </Category>
-        </>
-    )
-}
+  return (
+    <>
+      <Create
+        onClick={handleCreate}
+        $isvisible={isVisible}
+        $isdisplayed={isCreatePostDisplay}
+      >
+        <i className="fa-regular fa-plus"></i>
+      </Create>
+      <CreatePostWrapper $display={displayCreatePost}>
+        <CreatePost setDisplayCreatePost={setDisplayCreatePost} />
+      </CreatePostWrapper>
 
-export default Navbar
+      <Category id="category" $isvisible={isVisible}>
+        <CategoryOptions onClick={() => navigate("/home")}>
+          <i className="fa-solid fa-house"></i>
+          <p>Home</p>
+        </CategoryOptions>
+        <CategoryOptions onClick={() => navigate("/stores")}>
+          <i className="fa-solid fa-store"></i>
+          <p>Stores</p>
+        </CategoryOptions>
+        <CategoryOptions onClick={() => navigate("/experts")}>
+          <i className="fa-solid fa-chalkboard-user"></i>
+          <p>Experts</p>
+        </CategoryOptions>
+        <CategoryOptions onClick={() => navigate("/discussion")}>
+          <i className="fa-solid fa-message"></i>
+          <p>Discussion</p>
+        </CategoryOptions>
+      </Category>
+    </>
+  );
+};
 
+export default Navbar;
 
 const Category = styled.div`
   position: fixed;
@@ -115,6 +112,7 @@ const Create = styled.div`
   display: ${(props) => (props.$isdisplayed == 1 ? "flex" : "none")};
   justify-content: center;
   align-items: center;
+  z-index: 10;
 
   @media (max-width: 600px) {
     right: 10px;
