@@ -1,8 +1,11 @@
 import { generateJWTToken } from '../db/generateToken.js';
 import { encryptData, comparePasswords } from '../db/hashPassword.js';
+import Chat from '../models/chat.models.js';
 import Farmer from '../models/farmer.models.js';
 import Message from '../models/message.models.js';
 import Post from '../models/post.models.js';
+import CartItem from '../models/cartItem.models.js'
+import Order from '../models/order.models.js'
 
 // Create a new farmer
 const createFarmer = async (req, res) => {
@@ -82,17 +85,46 @@ const getFarmers = async (req, res) => {
     }
 }
 
-
-// followers and following to give object form
+// current farmer profile
 const getFarmerProfile = async (req, res) => {
     try {
 
         let farmer = req.farmer;
-        const posts = await Promise.all(farmer.posts.map(async (postId) => {
-            const post = await Post.findById(postId);
-            return post;
+
+        if(!farmer) return res.status(403).send("Unauthorised access to account")
+
+        farmer.posts = await Promise.all(farmer.posts.map(async (postId) => {
+            return Post.findById(postId);
         }))
-        farmer.posts = posts;
+
+        farmer.followers = await Promise.all(farmer.followers.map(async (followerId) => {
+            return await Farmer.findById(followerId);
+        }));
+
+        farmer.following = await Promise.all(farmer.following.map(async (followingId) => {
+            return await Farmer.findById(followingId);
+        }));
+
+        farmer.starredMessages = await Promise.all(farmer.starredMessages.map(async (id) => {
+            return await Message.findById(id);
+        }));
+
+        farmer.saved = await Promise.all(farmer.saved.map(async (id) => {
+            return await Post.findById(id);
+        }));
+
+        farmer.cart = await Promise.all(farmer.cart.map(async (id) => {
+            return await CartItem.findById(id);
+        }));
+
+        farmer.orders = await Promise.all(farmer.cart.map(async (id) => {
+            return await Order.findById(id);
+        }));
+
+        farmer.chats = await Promise.all(farmer.chats.map(async (id) => {
+            return await Chat.findById(id);
+        }));
+
         return res.status(200).send(farmer);
 
     } catch (error) {
@@ -351,28 +383,32 @@ const getFollowing = async (req, res) => {
 // star message
 const starMessage = async (req, res) => {
     try {
-        let farmer = await Farmer.findById(req.farmer.userId);
+        let farmer = await Farmer.findById(req.farmer._id);
         const message = await Message.findById(req.params.messageId);
         if (!message) return res.status(400).send("Message not found");
-        farmer.starredMessages.push(req.params.messageId)
+        if(!farmer.starredMessages.includes(req.params.messageId)) farmer.starredMessages.push(req.params.messageId)
 
         await farmer.save();
+        return res.status(200).send("Message saved to starred")
     } catch (error) {
         console.log(error);
+        return res.status(500).send(error);
     }
 }
 
 // unstar message
 const unstarMessage = async (req, res) => {
     try {
-        let farmer = await Farmer.findById(req.farmer.userId);
+        let farmer = await Farmer.findById(req.farmer._id);
         const message = await Message.findById(req.params.messageId);
         if (!message) return res.status(400).send("Message not found");
         farmer.starredMessages = farmer.starredMessages.filter((item) => item != req.params.messageId);
-
+        
         await farmer.save();
+        return res.status(200).send("Message removed from starred")
     } catch (error) {
         console.log(error);
+        return res.status(500).send(error);
     }
 }
 

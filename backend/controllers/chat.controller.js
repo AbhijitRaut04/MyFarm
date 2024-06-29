@@ -7,8 +7,8 @@ const createChat = async (req, res) => {
     const farmer = req.farmer;
     try {
         let participants = req.body.participants;
-        participants.push(farmer._id);
-        let dp = (participants.length <= 2) ? participants[0].profilePhoto : req.body.dp;
+        if(!participants.includes(farmer._id)) participants.push(farmer._id);
+        let dp = (participants.length <= 2) ? participants[0].profilePhoto : req.body.imageUrl;
         let name = (participants.length <= 2) ? participants[0].username : req.body.groupName;
         const chat = await Chat.create({
             participants,
@@ -45,6 +45,27 @@ const getChats = async (req, res) => {
     }
 }
 
+// get Chat by id
+const getChat = async (req, res) => {
+    try {
+        let chat = await Chat.findById(req.params.chatId);
+
+        if(!chat.participants.includes(req.farmer._id)) return res.status(404).send("Unauthorised Chat access")
+        
+        chat.participants = await Promise.all(chat.participants.map(async id => {
+            return await Farmer.findById(id).select("-password");
+        }))
+
+        chat.messages = await Promise.all(chat.messages.map(async id => {
+            return await Message.findById(id);
+        }))
+            
+        return res.status(200).send(chat);
+    } catch (error) {
+        return res.status(500).send(error);
+    }
+}
+
 // view chat messages
 const getMessagesFromChat = async (req, res) => {
     try {
@@ -70,12 +91,13 @@ const getMessagesFromChat = async (req, res) => {
 // get participants of chat
 const getParticipantsFromChat = async (req, res) => {
     try {
+        const chat = await Chat.findById(req.params.chatId)
+    
+        if (!chat) return res.status(404).send("Chat not found");
+
         const farmer = req.farmer;
         if (!farmer.chats.includes(req.params.chatId)) return res.status(501).send("Unauthorised chat access");
 
-        const chat = await Chat.findById(req.params.chatId)
-
-        if (!chat) return res.status(404).send("Chat not found");
 
         const participantsList = await Promise.all(chat.participants.map(async (farmerId) => {
             const farmer = await Farmer.findById(farmerId)
@@ -94,11 +116,19 @@ const deleteChat = async (req, res) => {
 
     try {
         let chat = await Chat.findById(chatId);
-        let messages = chat.messages;
+        
 
-        messages.forEach(async (message) => {
+        chat.messages.forEach(async (message) => {
             await Message.findByIdAndDelete(message);
         })
+        chat.participants.forEach(async (id) => {
+            let farmer = await Farmer.findById(id);
+            farmer.chats = farmer.chats.filter(item => item != chatId)
+            await Farmer.updateOne(
+                {_id: id},
+                {chats:farmer.chats}
+            )
+        }) 
         await Chat.findByIdAndDelete(chat._id);
 
         res.status(201).json({message : "Chat deleted successfully"});
@@ -109,4 +139,4 @@ const deleteChat = async (req, res) => {
 
 // 
 
-export { deleteChat, getChats, getMessagesFromChat, getParticipantsFromChat, createChat }
+export { deleteChat, getChats, getMessagesFromChat, getParticipantsFromChat, createChat, getChat }
