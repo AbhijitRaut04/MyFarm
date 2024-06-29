@@ -13,8 +13,10 @@ const ProfilePage = () => {
   const { setIsCreatePostDisplay } = useContext(ScrollContext);
 
   const { farmer } = useContext(SessionContext);
-
-  const { id } = useParams();
+  console.log("fdsgfd");
+  let { id } = useParams();
+  console.log(farmer);
+  if (!id) id = farmer._id;
 
   const [displayFollowers, setDisplayFollowers] = useState(false);
   const [displayFollowing, setDisplayFollowing] = useState(false);
@@ -22,11 +24,11 @@ const ProfilePage = () => {
   const showFollowers = () => {
     setDisplayFollowers(true);
     setDisplayFollowing(false);
-  }
+  };
   const showFollowing = () => {
     setDisplayFollowing(true);
     setDisplayFollowers(false);
-  }
+  };
 
   useEffect(() => {
     setIsCreatePostDisplay(0);
@@ -48,7 +50,6 @@ const ProfilePage = () => {
     };
   }, []);
 
-
   return loading ? (
     <Loading />
   ) : (
@@ -63,7 +64,7 @@ const ProfilePage = () => {
               <h2>{user.posts?.length || 0}</h2>
               <p>Posts</p>
             </div>
-            {!farmer ?
+            {!farmer ? (
               <>
                 <div>
                   <h2>{user.followers?.length || 0}</h2>
@@ -73,7 +74,8 @@ const ProfilePage = () => {
                   <h2>{user.following?.length || 0}</h2>
                   <p>Following</p>
                 </div>
-              </> :
+              </>
+            ) : (
               <>
                 <div onClick={showFollowers}>
                   <h2>{user.followers?.length || 0}</h2>
@@ -83,7 +85,8 @@ const ProfilePage = () => {
                   <h2>{user.following?.length || 0}</h2>
                   <p>Following</p>
                 </div>
-              </>}
+              </>
+            )}
           </Numbers>
         </ProfilePictureAndNumbers>
         <NameAndDesc>
@@ -100,26 +103,29 @@ const ProfilePage = () => {
           </p>
         </NameAndDesc>
         <Buttons>
-          {(farmer && id != farmer._id) ?
+          {farmer && id != farmer._id ? (
             <>
               <button className="follow">Follow</button>
-              <Link to={`/discussion/${farmer.username}`} >
-                <button className="message" style={{ width: "120px" }}>Message</button>
+              <Link to={`/discussion/${farmer.username}`}>
+                <button className="message" style={{ width: "120px" }}>
+                  Message
+                </button>
               </Link>
               <button className="email">Email</button>
-            </> :
-            <Link to={"/edit-profile"} >
-              <button className="edit" style={{ width: "500px" }}>Edit</button>
+            </>
+          ) : (
+            <Link to={"/edit-profile"}>
+              <button className="edit" style={{ width: "500px" }}>
+                Edit
+              </button>
             </Link>
-
-          }
+          )}
 
           <button className="moreOptions">
             <i className="fa-solid fa-chevron-down"></i>
           </button>
         </Buttons>
       </UserDetails>
-
 
       <PostWrapper>
         {user.posts.map((post) => (
@@ -129,10 +135,24 @@ const ProfilePage = () => {
         ))}
       </PostWrapper>
 
-      {displayFollowers ? <PopupContainer fetchRoute={`/api/farmers/followers/${user._id}`} setDisplay={setDisplayFollowers} Title={`${user.followers.length} Farmers follows ${user.username}`} /> : ""}
-      {displayFollowing ? <PopupContainer fetchRoute={`/api/farmers/following/${user._id}`} setDisplay={setDisplayFollowing} Title={`${user.username} follows to ${user.following.length} Farmers`} /> : ""}
-
-
+      {displayFollowers ? (
+        <PopupContainer
+          fetchRoute={`/api/farmers/followers/${user._id}`}
+          setDisplay={setDisplayFollowers}
+          Title={`${user.followers.length} Farmers follows ${user.username}`}
+        />
+      ) : (
+        ""
+      )}
+      {displayFollowing ? (
+        <PopupContainer
+          fetchRoute={`/api/farmers/following/${user._id}`}
+          setDisplay={setDisplayFollowing}
+          Title={`${user.username} follows to ${user.following.length} Farmers`}
+        />
+      ) : (
+        ""
+      )}
     </ProfilePageWrapper>
   );
 };
@@ -239,14 +259,14 @@ const Buttons = styled.div`
     border-radius: 0.3rem;
     cursor: pointer;
   }
-  .follow{
-    width:120px;
+  .follow {
+    width: 120px;
   }
-  .email{
+  .email {
     flex: 1;
   }
-  .edit{
-    width:100px;
+  .edit {
+    width: 100px;
   }
   .follow {
     background-color: #ae2328;
