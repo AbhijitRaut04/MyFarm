@@ -3,11 +3,12 @@ import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { toast } from 'react-toastify';
 import Loading from "./Loading";
-import { SessionContext } from "../context/Contexts";
+import { SessionContext, UserContext } from "../context/Contexts";
 
 const CreatePost = ({ setDisplayCreatePost }) => {
 
   const {farmer} = useContext(SessionContext)
+  const {setRefresh} = useContext(UserContext)
   //post template
   const [post, setPost] = useState({
     isPublic: true,
@@ -65,6 +66,7 @@ const CreatePost = ({ setDisplayCreatePost }) => {
     axios
       .post("/api/posts/createPost", formData)
       .then((response) => {
+        setRefresh((prev) => !prev);
         toast.success("Post created successfully🎉");
         if (imageURL) {
           URL.revokeObjectURL(imageURL);
@@ -82,7 +84,7 @@ const CreatePost = ({ setDisplayCreatePost }) => {
       })
       .catch((error) => {
         setLoading(false);
-        
+        console.log(error)
       });
   };
 
@@ -145,13 +147,15 @@ const CreatePost = ({ setDisplayCreatePost }) => {
               type="text"
               placeholder="Edit Heading..."
               onChange={handleTextChange}
-            />
+              required={true}
+              />
             <textarea
               className="para"
               name="description"
               type="text"
               placeholder="Edit Description..."
               onChange={handleTextChange}
+              required={true}
             />
           </PostDetails>
         </form>
