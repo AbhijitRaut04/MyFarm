@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import Loading from "./Loading";
 import { ScrollContext, SessionContext } from "../context/Contexts";
@@ -10,16 +10,16 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const [loading, setLoding] = useState(true);
   const [user, setUser] = useState();
-  const { setIsCreatePostDisplay } = useContext(ScrollContext);
 
   const { farmer } = useContext(SessionContext);
   console.log("fdsgfd");
   let { id } = useParams();
   console.log(farmer);
-  if (!id) id = farmer._id;
+  if (!id && farmer) id = farmer._id;
 
   const [displayFollowers, setDisplayFollowers] = useState(false);
   const [displayFollowing, setDisplayFollowing] = useState(false);
+  const [isFollower, setIsFollower] = useState(false);
 
   const showFollowers = () => {
     setDisplayFollowers(true);
@@ -31,7 +31,7 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    setIsCreatePostDisplay(0);
+    // setIsCreatePostDisplay(0);
 
     axios
       .get(`/api/farmers/${id}`)
@@ -39,6 +39,11 @@ const ProfilePage = () => {
         setUser(response.data);
         setLoding(false);
         console.log(response);
+        response.data.followers.forEach((follower) => {
+          if (farmer && farmer._id === follower._id) {
+            setIsFollower(true);
+          }
+        });
       })
       .catch((error) => {
         console.error("Error: at featching profile", error);
@@ -46,9 +51,33 @@ const ProfilePage = () => {
       });
 
     return () => {
-      setIsCreatePostDisplay(1);
+      // setIsCreatePostDisplay(1);
     };
   }, []);
+
+  const toggleFollow = () => {
+    if (!isFollower) {
+      axios
+        .post(`/api/farmers/follow/${id}`)
+        .then((response) => {
+          console.log(response);
+          setIsFollower(true);
+        })
+        .catch((error) => {
+          console.error("Error: at featching profile", error);
+        });
+    } else {
+      axios
+        .post(`/api/farmers/unfollow/${id}`)
+        .then((response) => {
+          console.log(response);
+          setIsFollower(false);
+        })
+        .catch((error) => {
+          console.error("Error: at featching profile", error);
+        });
+    }
+  };
 
   return loading ? (
     <Loading />
@@ -102,23 +131,24 @@ const ProfilePage = () => {
             🔗 [yourwebsite.com] | 💌 DM for collaborations
           </p>
         </NameAndDesc>
-        <Buttons>
+        <Buttons $isFollower={isFollower}>
           {farmer && id != farmer._id ? (
             <>
-              <button className="follow">Follow</button>
-              <Link to={`/discussion/${farmer.username}`}>
-                <button className="message" style={{ width: "120px" }}>
-                  Message
-                </button>
-              </Link>
+              <button className="follow" onClick={toggleFollow}>
+                {isFollower ? "Unfollow" : "Follow"}
+              </button>
+              <button
+                className="message"
+                onClick={() => navigate(`/discussion/${farmer.username}`)}
+              >
+                Message
+              </button>
               <button className="email">Email</button>
             </>
           ) : (
-            <Link to={"/edit-profile"}>
-              <button className="edit" style={{ width: "500px" }}>
-                Edit
-              </button>
-            </Link>
+            <button onClick={() => navigate("/edit-profile")} className="edit">
+              Edit
+            </button>
           )}
 
           <button className="moreOptions">
@@ -259,18 +289,16 @@ const Buttons = styled.div`
     border-radius: 0.3rem;
     cursor: pointer;
   }
-  .follow {
-    width: 120px;
-  }
-  .email {
+  .follow,
+  .message,
+  .email,
+  .edit {
     flex: 1;
   }
-  .edit {
-    width: 100px;
-  }
   .follow {
-    background-color: #ae2328;
-    color: #fff;
+    /* background-color: #ae2328; */
+    background-color: ${(props) => (props.$isFollower ? "#e7e7e7" : "#ae2328")};
+    color: ${(props) => (props.$isFollower ? "#000000" : "#ffffff")};
   }
   .moreOptions {
     width: 2rem;
