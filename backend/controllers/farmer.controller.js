@@ -82,6 +82,8 @@ const getFarmers = async (req, res) => {
     }
 }
 
+
+// followers and following to give object form
 const getFarmerProfile = async (req, res) => {
     try {
 
@@ -170,9 +172,10 @@ const updateFarmer = async (req, res) => {
             if (!farmer) {
                 return res.status(404).send('Farmer not found');
             }
-
-            const hash_pass = await encryptData(password);
-            req.body.password = hash_pass;
+            if (password) {
+                const hash_pass = await encryptData(password);
+                req.body.password = hash_pass;
+            }
             let info = {
                 ...req.body,
                 profilePhoto: imageUrl
@@ -181,7 +184,7 @@ const updateFarmer = async (req, res) => {
             if (!updatedFarmer) {
                 return res.status(404).send('Farmer not found');
             }
-            return res.status(200).send(farmer);
+            return res.status(200).send(updatedFarmer);
         }
 
     } catch (error) {
@@ -228,6 +231,7 @@ const followFarmer = async (req, res) => {
         const farmer = req.farmer;
         let following = farmer.following;
         following.push(req.params.id);
+        if(farmer._id == req.params.id) return res.status(403).send("You cannot follow yourself");
         const updatedFarmer1 = await Farmer.updateOne(
             { _id: farmer._id },
             { $set: { following: following } }
@@ -235,9 +239,9 @@ const followFarmer = async (req, res) => {
         if (!updatedFarmer1) {
             return res.status(400).send("Farmer not found")
         }
-
+        
         const followingTo = await Farmer.findById(req.params.id);
-
+        
         if (!followingTo) {
             return res.status(400).send("Farmer not found")
         }
@@ -248,7 +252,7 @@ const followFarmer = async (req, res) => {
             { $set: { followers: followers } }
         )
         return res.status(201).send(`You are now following to ${followingTo.username}`)
-
+        
     }
     catch (error) {
         res.status(501).send({ error: error.message })
@@ -258,9 +262,13 @@ const followFarmer = async (req, res) => {
 // unfollow a farmer
 const unfollowFarmer = async (req, res) => {
     try {
+        // not working
         const farmer = req.farmer;
         let following = farmer.following;
-        following = following.filter((item) => item !== farmer._id)
+        if(farmer._id == req.params.id) return res.status(403).send("You cannot unfollow yourself");
+
+        following = following.filter((item) => item !== req.params.id)
+
         const updatedFarmer1 = await Farmer.updateOne(
             { _id: farmer._id },
             { $set: { following: following } }
@@ -297,18 +305,17 @@ const getFollowers = async (req, res) => {
         if (!account) return res.status(400).send("Farmer not found");
 
 
-        if (account.followers.indexOf(farmer._id) === -1) {
-            return res.status(401).send("You cannot view followers");
-        }
+        // if (account.followers.indexOf(farmer._id) === -1) {
+        //     return res.status(401).send("You cannot view followers");
+        // }
 
-        const followers = farmer.followers;
 
         // Fetch followers
-        const followersList = await Promise.all(followers.map(async (farmerId) => {
+        const followers = await Promise.all(account.followers.map(async (farmerId) => {
             let farmer = await Farmer.findById(farmerId);
             return farmer;
         }));
-        return res.status(200).send(followersList);
+        return res.status(200).send(followers);
 
     } catch (error) {
         return res.status(500).send({ error: error.message })
@@ -323,19 +330,18 @@ const getFollowing = async (req, res) => {
         if (!account) return res.status(400).send("Farmer not found");
 
 
-        if (account.followers.indexOf(farmer._id) === -1) {
-            return res.status(401).send("You cannot view followers");
-        }
+        // if (account.followers.indexOf(farmer._id) === -1) {
+        //     return res.status(401).send("You cannot view followers");
+        // }
 
-        const following = farmer.following;
 
         // Fetch following
-        const followingList = await Promise.all(following.map(async (farmerId) => {
+        const following = await Promise.all(account.following.map(async (farmerId) => {
             let farmer = await Farmer.findById(farmerId);
             return farmer;
         }));
 
-        return res.status(200).send(followingList);
+        return res.status(200).send(following);
 
     } catch (error) {
         return res.status(500).send({ error: error.message })

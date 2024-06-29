@@ -11,9 +11,9 @@ const router = express.Router();
 router.post('/', validateShopkeeper, upload.single("profilePhoto"), imageUpload, createShopkeeper);
 router.post('/login', loginShopkeeper);
 router.post('/logout', isShopkeeperSignin, logoutShopkeeper);
-router.get('/', isShopkeeperSignin, getCurrentShopkeeper);
-router.get('/:id/allProducts', getProductsByShopkeeper);
-router.get('/allShopkeepers', getAllShopkeepers);
+router.get('/myProfile', isShopkeeperSignin, getCurrentShopkeeper);
+router.get('/:id/myProducts', getProductsByShopkeeper);
+router.get('/', getAllShopkeepers);
 router.put('/update', isShopkeeperSignin, upload.single("profilePhoto"), imageUpload, updateShopkeeper);
 router.delete('/', isShopkeeperSignin, deleteShopkeeper);
 

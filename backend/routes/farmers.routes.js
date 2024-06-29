@@ -8,14 +8,14 @@ import { upload } from '../middlewares/multer.js';
 
 const router = express.Router();
 
-router.post('/', validateFarmer, upload.single("profilePhoto"), imageUpload, createFarmer);
+router.post('/', validateFarmer, upload.single("profile"), imageUpload, createFarmer);
 router.post('/login', loginFarmer);
 router.post('/logout', isFarmerSignin, logoutFarmer);
 router.get('/verifyToken', verifyToken);
 router.get('/profile', isFarmerSignin, getFarmerProfile);
 router.get('/', getLoginFarmer, getFarmers);
 router.get('/saved', isFarmerSignin, getSavedPosts)
-router.patch('/', isFarmerSignin, upload.single("profilePhoto"), imageUpload, updateFarmer);
+router.patch('/', isFarmerSignin, upload.single("profile"), imageUpload, updateFarmer);
 router.delete('/', isFarmerSignin, deleteFarmer);
 
 router.patch('/follow/:id', isFarmerSignin, followFarmer)

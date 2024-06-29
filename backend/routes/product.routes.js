@@ -22,11 +22,11 @@ router.get('/:id/reviews', getReviews)
 
 router.patch('/:id/addToCart', isFarmerSignin, addProductToCart)
 router.patch('/:id/removeFromCart', isFarmerSignin, removeProductFromCart)
-router.patch('/cart', isFarmerSignin, getCartItems)
+router.get('/cart', isFarmerSignin, getCartItems)
 router.patch('/order', isFarmerSignin, placeOrder)
-router.patch('/:id/cancle', isFarmerSignin, cancleOrder)
-router.patch('/:id/dispatch', isShopkeeperSignin, dispatchOrder)
-router.patch('/:id/deliver', isShopkeeperSignin, deliverOrder)
+router.patch('/order/:id/cancle', isFarmerSignin, cancleOrder)
+router.patch('/order/:id/dispatch', isShopkeeperSignin, dispatchOrder)
+router.patch('/order/:id/deliver', isShopkeeperSignin, deliverOrder)
 
 
 
