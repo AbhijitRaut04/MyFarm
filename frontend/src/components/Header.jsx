@@ -7,11 +7,10 @@ import axios from "axios";
 
 const Header = () => {
 
-    const { farmer } = useContext(SessionContext)
+    const { farmer, setCheckout } = useContext(SessionContext)
 
     const navigate = useNavigate();
     const { isScrolledPast } = useContext(ScrollContext);
-    const { setCheckout } = useContext(SessionContext);
 
 
     const [inputValue, setInputValue] = useState("");
@@ -74,7 +73,7 @@ const Header = () => {
                             <Link to="/cart" style={{ color: "white" }}>
                                 <FontAwesomeIcon name="fa-solid fa-cart-shopping" />
                             </Link>
-                            <Link to={'/profile'}><i className="fa-solid fa-user" style={{ color: "white" }}></i></Link>
+                            <Link to={`/profile/${farmer._id}`}><i className="fa-solid fa-user" style={{ color: "white" }}></i></Link>
                             <FontAwesomeIcon onClick={handleLogout} name="fa-solid fa-right-from-bracket" />
                         </>
                 }

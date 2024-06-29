@@ -16,6 +16,8 @@ const UserContextProvider = ({ children }) => {
     },
   ]);
 
+  const [refresh, setRefresh] = useState(false);
+
   const [showLoginMessage, setShowLoginMessage] = useState(false);
 
   // console.log(posts);
@@ -25,16 +27,17 @@ const UserContextProvider = ({ children }) => {
       .get("/api/posts")
       .then((response) => {
         setPosts(response.data);
+        setRefresh((prev) => !prev);
         // console.log(response.data);
       })
       .catch((error) => {
         console.error("Error:", error);
       });
-  }, []);
+  }, [refresh]);
 
   return (
     <UserContext.Provider
-      value={{ posts, setPosts, showLoginMessage, setShowLoginMessage }}
+      value={{ posts, setPosts, setRefresh, showLoginMessage, setShowLoginMessage }}
     >
       {children}
     </UserContext.Provider>
