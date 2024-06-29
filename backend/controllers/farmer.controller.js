@@ -1,8 +1,11 @@
 import { generateJWTToken } from '../db/generateToken.js';
 import { encryptData, comparePasswords } from '../db/hashPassword.js';
+import Chat from '../models/chat.models.js';
 import Farmer from '../models/farmer.models.js';
 import Message from '../models/message.models.js';
 import Post from '../models/post.models.js';
+import CartItem from '../models/cartItem.models.js'
+import Order from '../models/order.models.js'
 
 // Create a new farmer
 const createFarmer = async (req, res) => {
@@ -82,15 +85,46 @@ const getFarmers = async (req, res) => {
     }
 }
 
+// current farmer profile
 const getFarmerProfile = async (req, res) => {
     try {
 
         let farmer = req.farmer;
-        const posts = await Promise.all(farmer.posts.map(async (postId) => {
-            const post = await Post.findById(postId);
-            return post;
+
+        if(!farmer) return res.status(403).send("Unauthorised access to account")
+
+        farmer.posts = await Promise.all(farmer.posts.map(async (postId) => {
+            return Post.findById(postId);
         }))
-        farmer.posts = posts;
+
+        farmer.followers = await Promise.all(farmer.followers.map(async (followerId) => {
+            return await Farmer.findById(followerId);
+        }));
+
+        farmer.following = await Promise.all(farmer.following.map(async (followingId) => {
+            return await Farmer.findById(followingId);
+        }));
+
+        farmer.starredMessages = await Promise.all(farmer.starredMessages.map(async (id) => {
+            return await Message.findById(id);
+        }));
+
+        farmer.saved = await Promise.all(farmer.saved.map(async (id) => {
+            return await Post.findById(id);
+        }));
+
+        farmer.cart = await Promise.all(farmer.cart.map(async (id) => {
+            return await CartItem.findById(id);
+        }));
+
+        farmer.orders = await Promise.all(farmer.cart.map(async (id) => {
+            return await Order.findById(id);
+        }));
+
+        farmer.chats = await Promise.all(farmer.chats.map(async (id) => {
+            return await Chat.findById(id);
+        }));
+
         return res.status(200).send(farmer);
 
     } catch (error) {
@@ -170,9 +204,10 @@ const updateFarmer = async (req, res) => {
             if (!farmer) {
                 return res.status(404).send('Farmer not found');
             }
-
-            const hash_pass = await encryptData(password);
-            req.body.password = hash_pass;
+            if (password) {
+                const hash_pass = await encryptData(password);
+                req.body.password = hash_pass;
+            }
             let info = {
                 ...req.body,
                 profilePhoto: imageUrl
@@ -181,7 +216,7 @@ const updateFarmer = async (req, res) => {
             if (!updatedFarmer) {
                 return res.status(404).send('Farmer not found');
             }
-            return res.status(200).send(farmer);
+            return res.status(200).send(updatedFarmer);
         }
 
     } catch (error) {
@@ -228,6 +263,7 @@ const followFarmer = async (req, res) => {
         const farmer = req.farmer;
         let following = farmer.following;
         following.push(req.params.id);
+        if(farmer._id == req.params.id) return res.status(403).send("You cannot follow yourself");
         const updatedFarmer1 = await Farmer.updateOne(
             { _id: farmer._id },
             { $set: { following: following } }
@@ -235,9 +271,9 @@ const followFarmer = async (req, res) => {
         if (!updatedFarmer1) {
             return res.status(400).send("Farmer not found")
         }
-
+        
         const followingTo = await Farmer.findById(req.params.id);
-
+        
         if (!followingTo) {
             return res.status(400).send("Farmer not found")
         }
@@ -248,7 +284,7 @@ const followFarmer = async (req, res) => {
             { $set: { followers: followers } }
         )
         return res.status(201).send(`You are now following to ${followingTo.username}`)
-
+        
     }
     catch (error) {
         res.status(501).send({ error: error.message })
@@ -258,9 +294,13 @@ const followFarmer = async (req, res) => {
 // unfollow a farmer
 const unfollowFarmer = async (req, res) => {
     try {
+        // not working
         const farmer = req.farmer;
         let following = farmer.following;
-        following = following.filter((item) => item !== farmer._id)
+        if(farmer._id == req.params.id) return res.status(403).send("You cannot unfollow yourself");
+
+        following = following.filter((item) => item !== req.params.id)
+
         const updatedFarmer1 = await Farmer.updateOne(
             { _id: farmer._id },
             { $set: { following: following } }
@@ -297,18 +337,17 @@ const getFollowers = async (req, res) => {
         if (!account) return res.status(400).send("Farmer not found");
 
 
-        if (account.followers.indexOf(farmer._id) === -1) {
-            return res.status(401).send("You cannot view followers");
-        }
+        // if (account.followers.indexOf(farmer._id) === -1) {
+        //     return res.status(401).send("You cannot view followers");
+        // }
 
-        const followers = farmer.followers;
 
         // Fetch followers
-        const followersList = await Promise.all(followers.map(async (farmerId) => {
+        const followers = await Promise.all(account.followers.map(async (farmerId) => {
             let farmer = await Farmer.findById(farmerId);
             return farmer;
         }));
-        return res.status(200).send(followersList);
+        return res.status(200).send(followers);
 
     } catch (error) {
         return res.status(500).send({ error: error.message })
@@ -323,19 +362,18 @@ const getFollowing = async (req, res) => {
         if (!account) return res.status(400).send("Farmer not found");
 
 
-        if (account.followers.indexOf(farmer._id) === -1) {
-            return res.status(401).send("You cannot view followers");
-        }
+        // if (account.followers.indexOf(farmer._id) === -1) {
+        //     return res.status(401).send("You cannot view followers");
+        // }
 
-        const following = farmer.following;
 
         // Fetch following
-        const followingList = await Promise.all(following.map(async (farmerId) => {
+        const following = await Promise.all(account.following.map(async (farmerId) => {
             let farmer = await Farmer.findById(farmerId);
             return farmer;
         }));
 
-        return res.status(200).send(followingList);
+        return res.status(200).send(following);
 
     } catch (error) {
         return res.status(500).send({ error: error.message })
@@ -345,28 +383,32 @@ const getFollowing = async (req, res) => {
 // star message
 const starMessage = async (req, res) => {
     try {
-        let farmer = await Farmer.findById(req.farmer.userId);
+        let farmer = await Farmer.findById(req.farmer._id);
         const message = await Message.findById(req.params.messageId);
         if (!message) return res.status(400).send("Message not found");
-        farmer.starredMessages.push(req.params.messageId)
+        if(!farmer.starredMessages.includes(req.params.messageId)) farmer.starredMessages.push(req.params.messageId)
 
         await farmer.save();
+        return res.status(200).send("Message saved to starred")
     } catch (error) {
         console.log(error);
+        return res.status(500).send(error);
     }
 }
 
 // unstar message
 const unstarMessage = async (req, res) => {
     try {
-        let farmer = await Farmer.findById(req.farmer.userId);
+        let farmer = await Farmer.findById(req.farmer._id);
         const message = await Message.findById(req.params.messageId);
         if (!message) return res.status(400).send("Message not found");
         farmer.starredMessages = farmer.starredMessages.filter((item) => item != req.params.messageId);
-
+        
         await farmer.save();
+        return res.status(200).send("Message removed from starred")
     } catch (error) {
         console.log(error);
+        return res.status(500).send(error);
     }
 }
 

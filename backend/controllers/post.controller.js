@@ -99,7 +99,7 @@ const getCurrentFarmerPosts = async (req, res) => {
         const currentFarmerPosts = farmer.posts;
 
         // Fetch current farmer's posts
-        const currentPostsPromises = currentFarmerPosts.map(postId => Post.findById(postId));
+        const currentPostsPromises = currentFarmerPosts.map(async postId => await Post.findById(postId));
 
         const currentPosts = await Promise.all(currentPostsPromises);
 
@@ -114,20 +114,22 @@ const getCurrentFarmerPosts = async (req, res) => {
 // Get a post by ID
 const getPost = async (req, res) => {
     try {
-        const post = await Post.findById(req.params.id);
+
+        const farmer = req.farmer;
+        if (!farmer) {
+            return res.status(401).send({ message: 'Unauthorized access to private post' });
+        }
+
+        let post = await Post.findById(req.params.id);
 
         if (!post) {
             return res.status(404).send('Post not found');
         }
 
+        post.likes = await Promise.all(post.likes.map(async item => await Farmer.findById(item)))
+
         if (post.isPublic) {
             return res.status(200).send(post);
-        }
-
-        const farmer = req.farmer;
-
-        if (!farmer) {
-            return res.status(401).send({ message: 'Unauthorized access to private post' });
         }
 
         const createdBy = post.createdBy.toString();
@@ -148,26 +150,28 @@ const getPost = async (req, res) => {
 // Update a post by ID
 const updatePost = async (req, res) => {
     try {
-        const { imageUrl } = req.body;
+        const { heading, description, isPublic, imageUrl } = req.body;
         const farmer = req.farmer;
 
         if (!farmer) {
             return res.status(401).send({ message: "Unauthorized access" });
         }
 
-        const posts = farmer.posts.map(postId => postId.toString());
+        // const posts = farmer.posts.map(postId => postId.toString());
 
-        if (!posts.includes(req.params.id)) {
+        if (!farmer.posts.includes(req.params.id)) {
             return res.status(403).send({ message: "Only the post owner can edit this post" });
         }
-
-        let updateData = { ...req.body };
-
+        let info = {
+            title:heading,
+            content:description,
+            isPublic
+        };
         if (imageUrl) {
-            updateData.profilePhoto = imageUrl;
+            info.profilePhoto = imageUrl;
         }
 
-        const post = await Post.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true });
+        const post = await Post.findByIdAndUpdate(req.params.id, info, {runValidators: true});
 
         if (!post) {
             return res.status(404).send('Post not found');
@@ -217,12 +221,10 @@ const likePost = async (req, res) => {
                 { _id: post._id },
                 { $addToSet: { likes: farmer._id } }
             )
-            console.log("checking the post");
             try {
                 const post = await Post.findById(req.params.id);
-                console.log(post);
             } catch (error) {
-                console.error("Error fetching post:", error);
+                return res.status(500).send({"Error fetching post:": error});
                 // Respond with a server error message or handle it accordingly
             }
         }
@@ -274,8 +276,8 @@ const comment = async (req, res) => {
                 { _id: post._id },
                 { $set: { comments: comments } }
             )
+            res.status(200).send(updatedPost);
         }
-        res.status(200).send('Comment is added to post');
     } catch (error) {
         res.status(500).send(error);
     }
@@ -293,15 +295,15 @@ const deleteComment = async (req, res) => {
         else {
             let comments = post.comments;
 
-            const comment = comments.filter(item => item._id === req.params.commentId)[0]
+            let comment = comments.filter(item => item._id == req.params.commentId)
 
-            if (comment.createdBy === farmer._id) {
-                comments = comments.filter(item => item !== req.params.commentId);
-                const updatedPost = await Post.updateOne(
+            if (comment.createdBy == farmer._id.toString()) {
+                comments = comments.filter(item => item._id != req.params.commentId);
+                await Post.updateOne(
                     { _id: post._id },
                     { $set: { comments: comments } }
                 )
-                return res.status(201).send("Post deleted successfully");
+                return res.status(201).send("Comment deleted successfully");
             }
             else {
                 res.status(500).send("You cannot delete this comment")
@@ -322,15 +324,14 @@ const editComment = async (req, res) => {
         }
         else {
             let comments = post.comments;
-            comments = comments.filter(item => item !== req.params.commentId);
-            let newComment = {
-                content: req.body.content,
-                createdBy: farmer._id
-            }
-            comments.push(newComment);
-            const updatedPost = await Post.updateOne(
+            comments.forEach(comment => {
+                if(comment._id == req.params.commentId){
+                    comment.content = req.body.content;
+                }
+            });
+            await Post.updateOne(
                 { _id: post._id },
-                { $set: { comments: comments } }
+                { comments: comments }
             )
         }
         res.status(200).send('Comment is edited to post');
@@ -404,10 +405,10 @@ const getFarmersWhoLikedPost = async (req, res) => {
 // get comments on posts
 const getComments = async (req, res) => {
     try {
-        const post = Post.findById(req.params.id);
-        const comments = post.comments;
-
-        return res.status(201).send(comments);
+        const post = await Post.findById(req.params.id);
+        if(!post) return res.status(404).send("Post not found");
+        
+        return res.status(201).send(post.comments);
 
     } catch (error) {
         res.status(501).send({ message: error.message })

@@ -7,10 +7,10 @@ const validateFarmer = async (req, res, next) => {
     if (farmer) {
         return res.status(500).send({ msg: "Farmer Already Exists" })
     }
-    if (!username || !email || !password || !age || !location) {
-        console.log("All fields required!")
-        return res.status(400).send('All fields are required');
-    }
+    // if (!username || !email || !password || !age || !location) {
+    //     console.log("All fields required!")
+    //     return res.status(400).send('All fields are required');
+    // }
     next();
 };
 
