@@ -276,7 +276,7 @@ const comment = async (req, res) => {
                 { _id: post._id },
                 { $set: { comments: comments } }
             )
-            res.status(200).send(updatedPost);
+            res.status(200).send(newComment);
         }
     } catch (error) {
         res.status(500).send(error);
