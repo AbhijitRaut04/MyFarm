@@ -30,6 +30,7 @@ const Routers = () => {
           {/* <Route path="/chat/:username" element={ <Chat /> } /> */}
           <Route path="/experts" element={<Experts />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/profile/:id" element={<ProfilePage />} />
           <Route
             path="/edit-profile"

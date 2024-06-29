@@ -68,9 +68,10 @@ const Discussion = () => {
 
   const handleProfile = (profile) => {
     console.log(profile);
-    navigate(`/profile/${profile.farmerId}`, {
-      state: { otherFarmer: profile },
-    });
+    // navigate(`/profile/${profile.farmerId}`, {
+    //   state: { otherFarmer: profile },
+    // });
+    navigate(`/profile/${profile._id}`);
   };
 
   if (loading) {
