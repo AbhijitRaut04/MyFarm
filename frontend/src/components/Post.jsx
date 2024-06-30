@@ -12,15 +12,15 @@ const Post = memo(({ post }) => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [noOfLikes, setNoOfLikes] = useState(post.likes?.length || 0);
   const [noOfComments, setNoOfComments] = useState(post.comments?.length || 0);
-  const { farmer } = useContext(SessionContext);
+  const { farmer, setCheckout } = useContext(SessionContext);
   const { setShowLoginMessage } = useContext(UserContext);
   const [displayLikes, setDisplayLikes] = useState(false);
   const [displayComments, setDisplayComments] = useState(false);
 
   // console.log(post.likes?.length);
-
+  
   useEffect(() => {
-    if (post & farmer) {
+    if (post && farmer) {
       setIsLiked(post.likes?.includes(farmer._id) || false);
       setIsBookmarked(farmer.saved?.includes(post?._id) || false);
       setNoOfLikes(post.likes?.length || 0);
@@ -72,7 +72,7 @@ const Post = memo(({ post }) => {
       axios
         .patch(`/api/posts/${post._id}/save`)
         .then((response) => {
-          setIsBookmarked(true);
+          setCheckout(prev => !prev);
           toast.success("Post is Saved");
         })
         .catch((error) => {
@@ -84,7 +84,7 @@ const Post = memo(({ post }) => {
         .patch(`/api/posts/${post._id}/unsave`)
         .then((response) => {
           toast.info("Post unmark successfully: ", response);
-          setIsBookmarked(false);
+          setCheckout(prev => !prev);
         })
         .catch((error) => {
           console.log("Error unmarking post(unknown): ", error.response);

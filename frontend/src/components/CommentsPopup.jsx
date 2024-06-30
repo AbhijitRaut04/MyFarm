@@ -42,7 +42,7 @@ const CommentsPopup = ({ fetchRoute, setDisplay, type }) => {
 
   useEffect(() => {
     showContainer();
-  }, [farmer]);
+  }, [farmer, comments]);
 
   const handlePostComment = (e) => {
     e.preventDefault();
@@ -83,7 +83,7 @@ const CommentsPopup = ({ fetchRoute, setDisplay, type }) => {
                 <div>
                   <Comment
                     fetchRoute={fetchRoute}
-                    showComment={comment}
+                    comment={comment}
                     key={index}
                   />
                 </div>
@@ -95,7 +95,7 @@ const CommentsPopup = ({ fetchRoute, setDisplay, type }) => {
                 type="text"
                 placeholder="Write a comment"
               />
-              <button onClick="submit">Send</button>
+              <button type="submit">Send</button>
             </WriteComment>
           </Container>
         </>
@@ -129,7 +129,8 @@ const ContainerWrapper = styled.div`
 const Container = styled.div`
   position: relative;
   background-color: #fff;
-  height: ${(props) => props.$count * 55 + 100}px;
+  height: ${(props) => props.$count * 55 + 150}px;
+  // height:500px;
   min-height: 110px;
   max-height: 80vh;
   overflow-y: auto;

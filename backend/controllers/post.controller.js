@@ -298,19 +298,19 @@ const deleteComment = async (req, res) => {
             let comments = post.comments;
 
             let comment = comments.filter(item => item._id == req.params.commentId)
+            comment = comment[0];
 
-            if (comment.createdBy == farmer._id.toString()) {
-                comments = comments.filter(item => item._id != req.params.commentId);
-                await Post.updateOne(
-                    { _id: post._id },
-                    { $set: { comments: comments } }
-                )
-                return res.status(201).send("Comment deleted successfully");
-            }
-            else {
-                res.status(500).send("You cannot delete this comment")
-            }
+            if (comment.createdBy != farmer._id.toString()) return res.status(403).send("Unauthorised access");
+
+            comments = comments.filter(item => item._id != req.params.commentId);
+            await Post.updateOne(
+                { _id: post._id },
+                { $set: { comments: comments } }
+            )
+            return res.status(201).send("Comment deleted successfully");
         }
+
+
     } catch (error) {
         res.status(500).send(error);
     }
@@ -407,9 +407,12 @@ const getFarmersWhoLikedPost = async (req, res) => {
 // get comments on posts
 const getComments = async (req, res) => {
     try {
-        const post = await Post.findById(req.params.id);
+        let post = await Post.findById(req.params.id);
         if (!post) return res.status(404).send("Post not found");
-
+        post.comments = await Promise.all(post.comments.map(async (comment) => {
+            comment.createdBy = await Farmer.findById(comment.createdBy);
+            return comment;
+        }))
         return res.status(201).send(post.comments);
 
     } catch (error) {
