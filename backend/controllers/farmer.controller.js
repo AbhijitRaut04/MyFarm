@@ -299,7 +299,7 @@ const unfollowFarmer = async (req, res) => {
         let following = farmer.following;
         if(farmer._id == req.params.id) return res.status(403).send("You cannot unfollow yourself");
 
-        following = following.filter((item) => item !== req.params.id)
+        following = following.filter((item) => item.toString() != req.params.id)
 
         const updatedFarmer1 = await Farmer.updateOne(
             { _id: farmer._id },
@@ -315,7 +315,7 @@ const unfollowFarmer = async (req, res) => {
             return res.status(400).send("Farmer not found")
         }
         let followers = followingTo.followers;
-        followers = followers.filter((item) => item !== req.params.id)
+        followers = followers.filter((item) => item.toString() != farmer._id.toString())
 
         const updatedFarmer2 = await Farmer.updateOne(
             { _id: req.params.id },
