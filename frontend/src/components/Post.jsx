@@ -22,6 +22,7 @@ const Post = memo(({ post }) => {
   useEffect(() => {
     if (post && farmer) {
       setIsLiked(post.likes?.includes(farmer._id) || false);
+
       setIsBookmarked(farmer.saved?.includes(post?._id) || false);
       setNoOfLikes(post.likes?.length || 0);
       setNoOfComments(post.comments?.length || 0);

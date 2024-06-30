@@ -12,6 +12,7 @@ import Discussion from "./Discussion";
 import Experts from "./Experts";
 import Stores from "./Stores";
 import Store from "./Store";
+import Product from "./Product";
 import EditProfile from "./EditProfile";
 
 const Routers = () => {
@@ -24,6 +25,7 @@ const Routers = () => {
           <Route path="/home" element={<Home />} />
           <Route path="/stores" element={<Stores />}></Route>
           <Route path="/stores/:name" element={<Store />} />
+          <Route path="/stores/product/:name" element={<Product />} />
           <Route path="/discussion" element={<Discussion />} />
           {/* <Route path="/discussion" element={<Chats />} /> */}
           <Route path="/discussion/:chatId" element={<ChatRoom />} />

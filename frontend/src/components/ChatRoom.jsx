@@ -81,14 +81,18 @@ const ChatRoom = () => {
           if (1) {
             if (msg.sender === farmer._id) {
               return (
-                <FirstPerson key={index} style={{ textAlign: "right" }}>
+                <FirstPerson
+                  className="message"
+                  key={index}
+                  style={{ textAlign: "right" }}
+                >
                   <h2>{msg.message}</h2>
                   {/* <p>{msg && msg.timestamp.slice(11, 16)}</p> */}
                 </FirstPerson>
               );
             } else {
               return (
-                <SecondPerson key={index}>
+                <SecondPerson className="message" key={index}>
                   <h2>{msg.message}</h2>
                   {/* <p>{msg && msg.timestamp.slice(11, 16)}</p> */}
                 </SecondPerson>
@@ -173,6 +177,10 @@ const Messages = styled.div`
 
     h2 {
       color: white;
+      width: 100%;
+      overflow-wrap: break-word;
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
     p {
       position: absolute;
@@ -181,13 +189,14 @@ const Messages = styled.div`
       font-size: 0.5rem;
     }
   }
+  .message {
+    max-width: 60%;
+    clear: both;
+  }
 `;
 
 const SecondPerson = styled.div`
   float: left;
-  clear: both;
-  width: min-content;
-  max-width: 60%;
   border-bottom-left-radius: 0 !important;
   p {
     left: 1px;
@@ -197,10 +206,8 @@ const SecondPerson = styled.div`
 
 const FirstPerson = styled.div`
   float: right;
-  clear: both;
-  width: min-content;
-  max-width: 60%;
   border-bottom-right-radius: 0 !important;
+  /* width: 100%; */
   p {
     right: 1px;
     transform: translateX(-50%);
@@ -217,7 +224,6 @@ const MessageForm = styled.div`
   bottom: 0;
   width: 600px;
   height: 50px;
-  /* background-color: #bb3b3f; */
   padding: 0 2px;
   margin-bottom: 2px;
   @media (max-width: 600px) {
@@ -240,7 +246,7 @@ const Input = styled.input`
     outline: none;
   }
   &::placeholder {
-    padding: 20px;
+    /* padding: 20px; */
     color: #bb3b3f;
     font-size: 1.3rem;
   }
