@@ -163,15 +163,15 @@ const updatePost = async (req, res) => {
             return res.status(403).send({ message: "Only the post owner can edit this post" });
         }
         let info = {
-            title:heading,
-            content:description,
+            title: heading,
+            content: description,
             isPublic
         };
         if (imageUrl) {
             info.profilePhoto = imageUrl;
         }
 
-        const post = await Post.findByIdAndUpdate(req.params.id, info, {runValidators: true});
+        const post = await Post.findByIdAndUpdate(req.params.id, info, { runValidators: true });
 
         if (!post) {
             return res.status(404).send('Post not found');
@@ -221,12 +221,11 @@ const likePost = async (req, res) => {
                 { _id: post._id },
                 { $addToSet: { likes: farmer._id } }
             )
-            try {
-                const post = await Post.findById(req.params.id);
-            } catch (error) {
-                return res.status(500).send({"Error fetching post:": error});
-                // Respond with a server error message or handle it accordingly
-            }
+
+            await Farmer.updateOne(
+                { _id: farmer._id },
+                { $addToSet: { liked: post._id } }
+            )
         }
         res.status(200).send('Post is liked');
     } catch (error) {
@@ -239,18 +238,21 @@ const unlikePost = async (req, res) => {
     try {
         const farmer = req.farmer;
         const post = await Post.findById(req.params.id);
-        if (!post) {
-            return res.status(404).send('Post not found');
-        }
-        else {
-            let likesArray = post.likes;
-            if (!(likesArray.includes(farmer._id))) return res.status(409).send("You didn't like the post yet!");
+        if (!post) return res.status(404).send('Post not found');
 
-            await Post.updateOne(
-                { _id: post._id },
-                { $pull: { likes: farmer._id } }
-            );
-        }
+        let likesArray = post.likes;
+        if (!(likesArray.includes(farmer._id))) return res.status(409).send("You didn't like the post yet!");
+
+        await Post.updateOne(
+            { _id: post._id },
+            { $pull: { likes: farmer._id } }
+        );
+
+        await Farmer.updateOne(
+            { _id: farmer._id },
+            { $pull: { liked: post._id } }
+        );
+
         res.status(200).send('Post is unliked');
     } catch (error) {
         res.status(500).send(error);
@@ -325,7 +327,7 @@ const editComment = async (req, res) => {
         else {
             let comments = post.comments;
             comments.forEach(comment => {
-                if(comment._id == req.params.commentId){
+                if (comment._id == req.params.commentId) {
                     comment.content = req.body.content;
                 }
             });
@@ -406,8 +408,8 @@ const getFarmersWhoLikedPost = async (req, res) => {
 const getComments = async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
-        if(!post) return res.status(404).send("Post not found");
-        
+        if (!post) return res.status(404).send("Post not found");
+
         return res.status(201).send(post.comments);
 
     } catch (error) {

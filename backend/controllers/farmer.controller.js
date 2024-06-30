@@ -97,33 +97,33 @@ const getFarmerProfile = async (req, res) => {
             return Post.findById(postId);
         }))
 
-        farmer.followers = await Promise.all(farmer.followers.map(async (followerId) => {
-            return await Farmer.findById(followerId);
-        }));
+        // farmer.followers = await Promise.all(farmer.followers.map(async (followerId) => {
+        //     return await Farmer.findById(followerId);
+        // }));
 
-        farmer.following = await Promise.all(farmer.following.map(async (followingId) => {
-            return await Farmer.findById(followingId);
-        }));
+        // farmer.following = await Promise.all(farmer.following.map(async (followingId) => {
+        //     return await Farmer.findById(followingId);
+        // }));
 
-        farmer.starredMessages = await Promise.all(farmer.starredMessages.map(async (id) => {
-            return await Message.findById(id);
-        }));
+        // farmer.starredMessages = await Promise.all(farmer.starredMessages.map(async (id) => {
+        //     return await Message.findById(id);
+        // }));
 
-        farmer.saved = await Promise.all(farmer.saved.map(async (id) => {
-            return await Post.findById(id);
-        }));
+        // farmer.saved = await Promise.all(farmer.saved.map(async (id) => {
+        //     return await Post.findById(id);
+        // }));
 
-        farmer.cart = await Promise.all(farmer.cart.map(async (id) => {
-            return await CartItem.findById(id);
-        }));
+        // farmer.cart = await Promise.all(farmer.cart.map(async (id) => {
+        //     return await CartItem.findById(id);
+        // }));
 
-        farmer.orders = await Promise.all(farmer.cart.map(async (id) => {
-            return await Order.findById(id);
-        }));
+        // farmer.orders = await Promise.all(farmer.cart.map(async (id) => {
+        //     return await Order.findById(id);
+        // }));
 
-        farmer.chats = await Promise.all(farmer.chats.map(async (id) => {
-            return await Chat.findById(id);
-        }));
+        // farmer.chats = await Promise.all(farmer.chats.map(async (id) => {
+        //     return await Chat.findById(id);
+        // }));
 
         return res.status(200).send(farmer);
 

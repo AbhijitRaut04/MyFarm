@@ -20,9 +20,9 @@ const Post = memo(({ post }) => {
   // console.log(post.likes?.length);
 
   useEffect(() => {
-    if (post) {
-      setIsLiked(post.likes?.includes(farmer?._id) || false);
-      setIsBookmarked(post.saved?.includes(farmer?._id) || false);
+    if (post & farmer) {
+      setIsLiked(post.likes?.includes(farmer._id) || false);
+      setIsBookmarked(farmer.saved?.includes(post?._id) || false);
       setNoOfLikes(post.likes?.length || 0);
       setNoOfComments(post.comments?.length || 0);
     }
@@ -122,7 +122,7 @@ const Post = memo(({ post }) => {
 
         <button onClick={handleBookmarkClick}>
           {isBookmarked ? (
-            <i class="fa-solid fa-bookmark"></i>
+            <i className="fa-solid fa-bookmark"></i>
           ) : (
             <i className="fa-regular fa-bookmark"></i>
           )}
