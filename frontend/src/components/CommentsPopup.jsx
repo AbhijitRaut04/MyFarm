@@ -7,13 +7,15 @@ import Loading from "./Loading";
 import { toast } from "react-toastify";
 import Comment from "./Comment";
 
-const CommentsPopup = ({ fetchRoute, setDisplay, type }) => {
+const CommentsPopup = ({ fetchRoute, setDisplay, displayComments }) => {
   const [comments, setComments] = useState([]);
   const { farmer } = useContext(SessionContext);
   const [loading, setLoading] = useState(true);
 
+  const [sent, setSent] = useState(true);
+
   const commentsEndRef = useRef(null);
-  console.log(fetchRoute);
+  // console.log(fetchRoute);
 
   const showContainer = () => {
     axios
@@ -36,15 +38,16 @@ const CommentsPopup = ({ fetchRoute, setDisplay, type }) => {
     commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [comments]);
+  // useEffect(() => {
+  //   scrollToBottom();
+  // }, [comments]);
 
   useEffect(() => {
     showContainer();
   }, [farmer, comments]);
 
   const handlePostComment = (e) => {
+    setSent(false);
     e.preventDefault();
     let message = e.target.elements["commentMessage"].value;
     message = message.trim();
@@ -61,11 +64,12 @@ const CommentsPopup = ({ fetchRoute, setDisplay, type }) => {
       .catch((error) => {
         console.log(error);
         toast.error("Error posting comment");
-      });
-  };
+      })
+      .finally(()=>setSent(true))
+    };
 
   return (
-    <ContainerWrapper>
+    <ContainerWrapper $val={displayComments ? 0:-600}>
       {loading ? (
         <Loading />
       ) : (
@@ -90,12 +94,13 @@ const CommentsPopup = ({ fetchRoute, setDisplay, type }) => {
               ))}
             <div ref={commentsEndRef} />
             <WriteComment onSubmit={handlePostComment}>
-              <input
-                name="commentMessage"
-                type="text"
-                placeholder="Write a comment"
-              />
+              <input name="commentMessage" type="text" placeholder="Write a comment" />
+              {
+                sent ? 
               <button type="submit">Send</button>
+              :
+              ""
+              }
             </WriteComment>
           </Container>
         </>
@@ -107,16 +112,16 @@ const CommentsPopup = ({ fetchRoute, setDisplay, type }) => {
 export default CommentsPopup;
 
 const ContainerWrapper = styled.div`
+  position:fixed;
+  bottom:${props => props.$val + 50}px;
   width: 600px;
-  height: 100vh;
-  background-color: rgba(18, 8, 8, 0.1);
-  backdrop-filter: blur(3px);
+  height: 70vh;
+  // background-color: rgba(18, 8, 8, 0.1);
+  // backdrop-filter: blur(3px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  position: fixed;
-  top: 0;
   left: 50%;
   transform: translateX(-50%);
   margin: 0 auto;
@@ -124,31 +129,32 @@ const ContainerWrapper = styled.div`
     padding-bottom: 7rem;
     width: 100%;
   }
+    transition: all 0.2s ease-out;
 `;
 
 const Container = styled.div`
   position: relative;
-  background-color: #fff;
-  height: ${(props) => props.$count * 55 + 150}px;
-  // height:500px;
-  min-height: 110px;
-  max-height: 80vh;
+  background-color: #f2f2f2;
+  // height: ${(props) => props.$count * 55 + 150}px;
+  height:540px;
+  // min-height: 80vh;
+  // max-height: 80vh;
   overflow-y: auto;
-  width: 450px;
+  width: 80%;
   border-radius: 1rem;
   /* padding-top: 1rem; */
   margin: 10rem 2rem;
 
   .header {
-    position: sticky;
+    // position: sticky;
     padding-top: 1rem;
-    top: 0;
-    background-color: #fff;
+    // top: 0;
+    background-color: transparent;
   }
 
   h3 {
-    font-size: 1.5rem;
-    font-weight: 600;
+    // font-size: 1.5rem;
+    // font-weight: 600;
     text-align: center;
     color: #5a5a5a;
   }
@@ -157,15 +163,16 @@ const Container = styled.div`
     margin: 0;
     max-height: 70vh;
     h3 {
-      font-size: 1.7rem;
+      // font-size: 1.7rem;
     }
   }
 `;
 const Cross = styled.div`
   position: absolute;
-  top: 12px;
-  right: 12px;
-  font-size: 0.8rem;
+  top: 15px;
+  right: 15px;
+  // font-size: 1.2rem;
+  // font-weight:800;
   cursor: pointer;
 `;
 const WriteComment = styled.form`
@@ -177,7 +184,7 @@ const WriteComment = styled.form`
   border-bottom-left-radius: 1rem;
   border-bottom-right-radius: 1rem;
   border-top: 1px solid #dadada;
-
+  width: 100%;
   position: sticky;
   bottom: 0;
 

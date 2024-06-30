@@ -33,9 +33,11 @@ const Comment = ({ fetchRoute, comment }) => {
             <h4>{`${comment.content}`}</h4>
           </CardText>
           </div>
-          <Button onClick={deleteComment}>
+          { farmer._id == comment.createdBy._id && 
+            <Button onClick={deleteComment}>
             <i className="fa-regular fa-trash-can" ></i>
           </Button>
+          }
         </CardTitle>
         <hr />
 
@@ -52,7 +54,7 @@ const Card = styled.div`
 `;
 
 const Button = styled.button`
-    background-color: #fff;
+    background-color: transparent;
       border: none;
       color: #ff0000;
       font-size: 1rem;
@@ -81,6 +83,7 @@ const CardTitle = styled.div`
 }
 `
 const CardText = styled.div`
+
   h4{
   margin-top: 10px;
   font-family: sans-serif;

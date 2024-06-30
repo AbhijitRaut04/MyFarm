@@ -146,15 +146,14 @@ const Post = memo(({ post }) => {
       ) : (
         ""
       )}
-      {displayComments ? (
+      { (
+        post && post._id &&
         <CommentsPopup
           fetchRoute={`/api/posts/${post._id}/comment`}
-          setDisplay={setDisplayComments}
+          setDisplay={setDisplayComments} displayComments={displayComments}
           type="Commented"
         />
-      ) : (
-        ""
-      )}
+      ) }
     </PostWrapper>
   );
 });
