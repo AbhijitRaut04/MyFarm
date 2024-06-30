@@ -108,11 +108,11 @@ const ProfilePage = () => {
               </>
             ) : (
               <>
-                <div onClick={showFollowers}>
+                <div className="show-button" onClick={showFollowers}>
                   <h2>{user.followers?.length || 0}</h2>
                   <p>Followers</p>
                 </div>
-                <div onClick={showFollowing}>
+                <div className="show-button" onClick={showFollowing}>
                   <h2>{user.following?.length || 0}</h2>
                   <p>Following</p>
                 </div>
@@ -171,7 +171,7 @@ const ProfilePage = () => {
         <PopupContainer
           fetchRoute={`/api/farmers/followers/${user._id}`}
           setDisplay={setDisplayFollowers}
-          Title={`${user.followers.length} Farmers follows ${user.username}`}
+          type="Follows"
         />
       ) : (
         ""
@@ -180,7 +180,7 @@ const ProfilePage = () => {
         <PopupContainer
           fetchRoute={`/api/farmers/following/${user._id}`}
           setDisplay={setDisplayFollowing}
-          Title={`${user.username} follows to ${user.following.length} Farmers`}
+          type="Following"
         />
       ) : (
         ""
@@ -254,6 +254,9 @@ const Numbers = styled.div`
   }
   p {
     font-size: 1rem;
+  }
+  .show-button {
+    cursor: pointer;
   }
 `;
 

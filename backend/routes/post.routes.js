@@ -18,7 +18,7 @@ router.delete('/:id', isFarmerSignin, deletePost);
 router.patch('/:id/like', isFarmerSignin, likePost)
 router.patch('/:id/unlike', isFarmerSignin, unlikePost)
 router.patch('/:id/comment', isFarmerSignin, comment)
-router.patch('/:id/deleteComment/:commentId', isFarmerSignin, deleteComment)
+router.patch('/:id/comment/:commentId/delete', isFarmerSignin, deleteComment)
 router.patch('/:id/editComment/:commentId', isFarmerSignin, editComment)
 router.patch('/:id/save', isFarmerSignin, savePost)
 router.patch('/:id/unsave', isFarmerSignin, unsavePost)

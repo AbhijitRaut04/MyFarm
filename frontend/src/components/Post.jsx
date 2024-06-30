@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { SessionContext, UserContext } from "../context/Contexts";
 import { toast } from "react-toastify";
 import PopupContainer from "./PopupContainer";
+import CommentsPopup from "./CommentsPopup";
 
 const Post = memo(({ post }) => {
   const [isLiked, setIsLiked] = useState(false);
@@ -14,6 +15,7 @@ const Post = memo(({ post }) => {
   const { farmer } = useContext(SessionContext);
   const { setShowLoginMessage } = useContext(UserContext);
   const [displayLikes, setDisplayLikes] = useState(false);
+  const [displayComments, setDisplayComments] = useState(false);
 
   // console.log(post.likes?.length);
 
@@ -34,10 +36,6 @@ const Post = memo(({ post }) => {
 
   const viewProfile = () => {
     navigate(`/profile/${post.createdBy._id}`);
-  };
-
-  const viewComments = () => {
-    // navigate(`/profile/${post.createdBy.username}`)
   };
 
   const handleLikeClick = () => {
@@ -65,8 +63,8 @@ const Post = memo(({ post }) => {
   };
 
   const handleCommentClick = () => {
-    console.log("Comment button clicked");
-    // Add your functionality here
+    console.log("Comment button clicked", post);
+    setDisplayComments((displayComments) => !displayComments);
   };
 
   const handleBookmarkClick = () => {
@@ -144,6 +142,15 @@ const Post = memo(({ post }) => {
           fetchRoute={`/api/posts/${post._id}/likes`}
           setDisplay={setDisplayLikes}
           type="Liked"
+        />
+      ) : (
+        ""
+      )}
+      {displayComments ? (
+        <CommentsPopup
+          fetchRoute={`/api/posts/${post._id}/comment`}
+          setDisplay={setDisplayComments}
+          type="Commented"
         />
       ) : (
         ""

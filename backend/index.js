@@ -17,20 +17,6 @@ dotenv.config({
     path: './.env'
 })
 const app = express()
-// const server = http.createServer(app);
-// const io = new SokcetIO(server,{
-//     cors: {
-//         origin: ['http://localhost:5173', 'https://agro-star.vercel.app'],
-//         credentials: true
-//     }
-
-// });
-
-// io.on('connection', (socket) => {
-//     console.log('A new user connected', socket.id);
-// })
-
-
 connectDB()
 
 app.use(express.json());
