@@ -46,6 +46,10 @@ const farmerSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Post'
     }],
+    liked:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post'
+    }],
     starredMessages:[{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Message'
