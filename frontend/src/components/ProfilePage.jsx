@@ -11,7 +11,7 @@ const ProfilePage = () => {
   const [loading, setLoding] = useState(true);
   const [user, setUser] = useState();
 
-  const { farmer } = useContext(SessionContext);
+  const { farmer, setCheckout } = useContext(SessionContext);
   console.log("fdsgfd");
   let { id } = useParams();
   console.log(farmer);
@@ -53,14 +53,15 @@ const ProfilePage = () => {
     return () => {
       // setIsCreatePostDisplay(1);
     };
-  }, []);
+  }, [farmer, id]);
 
   const toggleFollow = () => {
     if (!isFollower) {
       axios
-        .post(`/api/farmers/follow/${id}`)
+        .patch(`/api/farmers/follow/${id}`)
         .then((response) => {
           console.log(response);
+          setCheckout((prev) => !prev);
           setIsFollower(true);
         })
         .catch((error) => {
@@ -68,9 +69,10 @@ const ProfilePage = () => {
         });
     } else {
       axios
-        .post(`/api/farmers/unfollow/${id}`)
+        .patch(`/api/farmers/unfollow/${id}`)
         .then((response) => {
           console.log(response);
+          setCheckout((prev) => !prev);
           setIsFollower(false);
         })
         .catch((error) => {
