@@ -9,7 +9,7 @@ const Stores = () => {
 
   useEffect(() => {
     axios
-      .get("/api/shopkeepers/allShopkeepers")
+      .get("/api/shopkeepers")
       .then((response) => {
         setShopkeepers(response.data);
         console.log(response.data);
