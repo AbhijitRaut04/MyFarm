@@ -7,11 +7,16 @@ import { addProductToCart, cancleOrder, createProduct, deleteProduct, deleteRevi
 const router = express.Router();
 
 
-router.post('/createProduct',isShopkeeperSignin, upload.single("productImage"), imageUpload, createProduct)
+router.post('/createProduct',isShopkeeperSignin, upload.array("productImage",5), imageUpload, createProduct)
 router.get('/', getProducts)
 router.get('/myProducts', isShopkeeperSignin, getCurrentShopkeeperProducts)
+router.get('/cart', isFarmerSignin, getCartItems)
+router.patch('/order', isFarmerSignin, placeOrder)
+router.patch('/order/:id/cancle', isFarmerSignin, cancleOrder)
+router.patch('/order/:id/dispatch', isShopkeeperSignin, dispatchOrder)
+router.patch('/order/:id/deliver', isShopkeeperSignin, deliverOrder)
 router.get('/:id', getProduct)
-router.put('/:id', isShopkeeperSignin, upload.single("productImage"), imageUpload, updateProduct)
+router.put('/:id', isShopkeeperSignin, upload.array("productImage",5), imageUpload, updateProduct)
 router.delete('/:id', isShopkeeperSignin, deleteProduct);
 
 router.patch('/:id/rating', isFarmerSignin, ratingProduct);
@@ -22,11 +27,6 @@ router.get('/:id/reviews', getReviews)
 
 router.patch('/:id/addToCart', isFarmerSignin, addProductToCart)
 router.patch('/:id/removeFromCart', isFarmerSignin, removeProductFromCart)
-router.get('/cart', isFarmerSignin, getCartItems)
-router.patch('/order', isFarmerSignin, placeOrder)
-router.patch('/order/:id/cancle', isFarmerSignin, cancleOrder)
-router.patch('/order/:id/dispatch', isShopkeeperSignin, dispatchOrder)
-router.patch('/order/:id/deliver', isShopkeeperSignin, deliverOrder)
 
 
 

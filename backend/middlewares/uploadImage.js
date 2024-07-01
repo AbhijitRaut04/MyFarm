@@ -13,26 +13,54 @@ cloudinary.config({
 
 const imageUpload = async (req, res, next) => {
   try {
-    if (!req.file) { 
-      req.body.imageUrl = ""
-      next(); 
-    }
-    else {
+    if (req.file) {
       const filePath = req.file.path;
       if (!filePath) {
-        req.body.imageUrl = ""
-      }
-      else {
-        const response = await cloudinary.uploader.upload(filePath, { resource_type: "auto" })
-        fs.unlinkSync(filePath)
+        req.body.imageUrl = "";
+      } else {
+        const response = await cloudinary.uploader.upload(filePath, { resource_type: "auto" });
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
         req.body.imageUrl = response.secure_url;
       }
-      next()
+      next();
+    } else if (req.files) {
+      let images = [];
+      const uploadPromises = req.files.map(async file => {
+        const filePath = file.path;
+        if (filePath) {
+          const response = await cloudinary.uploader.upload(filePath, { resource_type: "auto" });
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+          images.push(response.secure_url);
+        }
+      });
+      await Promise.all(uploadPromises);
+      if(images.length == 1) req.body.imageUrl = images[0];
+      else req.body.images = images;
+      next();
+    } else {
+      req.body.imageUrl = "";
+      req.body.images = [];
+      next();
     }
   } catch (error) {
-    if (req.file) fs.unlinkSync(req.file.path) // remove the locally saved temporary file as the upload operation got failed
-    return res.status(500).send({ Error: error.message, message: "Image upload failed"})
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    if (req.files) {
+      req.files.forEach(file => {
+        if (file.path && fs.existsSync(file.path)) {
+          fs.unlinkSync(file.path);
+        }
+      });
+    }
+    return res.status(500).send({ Error: error.message, message: "Image upload failed" });
   }
-}
+};
+
+
 
 export default imageUpload

@@ -7,12 +7,12 @@ const productSchema = new mongoose.Schema({
     },
     description: String,
     price: {
-        type: Number,
+        type: String,
         required: true
     },
-    image: {
+    images: [{
         type: String
-    },
+    }],
     stock: {
         type: Number,
         required: true
@@ -34,8 +34,7 @@ const productSchema = new mongoose.Schema({
         },
         rate: {
             type: String,
-            enum:["1","2","3","4","5"],
-            default:"0"
+            enum:["1","2","3","4","5"]
         }
     }],
     reviews: [{

@@ -13,7 +13,7 @@ const orderSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    amount: {
+    totalAmount: {
         type: Number
     },
     GST: {

@@ -92,22 +92,23 @@ const updateShopkeeper = async (req, res) => {
             return res.status(200).send(shopkeeper);
         }
         else {
-            const shopkeeper = await Shopkeeper.findById(req.farmer._id);
+            const shopkeeper = await Shopkeeper.findById(req.shopkeeper._id);
             if (!shopkeeper) {
                 return res.status(404).send('Farmer not found');
             }
-
-            const hash_pass = await encryptData(password);
-            req.body.password = hash_pass;
+            if(password){
+                const hash_pass = await encryptData(password);
+                req.body.password = hash_pass;
+            }
             let info = {
                 ...req.body,
                 profilePhoto: imageUrl
             }
-            const updatedShopkeeper = await Shopkeeper.findByIdAndUpdate(req.farmer._id, info, { new: true, runValidators: true });
+            const updatedShopkeeper = await Shopkeeper.findByIdAndUpdate(req.shopkeeper._id, info, { new: true, runValidators: true });
             if (!updatedShopkeeper) {
                 return res.status(404).send('Shopkeeper not found');
             }
-            return res.status(200).send(shopkeeper);
+            return res.status(200).send(updatedShopkeeper);
         }
 
     } catch (error) {

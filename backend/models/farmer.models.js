@@ -46,11 +46,11 @@ const farmerSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Post'
     }],
-    liked:[{
+    liked: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Post'
     }],
-    starredMessages:[{
+    starredMessages: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Message'
     }],
@@ -59,10 +59,20 @@ const farmerSchema = new mongoose.Schema({
         ref: 'Order'
     }],
     cart: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'CartItem'
+        product: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Product'
+        },
+        quantity: {
+            type: String
+        },
+        status: {
+            type: String,
+            enum: ['Delivered', 'Cancelled', 'Dispatched', 'Ordered', 'InCart'],
+            required: true
+        }
     }],
-    chats:[{
+    chats: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Chat'
     }]

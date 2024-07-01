@@ -8,13 +8,13 @@ import { getProductsByShopkeeper } from '../controllers/product.controller.js';
 
 const router = express.Router();
 
-router.post('/', validateShopkeeper, upload.single("profilePhoto"), imageUpload, createShopkeeper);
+router.post('/', validateShopkeeper, upload.array("profilePhoto", 1), imageUpload, createShopkeeper);
 router.post('/login', loginShopkeeper);
 router.post('/logout', isShopkeeperSignin, logoutShopkeeper);
 router.get('/myProfile', isShopkeeperSignin, getCurrentShopkeeper);
-router.get('/:id/myProducts', getProductsByShopkeeper);
+// router.get('/:id/myProducts', getProductsByShopkeeper);
 router.get('/', getAllShopkeepers);
-router.put('/update', isShopkeeperSignin, upload.single("profilePhoto"), imageUpload, updateShopkeeper);
+router.put('/update', isShopkeeperSignin, upload.array("profilePhoto",1), imageUpload, updateShopkeeper);
 router.delete('/', isShopkeeperSignin, deleteShopkeeper);
 
 
