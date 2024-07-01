@@ -8,7 +8,7 @@ import { deleteMessage, sendMessage, sendReaction } from '../controllers/message
 
 const app = express();
 
-app.use(cors({ origin: '*' }));
+app.use(cors({ origin: 'http://localhost:5173' }));
 
 connectDB();
 

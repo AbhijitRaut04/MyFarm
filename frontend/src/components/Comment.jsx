@@ -33,7 +33,7 @@ const Comment = ({ fetchRoute, comment }) => {
             <h4>{`${comment.content}`}</h4>
           </CardText>
           </div>
-          { farmer._id == comment.createdBy._id && 
+          { farmer?._id == comment?.createdBy?._id && 
             <Button onClick={deleteComment}>
             <i className="fa-regular fa-trash-can" ></i>
           </Button>
