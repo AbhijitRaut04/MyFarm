@@ -138,14 +138,12 @@ const Post = memo(({ post }) => {
         <h2>{post.title}</h2>
         <p>{post.content}</p>
       </PostDetails>
-      {displayLikes ? (
+      {post && post._id && (
         <PopupContainer
           fetchRoute={`/api/posts/${post._id}/likes`}
-          setDisplay={setDisplayLikes}
+          setDisplay={setDisplayLikes} display={displayLikes}
           type="Liked"
         />
-      ) : (
-        ""
       )}
       { (
         post && post._id &&

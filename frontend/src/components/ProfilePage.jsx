@@ -167,23 +167,19 @@ const ProfilePage = () => {
         ))}
       </PostWrapper>
 
-      {displayFollowers ? (
+      {user && user._id &&  (
         <PopupContainer
           fetchRoute={`/api/farmers/followers/${user._id}`}
-          setDisplay={setDisplayFollowers}
+          setDisplay={setDisplayFollowers} display={displayFollowers}
           type="Follows"
         />
-      ) : (
-        ""
       )}
-      {displayFollowing ? (
+      {user && user._id &&  (
         <PopupContainer
           fetchRoute={`/api/farmers/following/${user._id}`}
-          setDisplay={setDisplayFollowing}
+          setDisplay={setDisplayFollowing} display={displayFollowing}
           type="Following"
         />
-      ) : (
-        ""
       )}
     </ProfilePageWrapper>
   );

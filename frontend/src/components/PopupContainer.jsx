@@ -8,7 +8,7 @@ import FontAwesomeIcon from "react-fontawesome";
 import Loading from "./Loading";
 import { toast } from "react-toastify";
 
-const PopupContainer = ({ fetchRoute, setDisplay, type }) => {
+const PopupContainer = ({ fetchRoute, setDisplay, type, display }) => {
   const [farmers, setFarmers] = useState([]);
   const { farmer } = useContext(SessionContext);
   const [loading, setLoading] = useState(true);
@@ -35,17 +35,17 @@ const PopupContainer = ({ fetchRoute, setDisplay, type }) => {
   }, [farmer]);
 
   return (
-    <ContainerWrapper>
+    <ContainerWrapper $val={display ? 0:-600}>
       {loading ? (
         <Loading />
       ) : (
         <Container $count={farmers?.length || 0}>
-          <h3>
-            {type} by {farmers.length} Farmers
-          </h3>
-          <Cross onClick={toggle}>
-            <FontAwesomeIcon name="fa-solid fa-x" />
-          </Cross>
+          <div className="header">
+              <h3>{type} by {farmers.length} Farmers</h3>
+              <Cross onClick={toggle}>
+                <FontAwesomeIcon name="fa-solid fa-x" />
+              </Cross>
+            </div>
 
           {farmers &&
             farmers.map((farmer) => (
@@ -62,42 +62,57 @@ const PopupContainer = ({ fetchRoute, setDisplay, type }) => {
 export default PopupContainer;
 
 const ContainerWrapper = styled.div`
+  position:fixed;
+  bottom:${props => props.$val + 50}px;
   width: 600px;
-  height: 100vh;
-  background-color: rgba(18, 8, 8, 0.1);
-  backdrop-filter: blur(2px);
+  height: 70vh;
+  // background-color: rgba(18, 8, 8, 0.1);
+  // backdrop-filter: blur(3px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  position: fixed;
-  top: 0;
   left: 50%;
   transform: translateX(-50%);
   margin: 0 auto;
   @media (max-width: 600px) {
+    padding-bottom: 7rem;
     width: 100%;
   }
+    transition: all 0.2s ease-out;
 `;
 
 const Container = styled.div`
   position: relative;
-  background-color: #fff;
-  height: ${(props) => props.$count * 55 + 50}px;
-  width: 400px;
+  background-color: #f2f2f2;
+  // height: ${(props) => props.$count * 55 + 150}px;
+  height:540px;
+  // min-height: 80vh;
+  // max-height: 80vh;
+  overflow-y: auto;
+  width: 80%;
   border-radius: 1rem;
-  padding-top: 1rem;
+  /* padding-top: 1rem; */
   margin: 10rem 2rem;
+  .header {
+    // position: sticky;
+    padding-top: 1rem;
+    // top: 0;
+    background-color: transparent;
+  }
+
   h3 {
-    font-weight: 600;
+    // font-size: 1.5rem;
+    // font-weight: 600;
     text-align: center;
     color: #5a5a5a;
   }
 `;
 const Cross = styled.div`
   position: absolute;
-  top: 12px;
-  right: 12px;
-  font-size: 0.8rem;
+  top: 15px;
+  right: 15px;
+  // font-size: 1.2rem;
+  // font-weight:800;
   cursor: pointer;
 `;
