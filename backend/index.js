@@ -24,7 +24,7 @@ app.use(bodyParser.json({ limit: '50mb' })); // Adjust limit as per your needs
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://agro-star.vercel.app'],
+    origin: '*',
     credentials: true
 }));
 app.use('/api/farmers', farmerRoutes);
